@@ -1,0 +1,510 @@
+import React from 'react';
+import { GisLayer, AppMode } from '../types/gis';
+import { 
+  Layers, Eye, EyeOff, Sliders, Filter, Table, 
+  Trash2, ZoomIn, Palette, Activity, Copy, Flame, MapPin, 
+  Shapes, MoveRight, ChevronDown, ChevronRight, Lock, Unlock, ShieldAlert,
+  Columns, Pencil, Check, X, Info
+} from 'lucide-react';
+
+interface LayerManagerProps {
+  layers: GisLayer[];
+  activeLayerId: string | null;
+  appMode: AppMode;
+  onSelectActiveLayer: (id: string) => void;
+  onToggleVisibility: (id: string) => void;
+  onChangeOpacity: (id: string, opacity: number) => void;
+  onZoomToLayer: (id: string) => void;
+  onOpenStyleModal: (layer: GisLayer) => void;
+  onOpenFilterPanel: (layer: GisLayer) => void;
+  onOpenAttributeTable: (layer: GisLayer) => void;
+  onOpenFieldManager?: (layer: GisLayer) => void;
+  onDuplicateLayer: (id: string) => void;
+  onDeleteLayer: (id: string) => void;
+  onRequireAuth: (callback: () => void) => void;
+  onRenameLayer?: (id: string, newName: string) => void;
+  onUpdateDescription?: (id: string, newDescription: string) => void;
+}
+
+export const LayerManager: React.FC<LayerManagerProps> = ({
+  layers,
+  activeLayerId,
+  appMode,
+  onSelectActiveLayer,
+  onToggleVisibility,
+  onChangeOpacity,
+  onZoomToLayer,
+  onOpenStyleModal,
+  onOpenFilterPanel,
+  onOpenAttributeTable,
+  onOpenFieldManager,
+  onDuplicateLayer,
+  onDeleteLayer,
+  onRequireAuth,
+  onRenameLayer,
+  onUpdateDescription
+}) => {
+  const [expandedLegends, setExpandedLegends] = React.useState<Record<string, boolean>>({});
+  const [editingLayerId, setEditingLayerId] = React.useState<string | null>(null);
+  const [editName, setEditName] = React.useState("");
+  const [editingDescId, setEditingDescId] = React.useState<string | null>(null);
+  const [editDescText, setEditDescText] = React.useState("");
+  const [viewingDescId, setViewingDescId] = React.useState<string | null>(null);
+
+  const toggleLegend = (id: string) => {
+    setExpandedLegends(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const getGeometryIcon = (type: string) => {
+    switch (type) {
+      case 'Point':
+      case 'MultiPoint':
+        return <MapPin className="w-3.5 h-3.5" />;
+      case 'LineString':
+      case 'MultiLineString':
+        return <MoveRight className="w-3.5 h-3.5" />;
+      case 'Polygon':
+      case 'MultiPolygon':
+        return <Shapes className="w-3.5 h-3.5" />;
+      default:
+        return <Layers className="w-3.5 h-3.5" />;
+    }
+  };
+
+  const handleProtectedAction = (action: () => void) => {
+    if (appMode === 'gestor') {
+      action();
+    } else {
+      onRequireAuth(action);
+    }
+  };
+
+  return (
+    <div 
+      id="layer-manager-container"
+      className="flex flex-col h-full bg-slate-900 border-r border-slate-800 text-slate-100 select-none overflow-hidden"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950/80">
+        <div className="flex items-center gap-2">
+          <Layers className="w-4 h-4 text-sky-400" />
+          <span className="font-semibold text-xs uppercase tracking-wider text-slate-200">
+            Tipologia de empreendimentos ({layers.length})
+          </span>
+        </div>
+        {appMode === 'gestor' ? (
+          <span className="text-[10px] px-2 py-0.5 bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-semibold rounded-full flex items-center gap-1">
+            <Unlock className="w-3 h-3 text-emerald-400" />
+            Edição
+          </span>
+        ) : (
+          <button
+            onClick={() => onRequireAuth(() => {})}
+            className="text-[10px] px-2 py-0.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-medium rounded-full flex items-center gap-1 transition-colors"
+            title="Clique para desbloquear modo de edição com senha"
+          >
+            <Lock className="w-3 h-3 text-amber-400" />
+            Consulta
+          </button>
+        )}
+      </div>
+
+      {/* Layer List */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        {layers.length === 0 ? (
+          <div className="p-6 text-center text-slate-500 text-xs space-y-2">
+            <Layers className="w-8 h-8 mx-auto opacity-40 text-slate-400" />
+            <p className="font-medium text-slate-400">Nenhuma camada carregada</p>
+            <p className="text-[11px] text-slate-500">
+              Faça upload de arquivos GeoJSON ou selecione uma das camadas oficiais do Estado de SP.
+            </p>
+          </div>
+        ) : (
+          layers.map((layer) => {
+            const isActive = activeLayerId === layer.id;
+            const hasThematic = layer.thematic && layer.thematic.enabled && layer.thematic.classes.length > 0;
+            const isLegendOpen = expandedLegends[layer.id] ?? true;
+
+            return (
+              <div
+                key={layer.id}
+                id={`layer-card-${layer.id}`}
+                onClick={() => onSelectActiveLayer(layer.id)}
+                className={`group relative hover:z-[100] rounded-xl border transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-slate-800/90 border-sky-500/70 shadow-lg shadow-sky-950/30 z-10'
+                    : 'bg-slate-900/60 border-slate-800 hover:bg-slate-800/40 hover:border-slate-700'
+                }`}
+              >
+                {/* Main Card Header */}
+                <div className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {/* Visibility checkbox */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleVisibility(layer.id);
+                        }}
+                        className={`p-1 rounded-md transition-colors ${
+                          layer.visible
+                            ? 'text-sky-400 hover:bg-sky-500/10'
+                            : 'text-slate-500 hover:bg-slate-800'
+                        }`}
+                        title={layer.visible ? 'Ocultar camada' : 'Exibir camada'}
+                      >
+                        {layer.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                      </button>
+
+                      {/* Color marker dot */}
+                      <div
+                        className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-xs"
+                        style={{ backgroundColor: layer.style.fillColor }}
+                      />
+
+                      {/* Name & Type */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          {editingLayerId === layer.id ? (
+                            <div className="flex items-center gap-1 w-full" onClick={(e) => e.stopPropagation()}>
+                              <input
+                                autoFocus
+                                type="text"
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    if (editName.trim() && onRenameLayer) {
+                                      onRenameLayer(layer.id, editName.trim());
+                                    }
+                                    setEditingLayerId(null);
+                                  } else if (e.key === 'Escape') {
+                                    setEditingLayerId(null);
+                                  }
+                                }}
+                                className="w-[100px] bg-slate-900 border border-sky-500 rounded px-1 text-xs text-white focus:outline-none"
+                              />
+                              <button onClick={() => {
+                                if (editName.trim() && onRenameLayer) onRenameLayer(layer.id, editName.trim());
+                                setEditingLayerId(null);
+                              }} className="text-emerald-400 hover:text-emerald-300"><Check className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => setEditingLayerId(null)} className="text-slate-400 hover:text-slate-200"><X className="w-3.5 h-3.5" /></button>
+                            </div>
+                          ) : (
+                            <>
+                              <h4 className="font-semibold text-xs text-white truncate max-w-[130px]" title={layer.name}>
+                                {layer.name}
+                              </h4>
+                              {onRenameLayer && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingLayerId(layer.id);
+                                    setEditName(layer.name);
+                                  }}
+                                  className="text-slate-500 hover:text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  title="Renomear Camada"
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </button>
+                              )}
+                              
+                              <button 
+                                type="button"
+                                className="relative ml-0.5 flex items-center cursor-pointer p-1 hover:bg-slate-800 rounded transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setViewingDescId(layer.id);
+                                }}
+                                title="Ver descrição da camada"
+                              >
+                                <Info className={`w-3.5 h-3.5 ${layer.description ? 'text-sky-400' : 'text-slate-600'} transition-colors`} />
+                              </button>
+                              
+                              {viewingDescId === layer.id && (
+                                <div 
+                                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setViewingDescId(null);
+                                  }}
+                                >
+                                  <div 
+                                    className="bg-slate-900 border border-slate-800 rounded-xl p-5 w-[400px] max-w-[90vw] shadow-2xl flex flex-col gap-4"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                                      <h3 className="text-white font-semibold text-sm flex items-center gap-2 truncate pr-2" title={layer.name}>
+                                        <Info className="w-4 h-4 text-sky-400 shrink-0" />
+                                        <span className="truncate">{layer.name}</span>
+                                      </h3>
+                                      <button 
+                                        onClick={() => setViewingDescId(null)}
+                                        className="text-slate-400 hover:text-slate-200 transition-colors"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                    <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
+                                      {layer.description ? layer.description : <span className="text-slate-500 italic">Esta camada não possui descrição.</span>}
+                                    </div>
+                                    <div className="flex items-center justify-end mt-2 pt-3 border-t border-slate-800">
+                                      <button 
+                                        type="button"
+                                        onClick={() => setViewingDescId(null)}
+                                        className="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
+                                      >
+                                        Fechar
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {appMode === 'gestor' && onUpdateDescription && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingDescId(layer.id);
+                                    setEditDescText(layer.description || '');
+                                  }}
+                                  className="text-slate-500 hover:text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1"
+                                  title="Editar Descrição"
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </button>
+                              )}
+                              
+                              {editingDescId === layer.id && (
+                                <div 
+                                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingDescId(null);
+                                  }}
+                                >
+                                  <div 
+                                    className="bg-slate-900 border border-slate-800 rounded-xl p-4 w-[350px] shadow-2xl flex flex-col gap-3"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <h3 className="text-white font-semibold text-sm">Editar Descrição da Camada</h3>
+                                    <textarea
+                                      autoFocus
+                                      value={editDescText}
+                                      onChange={(e) => setEditDescText(e.target.value)}
+                                      placeholder="Adicione uma descrição para esta camada..."
+                                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-slate-200 focus:border-sky-500 focus:outline-none min-h-[100px] resize-none"
+                                    />
+                                    <div className="flex items-center justify-end gap-2 mt-2">
+                                      <button 
+                                        type="button"
+                                        onClick={() => setEditingDescId(null)}
+                                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-300 hover:bg-slate-800 transition-colors"
+                                      >
+                                        Cancelar
+                                      </button>
+                                      <button 
+                                        type="button"
+                                        onClick={() => {
+                                          if (onUpdateDescription) {
+                                            onUpdateDescription(layer.id, editDescText.trim());
+                                          }
+                                          setEditingDescId(null);
+                                        }}
+                                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/50 hover:bg-sky-500/30 transition-colors"
+                                      >
+                                        Salvar
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
+                          {layer.isRealtime && (
+                            <span className="flex items-center gap-1 px-1.5 py-0.2 bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-full text-[9px] font-semibold animate-pulse">
+                              <Activity className="w-2.5 h-2.5" />
+                              LIVE
+                            </span>
+                          )}
+                          {layer.isHeatmap && (
+                            <span className="p-0.5 bg-amber-500/20 text-amber-300 rounded text-[9px]" title="Heatmap">
+                              <Flame className="w-3 h-3" />
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                          <span className="flex items-center gap-1">
+                            {getGeometryIcon(layer.geometryType)}
+                            {layer.geometryType}
+                          </span>
+                          <span>•</span>
+                          <span className="font-mono text-emerald-400">
+                            {layer.filteredCount}{' '}
+                            {layer.filteredCount !== layer.featureCount && (
+                              <span className="text-slate-500">/ {layer.featureCount}</span>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Opacity Slider */}
+                  <div className="mt-3 flex items-center gap-2 px-1">
+                    <span className="text-[10px] text-slate-400 w-12">Opacidade:</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={layer.opacity}
+                      onChange={(e) => onChangeOpacity(layer.id, parseFloat(e.target.value))}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full accent-sky-500 h-1 bg-slate-700 rounded-lg cursor-pointer"
+                    />
+                    <span className="text-[10px] font-mono text-slate-300 w-7 text-right">
+                      {Math.round(layer.opacity * 100)}%
+                    </span>
+                  </div>
+
+                  {/* Action Buttons Toolbar */}
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      {appMode === 'gestor' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleProtectedAction(() => onOpenStyleModal(layer));
+                          }}
+                          className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs flex items-center gap-1 transition-colors"
+                          title="Estilizar Camada / Cores"
+                        >
+                          <Palette className="w-3 h-3 text-sky-400" />
+                          <span className="text-[10px] hidden sm:inline">Estilo</span>
+                        </button>
+                      )}
+
+                      {appMode === 'gestor' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenFilterPanel(layer);
+                          }}
+                          className={`p-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors ${
+                            layer.filters.some(f => f.active) || layer.spatialFilter?.enabled
+                              ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40'
+                              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
+                          }`}
+                          title="Filtros Avançados"
+                        >
+                          <Filter className="w-3 h-3 text-indigo-400" />
+                          <span className="text-[10px] hidden sm:inline">Filtros</span>
+                          {layer.filters.filter(f => f.active).length > 0 && (
+                            <span className="px-1 py-0.1 bg-indigo-500 text-[9px] text-white rounded-full font-mono">
+                              {layer.filters.filter(f => f.active).length}
+                            </span>
+                          )}
+                        </button>
+                      )}
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenAttributeTable(layer);
+                        }}
+                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs flex items-center gap-1 transition-colors"
+                        title="Ver Tabela de Atributos"
+                      >
+                        <Table className="w-3 h-3 text-emerald-400" />
+                        <span className="text-[10px] hidden sm:inline">Tabela</span>
+                      </button>
+
+                      {appMode === 'gestor' && onOpenFieldManager && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenFieldManager(layer);
+                          }}
+                          className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs flex items-center gap-1 transition-colors"
+                          title="Gerenciar, renomear e excluir campos da camada"
+                        >
+                          <Columns className="w-3 h-3 text-sky-400" />
+                          <span className="text-[10px] hidden sm:inline">Campos</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleProtectedAction(() => onDuplicateLayer(layer.id));
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-700/60 rounded-md transition-colors"
+                        title={appMode === 'gestor' ? "Duplicar camada" : "Requer senha de gestor"}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleProtectedAction(() => onDeleteLayer(layer.id));
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors"
+                        title={appMode === 'gestor' ? "Excluir camada" : "Requer senha de gestor"}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Thematic Legend Dropdown Preview */}
+                {hasThematic && layer.thematic && (
+                  <div className="border-t border-slate-800/80 bg-slate-950/40 p-2.5 rounded-b-xl">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLegend(layer.id);
+                      }}
+                      className="w-full flex items-center justify-between text-[11px] text-slate-400 hover:text-slate-200 mb-1"
+                    >
+                      <span className="font-semibold text-slate-300">
+                        Legenda: {layer.thematic.property}
+                      </span>
+                      {isLegendOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                    </button>
+
+                    {isLegendOpen && (
+                      <div className="space-y-1 pt-1 max-h-32 overflow-y-auto">
+                        {layer.thematic.classes.map((cls, cIdx) => (
+                          <div key={cIdx} className="flex items-center justify-between text-[10px]">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="w-3 h-3 rounded-xs border border-white/20 shrink-0"
+                                style={{ backgroundColor: cls.color }}
+                              />
+                              <span className="text-slate-300 truncate max-w-[150px]">{cls.label}</span>
+                            </div>
+                            {cls.count !== undefined && (
+                              <span className="text-slate-500 font-mono">{cls.count}</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};
