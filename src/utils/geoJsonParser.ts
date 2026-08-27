@@ -38,27 +38,60 @@ export function matchSmartSearch(target: any, query: string): boolean {
   return false;
 }
 
+const yearCache = new WeakMap<object, number | null>();
+
 /**
- * Extrai um ano razoável de diversas variações de atributos do GeoJSON
+ * Extrai um ano razoável de diversas variações de atributos do GeoJSON com altíssimo desempenho e cache
  */
 export function extractYearFromProperties(props: any): number | null {
-  if (!props) return null;
+  if (!props || typeof props !== 'object') return null;
   
-  // 1. Procurar nas chaves conhecidas (substrings)
+  if (yearCache.has(props)) {
+    return yearCache.get(props) ?? null;
+  }
+
+  // 1. Checagem direta rápida dos campos mais comuns (O(1))
+  const directFields = [
+    'ANO ENTRADA', 'ANO', 'ano', 'Ano', 'ano_entrada', 'ANO_ENTRADA',
+    'DATA DE ENTRADA', 'DATA DO CERTIFICADO', 'data', 'DATA', 'Data',
+    'EXPEDIENTE DISPENSA', 'PROTOCOLO', 'expediente_dispensa', 'protocolo'
+  ];
+
+  for (const field of directFields) {
+    const val = props[field];
+    if (val !== undefined && val !== null && val !== '') {
+      if (typeof val === 'number' && val >= 1900 && val <= 2100) {
+        yearCache.set(props, val);
+        return val;
+      }
+      const str = String(val);
+      const match = str.match(/(?:^|[^\d])(19\d{2}|20\d{2})(?:[^\d]|$)/);
+      if (match) {
+        const parsed = parseInt(match[1], 10);
+        yearCache.set(props, parsed);
+        return parsed;
+      }
+    }
+  }
+  
+  // 2. Procurar nas demais chaves como fallback
   for (const key of Object.keys(props)) {
     const lowerKey = key.toLowerCase();
     if (lowerKey.includes('ano') || lowerKey.includes('data') || lowerKey.includes('protocolo') || lowerKey.includes('processo') || lowerKey.includes('entrada') || lowerKey.includes('expediente')) {
        const val = props[key];
        if (val !== undefined && val !== null && val !== '') {
          const str = String(val);
-         // Procura um ano com 4 digitos delimitado por nao-digitos ou pelo inicio/fim da string
          const match = str.match(/(?:^|[^\d])(19\d{2}|20\d{2})(?:[^\d]|$)/);
          if (match) {
-           return parseInt(match[1], 10);
+           const parsed = parseInt(match[1], 10);
+           yearCache.set(props, parsed);
+           return parsed;
          }
        }
     }
   }
+
+  yearCache.set(props, null);
   return null;
 }
 

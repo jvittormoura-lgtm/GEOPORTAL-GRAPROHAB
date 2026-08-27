@@ -243,28 +243,42 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
 
             {/* Ano Range Slider Toggle & Content */}
             {globalAnoRange && (
-              <div className={`relative flex flex-col sm:flex-row items-center gap-3 transition-all ${showAnoFilter ? 'flex-[1.5] min-w-[180px]' : ''}`}>
+              <div className="relative z-50 flex items-center">
                 <button
-                  onClick={() => {
-                    setShowAnoFilter(!showAnoFilter);
-                    if (showAnoFilter && anoFilter) {
-                      onFilterChange(municipioFilter, empreendedorFilter, protocoloFilter, dispensaFilter, null);
-                    }
-                  }}
-                  className={`p-2 rounded-xl h-[30px] w-[30px] flex items-center justify-center shrink-0 self-end sm:self-start sm:mt-[2px] transition-colors border shadow-inner ${showAnoFilter || anoFilter ? 'bg-sky-500/20 border-sky-500 text-sky-400' : 'bg-slate-950/90 border-slate-700/80 text-slate-400 hover:text-white'}`}
+                  type="button"
+                  onClick={() => setShowAnoFilter(!showAnoFilter)}
+                  className={`px-2.5 py-1.5 rounded-xl h-[30px] flex items-center gap-1.5 shrink-0 transition-all border shadow-inner text-xs ${
+                    anoFilter
+                      ? 'bg-sky-500/20 border-sky-500 text-sky-300 font-semibold'
+                      : showAnoFilter
+                      ? 'bg-slate-800 border-slate-600 text-white'
+                      : 'bg-slate-950/90 border-slate-700/80 text-slate-300 hover:text-white hover:border-slate-600'
+                  }`}
                   title="Filtro por Ano de Entrada"
                 >
-                  <Calendar className="w-4 h-4" />
+                  <Calendar className="w-3.5 h-3.5 text-sky-400" />
+                  <span>
+                    {anoFilter ? `${anoFilter[0]}–${anoFilter[1]}` : 'Ano'}
+                  </span>
                 </button>
+
                 {showAnoFilter && (
-                  <div className="relative flex-1 w-full z-50 flex flex-col items-center">
-                    <DualRangeSlider
-                      min={globalAnoRange[0]}
-                      max={globalAnoRange[1]}
-                      value={anoFilter}
-                      onChange={(value) => onFilterChange(municipioFilter, empreendedorFilter, protocoloFilter, dispensaFilter, value)}
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40 bg-transparent" 
+                      onClick={() => setShowAnoFilter(false)} 
                     />
-                  </div>
+                    <div className="absolute top-full left-0 sm:left-auto sm:right-0 mt-2 w-[290px] sm:w-[320px] z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <DualRangeSlider
+                        min={globalAnoRange[0]}
+                        max={globalAnoRange[1]}
+                        value={anoFilter}
+                        onChange={(value) => {
+                          onFilterChange(municipioFilter, empreendedorFilter, protocoloFilter, dispensaFilter, value);
+                        }}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
             )}

@@ -1,107 +1,158 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { RotateCcw, Calendar } from 'lucide-react';
 
 interface DualRangeSliderProps {
   min: number;
   max: number;
   value: [number, number] | null;
-  onChange: (value: [number, number]) => void;
+  onChange: (value: [number, number] | null) => void;
 }
 
 export const DualRangeSlider: React.FC<DualRangeSliderProps> = ({ min, max, value, onChange }) => {
-  const [minVal, setMinVal] = useState(value ? value[0] : min);
-  const [maxVal, setMaxVal] = useState(value ? value[1] : max);
-  const minValRef = useRef(minVal);
-  const maxValRef = useRef(maxVal);
+  const [minVal, setMinVal] = useState<number>(value ? value[0] : min);
+  const [maxVal, setMaxVal] = useState<number>(value ? value[1] : max);
 
+  // Sync with incoming prop changes
   useEffect(() => {
-    if (value) {
-      setMinVal(value[0]);
-      setMaxVal(value[1]);
-      minValRef.current = value[0];
-      maxValRef.current = value[1];
-    } else {
-      setMinVal(min);
-      setMaxVal(max);
-      minValRef.current = min;
-      maxValRef.current = max;
-    }
+    const newMin = value ? value[0] : min;
+    const newMax = value ? value[1] : max;
+    setMinVal(newMin);
+    setMaxVal(newMax);
   }, [value, min, max]);
 
-  const handleMinChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.min(Number(event.target.value), maxVal);
-    setMinVal(value);
-    minValRef.current = value;
-    onChange([value, maxVal]);
+  const setExactRange = (newMin: number, newMax: number) => {
+    const clampedMin = Math.max(min, Math.min(newMin, max));
+    const clampedMax = Math.max(clampedMin, Math.min(newMax, max));
+    setMinVal(clampedMin);
+    setMaxVal(clampedMax);
+    onChange([clampedMin, clampedMax]);
   };
 
-  const handleMaxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.max(Number(event.target.value), minVal);
-    setMaxVal(value);
-    maxValRef.current = value;
-    onChange([minVal, value]);
+  const handleReset = () => {
+    setMinVal(min);
+    setMaxVal(max);
+    onChange([min, max]);
   };
 
-  const getPercent = (value: number) => {
-    if (min === max) return 100;
-    return Math.round(((value - min) / (max - min)) * 100);
-  };
+  // Generate list of available years for quick dropdown
+  const yearOptions: number[] = [];
+  for (let y = min; y <= max; y++) {
+    yearOptions.push(y);
+  }
+
+  const isFullRange = minVal === min && maxVal === max;
 
   return (
-    <div className="relative w-full flex flex-col items-center">
-      <div className="flex justify-between w-full text-[10px] text-slate-400 mb-1 px-1">
-        <span className="bg-slate-800 px-1.5 py-0.5 rounded text-sky-400 font-mono font-bold">{minVal}</span>
-        <span className="text-[9px] text-slate-500 uppercase">Ano de Entrada</span>
-        <span className="bg-slate-800 px-1.5 py-0.5 rounded text-sky-400 font-mono font-bold">{maxVal}</span>
+    <div className="w-full bg-slate-900/98 border border-slate-700/90 rounded-xl p-3 shadow-2xl flex flex-col gap-2.5 backdrop-blur-md">
+      {/* Top Header: Title & Reset button */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 text-xs text-sky-400 font-semibold">
+          <Calendar className="w-4 h-4 text-sky-400" />
+          <span>Filtrar por Ano</span>
+        </div>
+
+        {!isFullRange && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors border border-slate-700/80 cursor-pointer"
+            title="Redefinir para todos os anos"
+          >
+            <RotateCcw className="w-2.5 h-2.5 text-sky-400" />
+            <span>Todos</span>
+          </button>
+        )}
       </div>
-      <div className="relative w-full h-4 flex items-center">
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={minVal}
-          onChange={handleMinChange}
-          className={`absolute w-full h-1 appearance-none pointer-events-none bg-transparent ${minVal === maxVal && minVal === max ? 'z-40' : 'z-20'}`}
-          style={{ WebkitAppearance: 'none' }}
-        />
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={maxVal}
-          onChange={handleMaxChange}
-          className={`absolute w-full h-1 appearance-none pointer-events-none bg-transparent ${minVal === maxVal && minVal === min ? 'z-40' : 'z-30'}`}
-          style={{ WebkitAppearance: 'none' }}
-        />
-        <div className="absolute left-0 right-0 h-1 bg-slate-700/80 rounded-full z-10" />
-        <div
-          className="absolute h-1 bg-sky-500 rounded-full z-10"
-          style={{
-            left: `${getPercent(minVal)}%`,
-            width: `${getPercent(maxVal) - getPercent(minVal)}%`
-          }}
-        />
+
+      {/* Direct Dropdowns: De [Ano] até [Ano] */}
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        {/* De */}
+        <div className="flex items-center gap-1.5 bg-slate-950/90 border border-slate-750 rounded-lg px-2.5 py-1.5 focus-within:border-sky-500 transition-colors">
+          <span className="text-[11px] text-slate-400 font-medium">De:</span>
+          <select
+            value={minVal}
+            onChange={(e) => setExactRange(Number(e.target.value), maxVal)}
+            className="w-full bg-transparent text-xs text-sky-400 font-mono font-bold focus:outline-none cursor-pointer"
+          >
+            {yearOptions.map(y => (
+              <option key={y} value={y} className="bg-slate-900 text-white font-mono">
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Até */}
+        <div className="flex items-center gap-1.5 bg-slate-950/90 border border-slate-750 rounded-lg px-2.5 py-1.5 focus-within:border-sky-500 transition-colors">
+          <span className="text-[11px] text-slate-400 font-medium">Até:</span>
+          <select
+            value={maxVal}
+            onChange={(e) => setExactRange(minVal, Number(e.target.value))}
+            className="w-full bg-transparent text-xs text-sky-400 font-mono font-bold focus:outline-none cursor-pointer"
+          >
+            {yearOptions.map(y => (
+              <option key={y} value={y} className="bg-slate-900 text-white font-mono">
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      <style dangerouslySetInnerHTML={{__html: `
-        input[type=range]::-webkit-slider-thumb {
-          pointer-events: auto;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          -webkit-appearance: none;
-          background: #38bdf8;
-          border: 2px solid #0f172a;
-          cursor: pointer;
-        }
-        input[type=range]::-moz-range-thumb {
-          pointer-events: auto;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: #38bdf8;
-          border: 2px solid #0f172a;
-          cursor: pointer;
-        }
-      `}} />
+
+      {/* Quick Preset Buttons for 1-Click Filtering */}
+      <div className="flex flex-wrap items-center gap-1 pt-1.5 border-t border-slate-800">
+        <span className="text-[9px] text-slate-500 uppercase font-semibold mr-1">Atalhos:</span>
+        <button
+          type="button"
+          onClick={() => setExactRange(min, max)}
+          className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer ${
+            isFullRange
+              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/50'
+              : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/60'
+          }`}
+        >
+          Todos ({min}–{max})
+        </button>
+        {max >= 2026 && (
+          <button
+            type="button"
+            onClick={() => setExactRange(2026, 2026)}
+            className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer ${
+              minVal === 2026 && maxVal === 2026
+                ? 'bg-sky-500/20 text-sky-300 border border-sky-500/50'
+                : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/60'
+            }`}
+          >
+            2026
+          </button>
+        )}
+        {max >= 2024 && (
+          <button
+            type="button"
+            onClick={() => setExactRange(2024, max)}
+            className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer ${
+              minVal === 2024 && maxVal === max
+                ? 'bg-sky-500/20 text-sky-300 border border-sky-500/50'
+                : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/60'
+            }`}
+          >
+            2024–{max}
+          </button>
+        )}
+        {max - 5 >= min && (
+          <button
+            type="button"
+            onClick={() => setExactRange(max - 5, max)}
+            className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer ${
+              minVal === max - 5 && maxVal === max
+                ? 'bg-sky-500/20 text-sky-300 border border-sky-500/50'
+                : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/60'
+            }`}
+          >
+            Últimos 5 anos
+          </button>
+        )}
+      </div>
     </div>
   );
 };
