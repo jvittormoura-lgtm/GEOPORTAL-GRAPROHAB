@@ -65,6 +65,44 @@
   color: #ffffff !important;
 }
 
+/* Light Theme Popup Overrides */
+.custom-gis-popup .leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: none !important;
+  border-radius: 4px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.custom-gis-popup .leaflet-popup-tip {
+  background: #ffffff !important;
+  border: none !important;
+}
+
+.custom-gis-popup .leaflet-popup-close-button {
+  color: #94a3b8 !important;
+  padding: 6px !important;
+}
+
+.custom-gis-popup .leaflet-popup-close-button:hover {
+  color: #0f172a !important;
+}
+
+/* Custom scrollbar for light popup */
+.custom-gis-popup-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-gis-popup-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.custom-gis-popup-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.custom-gis-popup-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 .leaflet-control-zoom {
   border: 1px solid rgba(51, 65, 85, 0.6) !important;
   border-radius: 10px !important;

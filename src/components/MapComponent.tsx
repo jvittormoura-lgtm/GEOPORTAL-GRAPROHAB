@@ -214,48 +214,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   const createPopupContent = useCallback((feature: GeoJSON.Feature, layer: GisLayer, featureIndex: number): string => {
     const props = feature.properties || {};
     const geomType = feature.geometry?.type || 'Geometria';
-    
-    // Calculate geometric metrics
-    let geomMetric = '';
-    if (geomType === 'Polygon' || geomType === 'MultiPolygon') {
-      const areaM2 = calculateFeatureArea(feature);
-      if (areaM2 > 0) {
-        const ha = (areaM2 / 10000).toLocaleString('pt-BR', { maximumFractionDigits: 2 });
-        const m2Formatted = areaM2.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
-        geomMetric = `
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid rgba(51, 65, 85, 0.5);">
-            <span style="color: #94a3b8; font-size: 11px;">Área Calculada:</span>
-            <span style="color: #38bdf8; font-weight: 700; font-size: 11px;">
-              ${ha} ha <span style="color: #64748b; font-weight: 400; font-size: 10px;">(${m2Formatted} m²)</span>
-            </span>
-          </div>
-        `;
-      }
-    }
-
-    // Extract key metrics: UH and Gleba Area
-    const uhCount = extractUhFromProperties(props);
-    const glebaAreaM2 = extractAreaM2FromProperties(props, feature);
-    let keyMetricsHtml = '';
-
-    if (uhCount > 0 || glebaAreaM2 > 0) {
-      keyMetricsHtml = `
-        <div style="display: flex; gap: 6px; padding: 6px 12px; background: #070d1d; border-bottom: 1px solid #1e293b;">
-          ${uhCount > 0 ? `
-            <div style="flex: 1; padding: 4px 6px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px;">
-              <div style="font-size: 9px; color: #94a3b8; text-transform: uppercase;">Lotes / UH</div>
-              <div style="font-size: 11px; font-weight: 800; color: #38bdf8; font-family: monospace;">${uhCount.toLocaleString('pt-BR')} UH</div>
-            </div>
-          ` : ''}
-          ${glebaAreaM2 > 0 ? `
-            <div style="flex: 1; padding: 4px 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px;">
-              <div style="font-size: 9px; color: #94a3b8; text-transform: uppercase;">Área da Gleba</div>
-              <div style="font-size: 11px; font-weight: 800; color: #34d399; font-family: monospace;">${(glebaAreaM2 / 10000).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ha <span style="font-size: 9px; font-weight: 400; color: #64748b;">(${glebaAreaM2.toLocaleString('pt-BR')} m²)</span></div>
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }
 
     const isGraprohab = !!(props.processo_graprohab || props.nome_empreendimento);
     
@@ -300,11 +258,11 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     orderedKeys.forEach((key) => {
       if (!(key in props)) return;
       const val = props[key];
-      const displayVal = val !== null && val !== undefined ? String(val) : '<span style="color: #64748b; font-style: italic;">null</span>';
+      const displayVal = val !== null && val !== undefined ? String(val) : '-';
       rowsHtml += `
-        <tr style="border-bottom: 1px solid rgba(51, 65, 85, 0.35);">
-          <td style="padding: 4px 8px; font-weight: 600; color: #94a3b8; font-size: 11px; white-space: nowrap; vertical-align: top; background: rgba(15, 23, 42, 0.4); width: 35%;">${key}</td>
-          <td style="padding: 4px 8px; color: #f1f5f9; font-size: 11px; word-break: break-word; font-family: monospace;">${displayVal}</td>
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 10px 8px 10px 0; font-weight: 600; color: #64748b; font-size: 11px; white-space: nowrap; vertical-align: top; width: 35%; text-transform: uppercase;">${key}:</td>
+          <td style="padding: 10px 0; color: #1e293b; font-size: 11px; font-weight: 600; word-break: break-word;">${displayVal}</td>
         </tr>
       `;
     });
@@ -328,60 +286,54 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     }
 
     return `
-      <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; min-width: 270px; max-width: 350px; color: #f1f5f9; background: #0b1329; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b;">
+      <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; min-width: 290px; max-width: 360px; color: #1e293b; background: #ffffff; border-radius: 4px; overflow: hidden;">
+        
         <!-- Header -->
-        <div style="padding: 10px 12px; background: #0f172a; border-bottom: 1px solid #1e293b;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 6px;">
-            <span style="font-size: 10px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <div style="padding: 16px 16px 8px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; gap: 6px;">
+            <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.3;">
               ${layer.name}
-            </span>
-            <div style="display: flex; align-items: center; gap: 4px; shrink-0;">
-              ${statusBadge}
-              <span style="font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px; background: #1e293b; color: #cbd5e1;">
-                ${geomType}
-              </span>
             </div>
+            ${statusBadge ? `<div>${statusBadge}</div>` : ''}
           </div>
-          <div style="font-size: 13px; font-weight: 700; color: #ffffff; line-height: 1.3;">
+          <div style="font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.2;">
             ${title}
           </div>
-          ${props.municipio ? `<div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">📍 ${props.municipio}</div>` : ''}
+          ${props.municipio ? `<div style="font-size: 11px; color: #64748b; margin-top: 2px;">📍 ${props.municipio}</div>` : ''}
         </div>
-
-        <!-- Metric -->
-        ${geomMetric ? `<div style="padding: 4px 12px; background: #070c18; border-bottom: 1px solid #1e293b;">${geomMetric}</div>` : ''}
+        
+        <!-- Red Line -->
+        <div style="height: 2px; background-color: #ef4444; margin: 0 16px 8px 16px;"></div>
 
         <!-- Attributes Table List -->
-        <div style="max-height: 180px; overflow-y: auto; padding: 2px 0; background: #090e1d;">
+        <div class="custom-gis-popup-scroll" style="max-height: 240px; overflow-y: auto; padding: 0 16px;">
           <table style="width: 100%; border-collapse: collapse;">
             <tbody>
-              ${rowsHtml || '<tr><td style="padding: 12px; color: #64748b; font-size: 11px; text-align: center;">Sem atributos nesta feição</td></tr>'}
+              ${rowsHtml || '<tr><td style="padding: 16px; color: #94a3b8; font-size: 12px; text-align: center;">Sem atributos</td></tr>'}
             </tbody>
           </table>
         </div>
-
-        <!-- Action Buttons in Popup -->
-        <div style="padding: 8px 10px; background: #0a0f1d; border-top: 1px solid #1e293b; display: flex; flex-direction: column; gap: 5px;">
-          <button onclick="window.__gis_open_feature_inspector('${layer.id}', ${featureIndex})" style="width: 100%; padding: 7px 10px; background: #0284c7; color: #ffffff; border: none; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-            ✏️ Editar Campos & Valores
-          </button>
-          ${isGraprohab ? `
-            <button onclick="window.__gis_open_detail('${featEncoded}')" style="width: 100%; padding: 5px 10px; background: #1e293b; color: #38bdf8; border: 1px solid #334155; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
-              📄 Ficha Técnica Habitacional
-            </button>
-          ` : ''}
-          <div style="display: flex; gap: 5px;">
-            <button onclick="window.__gis_open_field_manager('${layer.id}')" style="flex: 1; padding: 5px 6px; background: #1e293b; color: #38bdf8; border: 1px solid #334155; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center;">
+        
+        <!-- Footer / Copy Button (optional but useful) -->
+        <div style="padding: 12px 16px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 10px; color: #94a3b8; text-align: center;">
+            Visualização fiel do balão de informações ao clicar na feição no mapa
+          </div>
+          <div style="display: flex; gap: 5px; justify-content: center;">
+            ${isGraprohab ? `
+              <button onclick="window.__gis_open_detail('${featEncoded}')" style="flex: 1; padding: 5px 6px; background: #ffffff; color: #38bdf8; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                📄 Ficha
+              </button>
+            ` : ''}
+            <button onclick="window.__gis_open_field_manager('${layer.id}')" style="flex: 1; padding: 5px 6px; background: #ffffff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
               ⚙️ Colunas
             </button>
-            <button onclick="window.__gis_open_attr_table('${layer.id}')" style="flex: 1; padding: 5px 6px; background: #1e293b; color: #34d399; border: 1px solid #334155; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center;">
-              📊 Tabela
-            </button>
-            <button onclick="window.__gis_copy_props('${propsEncoded}')" style="flex: 1; padding: 5px 6px; background: #1e293b; color: #94a3b8; border: 1px solid #334155; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center;">
+            <button onclick="window.__gis_copy_props('${propsEncoded}')" style="flex: 1; padding: 5px 6px; background: #ffffff; color: #64748b; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
               📋 Copiar
             </button>
           </div>
         </div>
+
       </div>
     `;
   }, []);
@@ -459,15 +411,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
             });
           }
 
-          // Feature click handler
-          leafletLayer.on('click', (e: L.LeafletMouseEvent) => {
-            if (onFeatureClick) {
-              onFeatureClick(feature, layer.id, featureIndex);
-            }
-            if (onOpenFeatureInspector) {
-              onOpenFeatureInspector(feature, layer.id, featureIndex);
-            }
-          });
+          // Feature click handler (removed so it only opens the default Leaflet balloon popup)
         }
       };
       const geoJsonLayer = L.geoJSON(filteredCollection, geoJsonOptions);
