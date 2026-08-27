@@ -1,8 +1,52 @@
 {
   "camadas_fixas": [
     {
-      "nome": "Exemplo de Camada",
-      "arquivo": "/data/exemplo.geojson"
+      "nome": "Condominios Protocolados",
+      "arquivo": "data/condominios_protocolados.geojson",
+      "visivel": true,
+      "opacity": 1,
+      "estilo": {
+        "fillColor": "#8b5cf6",
+        "strokeColor": "#8b5cf6",
+        "strokeWidth": 2,
+        "fillOpacity": 0.45,
+        "strokeOpacity": 0.9,
+        "pointRadius": 7,
+        "pointShape": "circle",
+        "smoothFactor": 2
+      }
+    },
+    {
+      "nome": "Condominios Dispensados",
+      "arquivo": "data/condominios_dispensados.geojson",
+      "visivel": true,
+      "opacity": 1,
+      "estilo": {
+        "fillColor": "#10b981",
+        "strokeColor": "#059669",
+        "strokeWidth": 2,
+        "fillOpacity": 0.45,
+        "strokeOpacity": 0.9,
+        "pointRadius": 7,
+        "pointShape": "circle",
+        "smoothFactor": 2
+      }
+    },
+    {
+      "nome": "Loteamentos e Cj. Habitacionais",
+      "arquivo": "data/loteamentos_e_cj_habitacionais.geojson",
+      "visivel": true,
+      "opacity": 1,
+      "estilo": {
+        "fillColor": "#ef4444",
+        "strokeColor": "#ef4444",
+        "strokeWidth": 2,
+        "fillOpacity": 0.45,
+        "strokeOpacity": 0.9,
+        "pointRadius": 7,
+        "pointShape": "circle",
+        "smoothFactor": 3
+      }
     }
   ]
 }
