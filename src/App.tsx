@@ -171,23 +171,28 @@ export default function App() {
                 try {
                   const dataRes = await fetch(fileUrl);
                   if (dataRes.ok) {
-                    const geojson = await dataRes.json();
-                    if (geojson && (geojson.type === 'FeatureCollection' || geojson.features)) {
-                      const lyr = createLayerFromGeoJson(item.nome || `Camada ${i + 1}`, geojson);
-                      if (item.visivel !== undefined) {
-                        lyr.visible = Boolean(item.visivel);
+                    const text = await dataRes.text();
+                    if (text && (text.trim().startsWith('{') || text.trim().startsWith('['))) {
+                      const geojson = JSON.parse(text);
+                      if (geojson && (geojson.type === 'FeatureCollection' || geojson.features)) {
+                        const lyr = createLayerFromGeoJson(item.nome || `Camada ${i + 1}`, geojson);
+                        if (item.visivel !== undefined) {
+                          lyr.visible = Boolean(item.visivel);
+                        }
+                        if (item.estilo) {
+                          lyr.style = { ...lyr.style, ...item.estilo };
+                        }
+                        if (item.opacity !== undefined) {
+                          lyr.opacity = Number(item.opacity);
+                        }
+                        staticLayers.push(lyr);
                       }
-                      if (item.estilo) {
-                        lyr.style = { ...lyr.style, ...item.estilo };
-                      }
-                      if (item.opacity !== undefined) {
-                        lyr.opacity = Number(item.opacity);
-                      }
-                      staticLayers.push(lyr);
+                    } else {
+                      console.warn(`Arquivo ${item.arquivo} não retornou um JSON válido (recebeu HTML ou resposta inválida).`);
                     }
                   }
                 } catch (fetchErr) {
-                  console.warn(`Não foi possível carregar arquivo estático ${item.arquivo}:`, fetchErr);
+                  console.warn(`Não foi possível processar arquivo estático ${item.arquivo}:`, fetchErr);
                 }
               }
             }

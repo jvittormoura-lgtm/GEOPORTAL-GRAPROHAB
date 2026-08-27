@@ -30,7 +30,13 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build static site
-        run: npx vite build
+        run: |
+          npx vite build
+          # Ensure root or public data and config are in dist
+          if [ -f "mapas-config.json" ]; then cp mapas-config.json dist/; fi
+          if [ -d "data" ]; then cp -rn data dist/; fi
+          if [ -d "public/data" ]; then cp -rn public/data dist/; fi
+          if [ -f "public/mapas-config.json" ]; then cp public/mapas-config.json dist/; fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
