@@ -4,7 +4,7 @@ import { filterFeatures, matchSmartSearch } from '../utils/geoJsonParser';
 import { 
   Table, Search, ArrowUpDown, MapPin, Maximize2, Minimize2, X, 
   Download, Columns, Edit2, Trash2, Check, Plus, MoreVertical,
-  SlidersHorizontal, ChevronDown, RefreshCw, Lock
+  SlidersHorizontal, ChevronDown, RefreshCw, Lock, ArrowLeft, ArrowRight
 } from 'lucide-react';
 
 interface AttributeTableProps {
@@ -21,6 +21,7 @@ interface AttributeTableProps {
   onUpdateCellValue?: (layerId: string, featureIndex: number, fieldKey: string, value: any) => void;
   onDeleteFeature?: (layerId: string, featureIndex: number) => void;
   onOpenFeatureInspector?: (feature: GeoJSON.Feature, layerId: string, featureIndex: number) => void;
+  onReorderFields?: (layerId: string, newOrder: string[]) => void;
 }
 
 export const AttributeTable: React.FC<AttributeTableProps> = ({
@@ -36,7 +37,8 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
   onDeleteField,
   onUpdateCellValue,
   onDeleteFeature,
-  onOpenFeatureInspector
+  onOpenFeatureInspector,
+  onReorderFields
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortColumn, setSortColumn] = useState<string>('');
@@ -56,15 +58,37 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
 
   const [confirmPrompt, setConfirmPrompt] = useState<{msg: string, action: () => void} | null>(null);
 
+  const isGestor = appMode === 'gestor';
+
   // Protect mutating actions
   const handleProtectedAction = (action: () => void) => {
-    if (appMode === 'gestor') {
+    if (isGestor) {
       action();
     } else if (onRequireAuth) {
       onRequireAuth(action);
     } else {
       action();
     }
+  };
+
+  const handleMoveColumn = (col: string, direction: 'left' | 'right', e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    handleProtectedAction(() => {
+      if (!layer || !onReorderFields) return;
+      const keys = layer.propertiesSchema.map(p => p.key);
+      const currentIndex = keys.indexOf(col);
+      if (currentIndex === -1) return;
+
+      const targetIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+      if (targetIndex < 0 || targetIndex >= keys.length) return;
+
+      const temp = keys[currentIndex];
+      keys[currentIndex] = keys[targetIndex];
+      keys[targetIndex] = temp;
+
+      onReorderFields(layer.id, keys);
+      setActiveColumnMenu(null);
+    });
   };
 
   // Columns from properties schema
@@ -254,7 +278,11 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
                 Geometria
               </th>
 
-              {columns.map(col => (
+              {columns.map((col, idx) => {
+                const isFirst = idx === 0;
+                const isLast = idx === columns.length - 1;
+
+                return (
                 <th
                   key={col}
                   className="px-3 py-2 text-slate-300 font-semibold text-[11px] hover:bg-slate-900/90 transition-colors select-none whitespace-nowrap relative group"
@@ -300,49 +328,95 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
                         <ArrowUpDown className="w-3 h-3 text-slate-500" />
                       </div>
 
-                      {/* Header Column Actions Dropdown Trigger */}
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveColumnMenu(activeColumnMenu === col ? null : col);
-                          }}
-                          className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800 opacity-60 group-hover:opacity-100 transition-opacity"
-                          title="Opções da Coluna (Renomear / Excluir)"
-                        >
-                          <MoreVertical className="w-3 h-3" />
-                        </button>
-
-                        {/* Column Menu Popup */}
-                        {activeColumnMenu === col && (
-                          <div 
-                            className="absolute right-0 top-full mt-1 w-44 bg-slate-950 border border-slate-700 rounded-xl shadow-2xl py-1 z-30 font-sans"
-                            onClick={(e) => e.stopPropagation()}
-                          >
+                      {/* Header Column Actions */}
+                      <div className="flex items-center gap-1">
+                        {/* Quick reorder buttons visible on hover in Gestor mode */}
+                        {isGestor && (
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 bg-slate-950/80 px-1 py-0.5 rounded border border-slate-800">
                             <button
                               type="button"
-                              onClick={() => handleStartRenameColumn(col)}
-                              className="w-full px-3 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2"
+                              disabled={isFirst}
+                              onClick={(e) => handleMoveColumn(col, 'left', e)}
+                              className="p-0.5 text-slate-400 hover:text-amber-400 disabled:opacity-20 disabled:hover:text-slate-400 rounded transition-colors"
+                              title="Mover coluna para a esquerda"
                             >
-                              <Edit2 className="w-3 h-3 text-sky-400" />
-                              <span>Renomear Campo</span>
+                              <ArrowLeft className="w-3 h-3" />
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleDeleteColumnConfirm(col)}
-                              className="w-full px-3 py-1.5 text-left text-xs text-rose-300 hover:bg-rose-950/40 flex items-center gap-2 border-t border-slate-800/80"
+                              disabled={isLast}
+                              onClick={(e) => handleMoveColumn(col, 'right', e)}
+                              className="p-0.5 text-slate-400 hover:text-amber-400 disabled:opacity-20 disabled:hover:text-slate-400 rounded transition-colors"
+                              title="Mover coluna para a direita"
                             >
-                              <Trash2 className="w-3 h-3 text-rose-400" />
-                              <span>Excluir Campo</span>
+                              <ArrowRight className="w-3 h-3" />
                             </button>
                           </div>
                         )}
+
+                        {/* Dropdown Trigger */}
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveColumnMenu(activeColumnMenu === col ? null : col);
+                            }}
+                            className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800 opacity-60 group-hover:opacity-100 transition-opacity"
+                            title="Opções da Coluna (Reordenar / Renomear / Excluir)"
+                          >
+                            <MoreVertical className="w-3 h-3" />
+                          </button>
+
+                          {/* Column Menu Popup */}
+                          {activeColumnMenu === col && (
+                            <div 
+                              className="absolute right-0 top-full mt-1 w-48 bg-slate-950 border border-slate-700 rounded-xl shadow-2xl py-1 z-30 font-sans"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                type="button"
+                                disabled={isFirst}
+                                onClick={(e) => handleMoveColumn(col, 'left', e)}
+                                className="w-full px-3 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2 disabled:opacity-30 disabled:hover:bg-transparent"
+                              >
+                                <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
+                                <span>Mover para Esquerda</span>
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isLast}
+                                onClick={(e) => handleMoveColumn(col, 'right', e)}
+                                className="w-full px-3 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2 disabled:opacity-30 disabled:hover:bg-transparent"
+                              >
+                                <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
+                                <span>Mover para Direita</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleStartRenameColumn(col)}
+                                className="w-full px-3 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2 border-t border-slate-800/80"
+                              >
+                                <Edit2 className="w-3 h-3 text-sky-400" />
+                                <span>Renomear Campo</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteColumnConfirm(col)}
+                                className="w-full px-3 py-1.5 text-left text-xs text-rose-300 hover:bg-rose-950/40 flex items-center gap-2 border-t border-slate-800/80"
+                              >
+                                <Trash2 className="w-3 h-3 text-rose-400" />
+                                <span>Excluir Campo</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}
                 </th>
-              ))}
+              );
+              })}
             </tr>
           </thead>
 

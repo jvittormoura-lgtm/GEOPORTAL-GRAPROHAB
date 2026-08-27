@@ -124,6 +124,9 @@ export interface GisLayer {
   featureCount: number;
   filteredCount: number;
   propertiesSchema: PropertySchema[];
+  popupFieldOrder?: string[];
+  popupVisibleFields?: string[];
+  popupTitleField?: string;
   bbox: [number, number, number, number]; // [minLng, minLat, maxLng, maxLat]
   createdAt: number;
   isRealtime?: boolean;

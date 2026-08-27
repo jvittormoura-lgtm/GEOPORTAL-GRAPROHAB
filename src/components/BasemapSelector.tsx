@@ -4,55 +4,39 @@ import { Layers, Check, Key, Globe, Eye } from 'lucide-react';
 
 export const BASEMAPS: BasemapOption[] = [
   {
-    id: 'osm_hot',
-    name: 'OSM Humanitário (Claro)',
+    id: 'jawg_sunny',
+    name: 'Jawg Sunny (Vibrante & Detalhado)',
     category: 'light',
-    url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by Humanitarian OpenStreetMap Team',
-    maxZoom: 19,
-    subdomains: ['a', 'b', 'c']
+    url: 'https://{s}.tile.jawg.io/jawg-sunny/{z}/{x}/{y}.png?access-token=OEt7Cap0rjC045eTj4bW7TR8nKxpZbWoqIdWsELYGKsAWywaR8HODybDW58ruth4',
+    attribution: '&copy; <a href="https://jawg.io" target="_blank" rel="noopener noreferrer">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 22,
+    subdomains: ['a', 'b', 'c', 'd']
   },
   {
-    id: 'esri_topo',
-    name: 'Esri World Topo (Claro)',
+    id: 'jawg_light',
+    name: 'Jawg Light (Minimalista Claro)',
     category: 'light',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-    maxZoom: 18
+    url: 'https://{s}.tile.jawg.io/jawg-light/{z}/{x}/{y}.png?access-token=OEt7Cap0rjC045eTj4bW7TR8nKxpZbWoqIdWsELYGKsAWywaR8HODybDW58ruth4',
+    attribution: '&copy; <a href="https://jawg.io" target="_blank" rel="noopener noreferrer">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 22,
+    subdomains: ['a', 'b', 'c', 'd']
   },
-  
   {
-    id: 'esri_dark',
-    name: 'Esri Dark Gray Canvas',
+    id: 'jawg_dark',
+    name: 'Jawg Dark (Elegante Escuro)',
     category: 'dark',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-    maxZoom: 16
-  },
-  {
-    id: 'esri_light',
-    name: 'Esri Light Gray Canvas',
-    category: 'light',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
-    maxZoom: 16
+    url: 'https://{s}.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token=OEt7Cap0rjC045eTj4bW7TR8nKxpZbWoqIdWsELYGKsAWywaR8HODybDW58ruth4',
+    attribution: '&copy; <a href="https://jawg.io" target="_blank" rel="noopener noreferrer">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 22,
+    subdomains: ['a', 'b', 'c', 'd']
   },
   {
     id: 'osm_standard',
-    name: 'OSM Padrão',
+    name: 'OpenStreetMap (Padrão)',
     category: 'osm',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
-    subdomains: ['a', 'b', 'c']
-  },
-  {
-    id: 'osm_piano_fr',
-    name: 'OSM Piano FR (OSM France)',
-    category: 'osm',
-    url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
-    attribution: '&copy; OpenStreetMap France | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 20,
     subdomains: ['a', 'b', 'c']
   },
   {
@@ -146,7 +130,7 @@ export const BasemapSelector: React.FC<BasemapSelectorProps> = ({
         <div className="p-6 overflow-y-auto space-y-6">
           <div>
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 block">
-              Provedores Globais Integrados (Leaflet & CARTO / Esri / OSM)
+              Mapas Base Disponíveis
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {BASEMAPS.map((base) => {

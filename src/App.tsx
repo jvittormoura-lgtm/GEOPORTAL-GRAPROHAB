@@ -1,3 +1,4 @@
+import Papa from "papaparse";
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -146,10 +147,36 @@ export default function App() {
     };
   }, [layers.length]);
 
-  // Load published layers from mapas-config.json (GitHub static), local storage, or initialize with GRAPROHAB SP default
+  // Load published layers from local storage or initialize with mapas-config.json
   useEffect(() => {
     const loadInitialLayers = async () => {
-      // 1. Check if public/mapas-config.json has static configured layers
+      // 1. Check localforage FIRST (User's persistent state)
+      try {
+        const storedLayers = await localforage.getItem<GisLayer[]>('graprohab_layers');
+        const hasInitialized = await localforage.getItem<boolean>('graprohab_initialized');
+        const storedTime = await localforage.getItem<number>('graprohab_published_at');
+        
+        if (hasInitialized && Array.isArray(storedLayers)) {
+          const validated = storedLayers.map(l => ({
+            ...l,
+            geometryType: detectGeometryType(l.data?.features || []),
+            featureCount: l.data?.features?.length || 0
+          }));
+          setLayers(validated);
+          setPublishedLayers(validated);
+          if (validated.length > 0) {
+            setActiveLayerId(validated[0].id);
+          }
+          if (storedTime) {
+            setLastPublishedAt(storedTime);
+          }
+          return;
+        }
+      } catch (err) {
+        console.warn('Erro ao carregar dados salvos localmente:', err);
+      }
+
+      // 2. Only if no persistent state exists (first-time initialization), check public/mapas-config.json
       try {
         const baseUrl = (import.meta as any).env?.BASE_URL || './';
         const configUrl = baseUrl.endsWith('/') ? `${baseUrl}mapas-config.json` : `${baseUrl}/mapas-config.json`;
@@ -187,8 +214,6 @@ export default function App() {
                         }
                         staticLayers.push(lyr);
                       }
-                    } else {
-                      console.warn(`Arquivo ${item.arquivo} não retornou um JSON válido (recebeu HTML ou resposta inválida).`);
                     }
                   }
                 } catch (fetchErr) {
@@ -201,6 +226,8 @@ export default function App() {
               setLayers(staticLayers);
               setPublishedLayers(staticLayers);
               setActiveLayerId(staticLayers[0].id);
+              await localforage.setItem('graprohab_layers', staticLayers);
+              await localforage.setItem('graprohab_initialized', true);
               return;
             }
           }
@@ -209,34 +236,29 @@ export default function App() {
         console.warn('Verificação de mapas-config.json estático:', err);
       }
 
-      // 2. Otherwise, check localforage (if user published custom local state in browser)
-      try {
-        const storedLayers = await localforage.getItem<GisLayer[]>('graprohab_layers');
-        const storedTime = await localforage.getItem<number>('graprohab_published_at');
-        
-        if (storedLayers && Array.isArray(storedLayers) && storedLayers.length > 0) {
-          setLayers(storedLayers);
-          setPublishedLayers(storedLayers);
-          setActiveLayerId(storedLayers[0].id);
-          if (storedTime) {
-            setLastPublishedAt(storedTime);
-          }
-          return;
-        }
-      } catch (err) {
-        console.warn('Erro ao carregar dados salvos localmente:', err);
-      }
-      
       // 3. Fallback to default sample
       const defaultSample = SAMPLE_DATASETS[0]; // Empreendimentos Habitacionais GRAPROHAB - SP
       const initialLayer = createLayerFromGeoJson(defaultSample.title, defaultSample.data);
       setLayers([initialLayer]);
       setPublishedLayers([initialLayer]);
       setActiveLayerId(initialLayer.id);
+      await localforage.setItem('graprohab_layers', [initialLayer]);
+      await localforage.setItem('graprohab_initialized', true);
     };
     
     loadInitialLayers();
   }, [createLayerFromGeoJson]);
+
+  // Helper to persist layers
+  const persistLayers = async (layersToSave: GisLayer[]) => {
+    try {
+      await localforage.setItem('graprohab_layers', layersToSave);
+      await localforage.setItem('graprohab_initialized', true);
+      await localforage.setItem('graprohab_published_at', Date.now());
+    } catch (e) {
+      console.warn('Erro ao persistir camadas:', e);
+    }
+  };
 
   // Publish changes from Gestor (draft) to Consumidor (citizen)
   const handlePublishToPublic = async () => {
@@ -302,7 +324,7 @@ export default function App() {
       let geojson: GeoJSON.FeatureCollection;
 
       if (file.name.endsWith('.csv')) {
-        const Papa = (await import('papaparse')).default;
+        
         const parsed = Papa.parse(text, { header: true, dynamicTyping: true });
         const rows = parsed.data as Record<string, any>[];
 
@@ -354,7 +376,12 @@ export default function App() {
         newLayer.filteredCount = filterFeatures(newLayer.data.features, newLayer.filters).length;
       }
 
-      setLayers(prev => [newLayer, ...prev]);
+      setLayers(prev => {
+        const updated = [newLayer, ...prev];
+        persistLayers(updated);
+        return updated;
+      });
+      setPublishedLayers(prev => [newLayer, ...prev]);
       setActiveLayerId(newLayer.id);
       showToast(`Camada "${layerName}" carregada com sucesso (${newLayer.featureCount} polígonos/feições)!`);
     } catch (err: any) {
@@ -389,26 +416,47 @@ export default function App() {
       newLayer.filteredCount = filterFeatures(newLayer.data.features, newLayer.filters).length;
     }
 
-    setLayers(prev => [newLayer, ...prev]);
+    setLayers(prev => {
+      const updated = [newLayer, ...prev];
+      persistLayers(updated);
+      return updated;
+    });
+    setPublishedLayers(prev => [newLayer, ...prev]);
     setActiveLayerId(newLayer.id);
     showToast(`Camada "${sample.title}" adicionada.`);
   };
 
   // Handle Layer actions
   const handleToggleVisibility = (id: string) => {
-    setLayers(prev => prev.map(l => l.id === id ? { ...l, visible: !l.visible } : l));
+    setLayers(prev => {
+      const updated = prev.map(l => l.id === id ? { ...l, visible: !l.visible } : l);
+      persistLayers(updated);
+      return updated;
+    });
   };
 
   const handleChangeOpacity = (id: string, opacity: number) => {
-    setLayers(prev => prev.map(l => l.id === id ? { ...l, opacity } : l));
+    setLayers(prev => {
+      const updated = prev.map(l => l.id === id ? { ...l, opacity } : l);
+      persistLayers(updated);
+      return updated;
+    });
   };
 
   const handleChangeSmoothFactor = (id: string, smoothFactor: number) => {
-    setLayers(prev => prev.map(l => l.id === id ? { ...l, style: { ...l.style, smoothFactor } } : l));
+    setLayers(prev => {
+      const updated = prev.map(l => l.id === id ? { ...l, style: { ...l.style, smoothFactor } } : l);
+      persistLayers(updated);
+      return updated;
+    });
   };
 
   const handleRenameLayer = (id: string, newName: string) => {
-    setLayers(prev => prev.map(l => l.id === id ? { ...l, name: newName } : l));
+    setLayers(prev => {
+      const updated = prev.map(l => l.id === id ? { ...l, name: newName } : l);
+      persistLayers(updated);
+      return updated;
+    });
   };
 
   const handleReorderLayers = (activeId: string, overId: string) => {
@@ -420,12 +468,17 @@ export default function App() {
       const newLayers = [...prev];
       const [removed] = newLayers.splice(oldIndex, 1);
       newLayers.splice(newIndex, 0, removed);
+      persistLayers(newLayers);
       return newLayers;
     });
   };
 
   const handleUpdateDescription = (id: string, newDescription: string) => {
-    setLayers(prev => prev.map(l => l.id === id ? { ...l, description: newDescription } : l));
+    setLayers(prev => {
+      const updated = prev.map(l => l.id === id ? { ...l, description: newDescription } : l);
+      persistLayers(updated);
+      return updated;
+    });
   };
 
   const handleDuplicateLayer = (id: string) => {
@@ -437,17 +490,27 @@ export default function App() {
       name: `${orig.name} (Cópia)`,
       createdAt: Date.now()
     };
-    setLayers(prev => [duplicated, ...prev]);
+    setLayers(prev => {
+      const updated = [duplicated, ...prev];
+      persistLayers(updated);
+      return updated;
+    });
+    setPublishedLayers(prev => [duplicated, ...prev]);
     setActiveLayerId(duplicated.id);
     showToast(`Camada duplicada: ${duplicated.name}`);
   };
 
   const handleDeleteLayer = (id: string) => {
-    setLayers(prev => prev.filter(l => l.id !== id));
+    setLayers(prev => {
+      const updated = prev.filter(l => l.id !== id);
+      persistLayers(updated);
+      return updated;
+    });
+    setPublishedLayers(prev => prev.filter(l => l.id !== id));
     if (activeLayerId === id) {
       setActiveLayerId(layers.filter(l => l.id !== id)[0]?.id || null);
     }
-    showToast('Camada removida.');
+    showToast('Camada removida com sucesso.');
   };
 
   const handleUpdateFilters = (layerId: string, filters: AttributeFilter[], spatialFilter?: SpatialFilter) => {
@@ -471,12 +534,16 @@ export default function App() {
     thematic?: ThematicConfig,
     isHeatmap?: boolean
   ) => {
-    setLayers(prev => prev.map(l => {
-      if (l.id === layerId) {
-        return { ...l, style, thematic, isHeatmap };
-      }
-      return l;
-    }));
+    setLayers(prev => {
+      const updated = prev.map(l => {
+        if (l.id === layerId) {
+          return { ...l, style, thematic, isHeatmap };
+        }
+        return l;
+      });
+      persistLayers(updated);
+      return updated;
+    });
     showToast('Estilo e legenda atualizados!');
   };
 
@@ -667,32 +734,114 @@ export default function App() {
   };
 
   const handleAddField = (layerId: string, fieldName: string, defaultValue: any, fieldType: 'string' | 'number') => {
-    setLayers(prev => prev.map(l => {
-      if (l.id !== layerId) return l;
+    setLayers(prev => {
+      const updated = prev.map(l => {
+        if (l.id !== layerId) return l;
 
-      const updatedFeatures = l.data.features.map(f => {
-        const newProps = { ...(f.properties || {}) };
-        newProps[fieldName] = defaultValue !== undefined && defaultValue !== '' 
-          ? (fieldType === 'number' ? Number(defaultValue) : String(defaultValue))
-          : null;
-        return { ...f, properties: newProps };
+        const updatedFeatures = l.data.features.map(f => {
+          const newProps = { ...(f.properties || {}) };
+          newProps[fieldName] = defaultValue !== undefined && defaultValue !== '' 
+            ? (fieldType === 'number' ? Number(defaultValue) : String(defaultValue))
+            : null;
+          return { ...f, properties: newProps };
+        });
+
+        const updatedCollection: GeoJSON.FeatureCollection = {
+          ...l.data,
+          features: updatedFeatures
+        };
+
+        const newSchema = extractPropertySchemas(updatedFeatures);
+
+        return {
+          ...l,
+          data: updatedCollection,
+          propertiesSchema: newSchema
+        };
       });
-
-      const updatedCollection: GeoJSON.FeatureCollection = {
-        ...l.data,
-        features: updatedFeatures
-      };
-
-      const newSchema = extractPropertySchemas(updatedFeatures);
-
-      return {
-        ...l,
-        data: updatedCollection,
-        propertiesSchema: newSchema
-      };
-    }));
+      persistLayers(updated);
+      return updated;
+    });
 
     showToast(`Novo campo "${fieldName}" adicionado à camada!`);
+  };
+
+  const handleReorderFields = (layerId: string, newOrder: string[]) => {
+    setLayers(prev => {
+      const updated = prev.map(l => {
+        if (l.id !== layerId) return l;
+
+        // Reorder schema according to newOrder
+        const schemaMap = new Map(l.propertiesSchema.map(s => [s.key, s]));
+        const reorderedSchema: typeof l.propertiesSchema = [];
+        
+        newOrder.forEach(key => {
+          const item = schemaMap.get(key);
+          if (item) {
+            reorderedSchema.push(item);
+            schemaMap.delete(key);
+          }
+        });
+        // Append any remaining
+        schemaMap.forEach(item => reorderedSchema.push(item));
+
+        // Also rearrange properties inside all features for clean export & inspection
+        const updatedFeatures = l.data.features.map(f => {
+          const origProps = f.properties || {};
+          const reorderedProps: Record<string, any> = {};
+          
+          reorderedSchema.forEach(s => {
+            if (s.key in origProps) {
+              reorderedProps[s.key] = origProps[s.key];
+            }
+          });
+          // Also keep any keys not in schema
+          Object.keys(origProps).forEach(k => {
+            if (!(k in reorderedProps)) {
+              reorderedProps[k] = origProps[k];
+            }
+          });
+
+          return {
+            ...f,
+            properties: reorderedProps
+          };
+        });
+
+        return {
+          ...l,
+          propertiesSchema: reorderedSchema,
+          popupFieldOrder: newOrder,
+          data: {
+            ...l.data,
+            features: updatedFeatures
+          }
+        };
+      });
+      persistLayers(updated);
+      return updated;
+    });
+
+    showToast('Ordem dos campos atualizada na tabela e no pop-up!');
+  };
+
+  const handleUpdatePopupSettings = (
+    layerId: string, 
+    popupVisibleFields?: string[], 
+    popupTitleField?: string
+  ) => {
+    setLayers(prev => {
+      const updated = prev.map(l => {
+        if (l.id !== layerId) return l;
+        return {
+          ...l,
+          ...(popupVisibleFields ? { popupVisibleFields } : {}),
+          ...(popupTitleField !== undefined ? { popupTitleField } : {})
+        };
+      });
+      persistLayers(updated);
+      return updated;
+    });
   };
 
   const handleUpdateCellValue = (layerId: string, featureIndex: number, fieldKey: string, value: any) => {
@@ -951,6 +1100,7 @@ export default function App() {
           onRenameField={handleRenameField}
           onDeleteField={handleDeleteField}
           onAddField={handleAddField}
+          onReorderFields={handleReorderFields}
           onUpdateCellValue={handleUpdateCellValue}
           onDeleteFeature={handleDeleteFeature}
           onOpenFeatureInspector={(feature, layerId, featureIndex) => {
@@ -1003,11 +1153,13 @@ export default function App() {
         />
       )}
 
-      {/* Field Manager Modal (Rename & Delete columns / fields) */}
+      {/* Field Manager Modal (Rename, Reorder, Delete columns & Pop-up config) */}
       {isFieldManagerOpen && (fieldManagerLayer || activeLayer) && (
         <FieldManagerModal
           layer={fieldManagerLayer || activeLayer!}
           isOpen={isFieldManagerOpen}
+          appMode={appMode}
+          onRequireAuth={requireAuth}
           onClose={() => {
             setIsFieldManagerOpen(false);
             setFieldManagerLayerId(null);
@@ -1015,6 +1167,8 @@ export default function App() {
           onRenameField={handleRenameField}
           onDeleteField={handleDeleteField}
           onAddField={handleAddField}
+          onReorderFields={handleReorderFields}
+          onUpdatePopupSettings={handleUpdatePopupSettings}
         />
       )}
 

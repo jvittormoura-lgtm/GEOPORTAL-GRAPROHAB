@@ -320,29 +320,39 @@ export function parseGeoJson(rawContent: string | object): GeoJSON.FeatureCollec
 }
 
 export function detectGeometryType(features: GeoJSON.Feature[]): GeometryType {
-  if (!features || features.length === 0) return 'Point';
+  if (!features || features.length === 0) return 'Polygon';
   
   const types = new Set<string>();
   features.forEach(f => {
-    if (f.geometry && f.geometry.type) {
+    if (f && f.geometry && f.geometry.type) {
       types.add(f.geometry.type);
     }
   });
 
-  if (types.size === 0) return 'Point';
-  if (types.size === 1) {
-    return Array.from(types)[0] as GeometryType;
+  if (types.size === 0) return 'Polygon';
+  
+  const typeArr = Array.from(types);
+
+  // Single type
+  if (typeArr.length === 1) {
+    const single = typeArr[0];
+    if (single === 'MultiPolygon' || single === 'Polygon') return 'Polygon';
+    if (single === 'MultiLineString' || single === 'LineString') return 'LineString';
+    if (single === 'MultiPoint' || single === 'Point') return 'Point';
+    return single as GeometryType;
   }
 
-  // Check if all are points or multipoints
-  const allPoints = Array.from(types).every(t => t === 'Point' || t === 'MultiPoint');
-  if (allPoints) return 'Point';
+  // Polygons (Polygon or MultiPolygon)
+  const allPolys = typeArr.every(t => t === 'Polygon' || t === 'MultiPolygon');
+  if (allPolys) return 'Polygon';
 
-  const allLines = Array.from(types).every(t => t === 'LineString' || t === 'MultiLineString');
+  // Lines
+  const allLines = typeArr.every(t => t === 'LineString' || t === 'MultiLineString');
   if (allLines) return 'LineString';
 
-  const allPolys = Array.from(types).every(t => t === 'Polygon' || t === 'MultiPolygon');
-  if (allPolys) return 'Polygon';
+  // Points
+  const allPoints = typeArr.every(t => t === 'Point' || t === 'MultiPoint');
+  if (allPoints) return 'Point';
 
   return 'Mixed';
 }

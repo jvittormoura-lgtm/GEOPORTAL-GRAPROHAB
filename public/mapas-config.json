@@ -31,22 +31,6 @@
         "pointShape": "circle",
         "smoothFactor": 2
       }
-    },
-    {
-      "nome": "Loteamentos e Cj. Habitacionais",
-      "arquivo": "data/loteamentos_e_cj_habitacionais.geojson",
-      "visivel": true,
-      "opacity": 1,
-      "estilo": {
-        "fillColor": "#ef4444",
-        "strokeColor": "#ef4444",
-        "strokeWidth": 2,
-        "fillOpacity": 0.45,
-        "strokeOpacity": 0.9,
-        "pointRadius": 7,
-        "pointShape": "circle",
-        "smoothFactor": 3
-      }
     }
   ]
 }

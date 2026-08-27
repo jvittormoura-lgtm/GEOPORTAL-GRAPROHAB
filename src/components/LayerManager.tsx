@@ -557,7 +557,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                             onOpenFieldManager(layer);
                           }}
                           className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs flex items-center gap-1 transition-colors"
-                          title="Gerenciar, renomear e excluir campos da camada"
+                          title="Gerenciar ordem dos campos no pop-up e tabela, visibilidade e renomeação"
                         >
                           <Columns className="w-3 h-3 text-sky-400" />
                           <span className="text-[10px] hidden sm:inline">Campos</span>

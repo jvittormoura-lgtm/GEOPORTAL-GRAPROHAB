@@ -258,11 +258,47 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     }
 
     const isGraprohab = !!(props.processo_graprohab || props.nome_empreendimento);
-    const title = props.nome_empreendimento || props.name || props.nome || props.NAME || props.title || props.cidade || props.municipio || `Feição #${featureIndex + 1}`;
     
-    const keys = Object.keys(props);
+    // Determine custom popup title if configured or fallback
+    let title = '';
+    if (layer.popupTitleField && props[layer.popupTitleField] !== undefined && props[layer.popupTitleField] !== null) {
+      title = String(props[layer.popupTitleField]);
+    } else {
+      const candidates = ['nome_empreendimento', 'nome', 'Nome', 'NOME', 'titulo', 'name', 'processo_graprohab', 'processo'];
+      let foundTitle = '';
+      for (const c of candidates) {
+        if (props[c] !== undefined && props[c] !== null) {
+          foundTitle = String(props[c]);
+          break;
+        }
+      }
+      if (!foundTitle && layer.propertiesSchema && layer.propertiesSchema.length > 0) {
+        const firstKey = layer.propertiesSchema[0].key;
+        if (props[firstKey] !== undefined && props[firstKey] !== null) {
+          foundTitle = String(props[firstKey]);
+        }
+      }
+      title = foundTitle || `Feição #${featureIndex + 1}`;
+    }
+
+    // Determine field display order and visibility
+    let orderedKeys: string[] = [];
+    if (layer.popupFieldOrder && layer.popupFieldOrder.length > 0) {
+      orderedKeys = [...layer.popupFieldOrder];
+    } else if (layer.propertiesSchema && layer.propertiesSchema.length > 0) {
+      orderedKeys = layer.propertiesSchema.map(p => p.key);
+    } else {
+      orderedKeys = Object.keys(props);
+    }
+
+    // Filter by visibility if defined
+    if (layer.popupVisibleFields && layer.popupVisibleFields.length > 0) {
+      orderedKeys = orderedKeys.filter(k => layer.popupVisibleFields!.includes(k));
+    }
+    
     let rowsHtml = '';
-    keys.forEach((key) => {
+    orderedKeys.forEach((key) => {
+      if (!(key in props)) return;
       const val = props[key];
       const displayVal = val !== null && val !== undefined ? String(val) : '<span style="color: #64748b; font-style: italic;">null</span>';
       rowsHtml += `
