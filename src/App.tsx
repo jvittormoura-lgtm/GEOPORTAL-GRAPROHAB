@@ -212,6 +212,15 @@ export default function App() {
                         if (item.opacity !== undefined) {
                           lyr.opacity = Number(item.opacity);
                         }
+                        if (item.popupTitleField) {
+                          lyr.popupTitleField = item.popupTitleField;
+                        }
+                        if (Array.isArray(item.popupVisibleFields)) {
+                          lyr.popupVisibleFields = item.popupVisibleFields;
+                        }
+                        if (Array.isArray(item.popupFieldOrder)) {
+                          lyr.popupFieldOrder = item.popupFieldOrder;
+                        }
                         staticLayers.push(lyr);
                       }
                     }

@@ -99,6 +99,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             arquivo: `data/${layerFileName}`,
             visivel: lyr.visible,
             opacity: lyr.opacity,
+            popupTitleField: lyr.popupTitleField || undefined,
+            popupVisibleFields: lyr.popupVisibleFields || [],
+            popupFieldOrder: lyr.popupFieldOrder || [],
             estilo: lyr.style
           });
         }

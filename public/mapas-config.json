@@ -5,6 +5,9 @@
       "arquivo": "data/condominios_protocolados.geojson",
       "visivel": true,
       "opacity": 1,
+      "popupTitleField": "nome_empreendimento",
+      "popupVisibleFields": [],
+      "popupFieldOrder": [],
       "estilo": {
         "fillColor": "#8b5cf6",
         "strokeColor": "#8b5cf6",
@@ -21,6 +24,9 @@
       "arquivo": "data/condominios_dispensados.geojson",
       "visivel": true,
       "opacity": 1,
+      "popupTitleField": "nome_empreendimento",
+      "popupVisibleFields": [],
+      "popupFieldOrder": [],
       "estilo": {
         "fillColor": "#10b981",
         "strokeColor": "#059669",
