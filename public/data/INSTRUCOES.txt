@@ -1,0 +1,20 @@
+COMO FUNCIONAM AS CAMADAS FIXAS (PUBLIC/DATA):
+
+1. Salve seus arquivos (.geojson ou .json) nesta pasta (public/data/).
+2. No arquivo 'public/mapas-config.json', adicione a referência para cada camada:
+   {
+     "camadas_fixas": [
+       {
+         "nome": "Processos GRAPROHAB 2024",
+         "arquivo": "data/meu_arquivo.geojson",
+         "visivel": true
+       }
+     ]
+   }
+
+3. DICA PRÁTICA: No próprio aplicativo, você pode clicar no botão de "Exportar" e escolher a opção "Pacote para GitHub Pages (.zip)". Ele já gera o mapas-config.json e todos os arquivos .geojson prontos para você!
+
+4. ATUALIZAÇÕES MENSAIS:
+   - No GitHub, basta abrir a pasta 'public/data/' e substituir os arquivos .geojson pelos dados atualizados do mês (mantendo os mesmos nomes).
+   - O GitHub Pages atualizará o site automaticamente em menos de 1 minuto!
+

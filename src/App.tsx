@@ -146,9 +146,65 @@ export default function App() {
     };
   }, [layers.length]);
 
-  // Load published layers from local storage or initialize with GRAPROHAB SP default
+  // Load published layers from mapas-config.json (GitHub static), local storage, or initialize with GRAPROHAB SP default
   useEffect(() => {
-    const loadFromLocal = async () => {
+    const loadInitialLayers = async () => {
+      // 1. Check if public/mapas-config.json has static configured layers
+      try {
+        const baseUrl = (import.meta as any).env?.BASE_URL || './';
+        const configUrl = baseUrl.endsWith('/') ? `${baseUrl}mapas-config.json` : `${baseUrl}/mapas-config.json`;
+        const res = await fetch(configUrl);
+        if (res.ok) {
+          const config = await res.json();
+          if (config && Array.isArray(config.camadas_fixas) && config.camadas_fixas.length > 0) {
+            const staticLayers: GisLayer[] = [];
+            
+            for (let i = 0; i < config.camadas_fixas.length; i++) {
+              const item = config.camadas_fixas[i];
+              if (item.arquivo) {
+                let fileUrl = item.arquivo;
+                if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
+                  const cleanPath = item.arquivo.replace(/^\.?\//, '');
+                  fileUrl = `${baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'}${cleanPath}`;
+                }
+                
+                try {
+                  const dataRes = await fetch(fileUrl);
+                  if (dataRes.ok) {
+                    const geojson = await dataRes.json();
+                    if (geojson && (geojson.type === 'FeatureCollection' || geojson.features)) {
+                      const lyr = createLayerFromGeoJson(item.nome || `Camada ${i + 1}`, geojson);
+                      if (item.visivel !== undefined) {
+                        lyr.visible = Boolean(item.visivel);
+                      }
+                      if (item.estilo) {
+                        lyr.style = { ...lyr.style, ...item.estilo };
+                      }
+                      if (item.opacity !== undefined) {
+                        lyr.opacity = Number(item.opacity);
+                      }
+                      staticLayers.push(lyr);
+                    }
+                  }
+                } catch (fetchErr) {
+                  console.warn(`Não foi possível carregar arquivo estático ${item.arquivo}:`, fetchErr);
+                }
+              }
+            }
+
+            if (staticLayers.length > 0) {
+              setLayers(staticLayers);
+              setPublishedLayers(staticLayers);
+              setActiveLayerId(staticLayers[0].id);
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Verificação de mapas-config.json estático:', err);
+      }
+
+      // 2. Otherwise, check localforage (if user published custom local state in browser)
       try {
         const storedLayers = await localforage.getItem<GisLayer[]>('graprohab_layers');
         const storedTime = await localforage.getItem<number>('graprohab_published_at');
@@ -166,7 +222,7 @@ export default function App() {
         console.warn('Erro ao carregar dados salvos localmente:', err);
       }
       
-      // Default Fallback
+      // 3. Fallback to default sample
       const defaultSample = SAMPLE_DATASETS[0]; // Empreendimentos Habitacionais GRAPROHAB - SP
       const initialLayer = createLayerFromGeoJson(defaultSample.title, defaultSample.data);
       setLayers([initialLayer]);
@@ -174,8 +230,8 @@ export default function App() {
       setActiveLayerId(initialLayer.id);
     };
     
-    loadFromLocal();
-  }, []);
+    loadInitialLayers();
+  }, [createLayerFromGeoJson]);
 
   // Publish changes from Gestor (draft) to Consumidor (citizen)
   const handlePublishToPublic = async () => {
@@ -1003,6 +1059,8 @@ export default function App() {
           activeLayerId={activeLayerId}
           isOpen={isExportModalOpen}
           onClose={() => setIsExportModalOpen(false)}
+          appMode={appMode}
+          onRequireAuth={requireAuth}
         />
       )}
 

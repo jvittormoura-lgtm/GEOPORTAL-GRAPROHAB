@@ -144,7 +144,7 @@ export interface BasemapOption {
   requiresKey?: boolean;
 }
 
-export type ExportFormat = 'geojson' | 'kml' | 'shp' | 'csv' | 'gpx';
+export type ExportFormat = 'geojson' | 'kml' | 'shp' | 'csv' | 'gpx' | 'github_bundle';
 
 export interface ExportOptions {
   format: ExportFormat;

@@ -1,0 +1,8 @@
+{
+  "camadas_fixas": [
+    {
+      "nome": "Exemplo de Camada",
+      "arquivo": "/data/exemplo.geojson"
+    }
+  ]
+}
