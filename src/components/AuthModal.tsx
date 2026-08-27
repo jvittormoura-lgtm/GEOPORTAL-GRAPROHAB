@@ -156,11 +156,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               )}
 
-              {/* Password Hint for first access */}
-              <div className="px-3 py-2 bg-slate-950/60 border border-slate-800 rounded-lg text-[11px] text-slate-400 flex items-center justify-between">
-                <span>Senha padrão inicial: <strong className="text-sky-300 font-mono">graprohab2025</strong></span>
-              </div>
-
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
