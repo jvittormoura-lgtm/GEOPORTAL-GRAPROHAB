@@ -133,6 +133,9 @@ export function extractUhFromProperties(props: any): number {
 
   // 1. Direct key matches
   const directKeys = [
+    'Nº DE UNIDADES HABITACIONAIS',
+    'NO DE UNIDADES HABITACIONAIS',
+    'N DE UNIDADES HABITACIONAIS',
     'Nº DE LOTES UNIDADES HABITACIONAIS',
     'NO DE LOTES UNIDADES HABITACIONAIS',
     'N DE LOTES UNIDADES HABITACIONAIS',

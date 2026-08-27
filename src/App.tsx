@@ -437,11 +437,15 @@ export default function App() {
 
   // Handle Layer actions
   const handleToggleVisibility = (id: string) => {
-    setLayers(prev => {
-      const updated = prev.map(l => l.id === id ? { ...l, visible: !l.visible } : l);
-      persistLayers(updated);
-      return updated;
-    });
+    if (appMode === 'gestor') {
+      setLayers(prev => {
+        const updated = prev.map(l => l.id === id ? { ...l, visible: !l.visible } : l);
+        persistLayers(updated);
+        return updated;
+      });
+    } else {
+      setPublishedLayers(prev => prev.map(l => l.id === id ? { ...l, visible: !l.visible } : l));
+    }
   };
 
   const handleChangeOpacity = (id: string, opacity: number) => {

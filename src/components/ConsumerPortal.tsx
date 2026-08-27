@@ -379,9 +379,9 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
           <div className="text-right">
             <div className="flex items-center justify-end gap-1 text-[10px] text-slate-400 uppercase font-mono">
               <Home className="w-3 h-3 text-sky-400" />
-              <span>Unidades / Lotes</span>
+              <span>Unidades/Lotes Registrados</span>
             </div>
-            <span className="text-sm font-bold text-sky-400 font-mono tracking-tight" title="Soma total do campo Nº de Lotes / Unidades Habitacionais (UH)">
+            <span className="text-sm font-bold text-sky-400 font-mono tracking-tight" title="Soma total do campo Nº de Unidades Habitacionais (UH)">
               {stats.totalUh > 0 ? stats.totalUh.toLocaleString('pt-BR') : '0'} <span className="text-xs font-normal text-sky-300">UH</span>
             </span>
           </div>
