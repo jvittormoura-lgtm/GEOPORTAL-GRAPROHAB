@@ -105,22 +105,22 @@ export const BasemapSelector: React.FC<BasemapSelectorProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
       <div 
         id="basemap-selector-modal"
-        className="w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="w-full max-w-2xl bg-white border border-slate-300/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/90">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-sky-500/10 text-sky-400 rounded-lg">
+            <div className="p-2 bg-red-600/10 text-red-600 rounded-lg">
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Mapas Base (Basemaps)</h2>
-              <p className="text-xs text-slate-400">Escolha o mapa de fundo para sobrepor suas camadas geográficas</p>
+              <h2 className="text-lg font-semibold text-slate-900">Mapas Base (Basemaps)</h2>
+              <p className="text-xs text-slate-500">Escolha o mapa de fundo para sobrepor suas camadas geográficas</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors"
+            className="text-slate-500 hover:text-slate-900 p-2 rounded-lg hover:bg-slate-100 transition-colors"
           >
             ✕
           </button>
@@ -129,7 +129,7 @@ export const BasemapSelector: React.FC<BasemapSelectorProps> = ({
         {/* Grid of Basemaps */}
         <div className="p-6 overflow-y-auto space-y-6">
           <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 block">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 block">
               Mapas Base Disponíveis
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -145,24 +145,24 @@ export const BasemapSelector: React.FC<BasemapSelectorProps> = ({
                     }}
                     className={`flex items-start justify-between p-3.5 rounded-xl border text-left transition-all ${
                       isSelected
-                        ? 'bg-sky-950/40 border-sky-500 text-sky-200 ring-1 ring-sky-500'
-                        : 'bg-slate-800/60 border-slate-700/60 hover:bg-slate-800 hover:border-slate-600 text-slate-200'
+                        ? 'bg-red-50/40 border-red-600 text-sky-200 ring-1 ring-red-600'
+                        : 'bg-slate-100/60 border-slate-300/60 hover:bg-slate-100 hover:border-slate-300 text-slate-800'
                     }`}
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm text-white">{base.name}</span>
+                        <span className="font-medium text-sm text-slate-900">{base.name}</span>
                         {isSelected && (
-                          <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-sky-500 text-slate-950 rounded-sm">
+                          <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-red-600 text-slate-950 rounded-sm">
                             Ativo
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-slate-400 capitalize block">
+                      <span className="text-xs text-slate-500 capitalize block">
                         Estilo: {base.category} • Zoom máx: {base.maxZoom}
                       </span>
                     </div>
-                    {isSelected && <Check className="w-5 h-5 text-sky-400 mt-0.5 shrink-0" />}
+                    {isSelected && <Check className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />}
                   </button>
                 );
               })}
@@ -170,12 +170,12 @@ export const BasemapSelector: React.FC<BasemapSelectorProps> = ({
           </div>
 
           {/* Mapbox Integration */}
-          <div className="p-4 bg-slate-800/40 rounded-xl border border-slate-700/60 space-y-3">
+          <div className="p-4 bg-slate-100/40 rounded-xl border border-slate-300/60 space-y-3">
             <div className="flex items-center gap-2 text-sm font-medium text-amber-300">
               <Key className="w-4 h-4" />
               <span>Integração Mapbox API (Opcional)</span>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Caso possua seu próprio Access Token do Mapbox e estilo customizado (ex: <code>mapbox/outdoors-v12</code> ou <code>mapbox/satellite-streets-v12</code>), insira abaixo:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -184,14 +184,14 @@ export const BasemapSelector: React.FC<BasemapSelectorProps> = ({
                 placeholder="Mapbox Access Token (pk.eyJ1...)"
                 value={mapboxToken}
                 onChange={(e) => setMapboxToken(e.target.value)}
-                className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-sky-500"
+                className="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-red-600"
               />
               <input
                 type="text"
                 placeholder="Estilo (ex: mapbox/streets-v12)"
                 value={mapboxStyleId}
                 onChange={(e) => setMapboxStyleId(e.target.value)}
-                className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-sky-500"
+                className="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-red-600"
               />
             </div>
             <button
@@ -204,7 +204,7 @@ export const BasemapSelector: React.FC<BasemapSelectorProps> = ({
           </div>
 
           {/* Custom XYZ Tile URL */}
-          <div className="p-4 bg-slate-800/40 rounded-xl border border-slate-700/60 space-y-3">
+          <div className="p-4 bg-slate-100/40 rounded-xl border border-slate-300/60 space-y-3">
             <div className="flex items-center gap-2 text-sm font-medium text-emerald-400">
               <Globe className="w-4 h-4" />
               <span>URL de Servidor de Tiles XYZ / TMS Personalizado</span>
@@ -215,7 +215,7 @@ export const BasemapSelector: React.FC<BasemapSelectorProps> = ({
                 placeholder="https://meu-servidor-gis.com/tiles/{z}/{x}/{y}.png"
                 value={customUrl}
                 onChange={(e) => setCustomUrl(e.target.value)}
-                className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-emerald-500 font-mono"
               />
               <button
                 onClick={handleApplyCustomXyz}
@@ -228,10 +228,10 @@ export const BasemapSelector: React.FC<BasemapSelectorProps> = ({
           </div>
         </div>
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-slate-800 bg-slate-900/90 flex justify-end">
+        <div className="px-6 py-3 border-t border-slate-200 bg-white/90 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-lg transition-colors"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-medium rounded-lg transition-colors"
           >
             Fechar
           </button>

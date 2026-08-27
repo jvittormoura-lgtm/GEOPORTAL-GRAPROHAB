@@ -961,7 +961,7 @@ export default function App() {
 
   return (
     <div 
-      className="flex flex-col h-screen w-screen bg-slate-950 text-slate-100 overflow-hidden"
+      className="flex flex-col h-screen w-screen bg-slate-50 text-slate-900 overflow-hidden"
     >
       {/* Top Navbar with GRAPROHAB Branding & Mode Controls */}
       <Navbar
@@ -1002,7 +1002,7 @@ export default function App() {
           <button
             id="btn-toggle-sidebar"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="absolute top-3 right-16 z-[1000] p-2 bg-slate-900/90 border border-slate-700/80 rounded-xl text-slate-300 hover:text-white shadow-xl backdrop-blur-xs transition-colors"
+            className="absolute top-3 right-16 z-[1000] p-2 bg-white/90 border border-slate-300/80 rounded-xl text-slate-700 hover:text-slate-900 shadow-xl backdrop-blur-xs transition-colors"
             title={isSidebarOpen ? 'Recolher Painel' : 'Expandir Painel'}
           >
             {isSidebarOpen ? <PanelRightClose className="w-5 h-5" /> : <PanelRight className="w-5 h-5" />}
@@ -1037,7 +1037,7 @@ export default function App() {
 
         {/* Right Layer Manager Sidebar */}
         <div 
-          className={`transition-all duration-300 ease-in-out shrink-0 z-20 flex flex-col border-l border-slate-800 ${
+          className={`transition-all duration-300 ease-in-out shrink-0 z-20 flex flex-col border-l border-slate-200 ${
             isSidebarOpen ? 'w-80 sm:w-88' : 'w-0'
           }`}
         >
@@ -1284,7 +1284,7 @@ export default function App() {
           id="toast-notification"
           className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl border shadow-2xl flex items-center gap-3 text-xs font-medium backdrop-blur-md transition-all ${
             toastMessage.type === 'success'
-              ? 'bg-emerald-950/90 border-emerald-500/60 text-emerald-200 shadow-emerald-950/50'
+              ? 'bg-emerald-950/90 border-emerald-500/60 text-emerald-200 shadow-emerald-200/50'
               : 'bg-rose-950/90 border-rose-500/60 text-rose-200 shadow-rose-950/50'
           }`}
         >

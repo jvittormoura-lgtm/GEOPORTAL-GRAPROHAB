@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header 
       id="app-navbar"
-      className="h-14 bg-slate-950 border-b border-slate-800 px-4 flex items-center justify-between select-none relative z-30 shrink-0"
+      className="h-14 bg-slate-50 border-b border-slate-200 px-4 flex items-center justify-between select-none relative z-30 shrink-0"
     >
       {/* Hidden File Input */}
       <input
@@ -93,32 +93,32 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Brand & Logo - GRAPROHAB SP */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-600 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-900/40">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600 to-red-400 flex items-center justify-center text-slate-900 shadow-md shadow-red-100/40">
             <Building2 className="w-4 h-4" />
           </div>
-          <div>
+          <div className="flex flex-col justify-center min-w-0">
             <div className="flex items-center gap-1.5">
-              <h1 className="font-bold text-sm text-white tracking-tight leading-none">
-                Geo<span className="text-sky-400 font-extrabold">GRAPROHAB</span>
+              <h1 className="font-bold text-[13px] sm:text-sm text-slate-900 tracking-tight leading-none whitespace-nowrap">
+                GeoPortal <span className="text-red-600 font-extrabold">GRAPROHAB</span>
               </h1>
-              <span className="text-[10px] px-1.5 py-0.2 bg-sky-950 border border-sky-500/30 text-sky-300 font-bold rounded">
+              <span className="text-[9px] px-1 py-[1px] bg-red-50 border border-red-600/30 text-red-500 font-bold rounded shrink-0">
                 SP
               </span>
             </div>
-            <span className="text-[10px] text-slate-400">Portal de Empreendimentos Habitacionais</span>
+            <span className="text-[9px] sm:text-[10px] text-slate-500 whitespace-nowrap truncate">Portal de Empreendimentos Habitacionais</span>
           </div>
         </div>
 
         {/* Mode Indicator Badge */}
         <div className="hidden sm:flex items-center">
           {appMode === 'gestor' ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 rounded-full text-[11px] font-semibold animate-in fade-in duration-200">
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full text-[11px] font-semibold animate-in fade-in duration-200">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Ambiente Gestor (Técnico)</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-slate-900 border border-slate-800 text-slate-300 rounded-full text-[11px]">
-              <span className="w-2 h-2 rounded-full bg-sky-400" />
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-white border border-slate-200 text-slate-700 rounded-full text-[11px]">
+              <span className="w-2 h-2 rounded-full bg-red-600" />
               <span>Consulta Pública (Cidadão)</span>
             </div>
           )}
@@ -133,8 +133,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={handleUploadClick}
           className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all cursor-pointer ${
             appMode === 'gestor'
-              ? 'bg-sky-600 hover:bg-sky-500 text-white shadow-sky-950'
-              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+              ? 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 shadow-amber-100'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
           }`}
           title={appMode === 'gestor' ? 'Subir novos arquivos GeoJSON' : 'Requer senha de gestor'}
         >
@@ -152,7 +152,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           id="btn-open-basemaps"
           onClick={onOpenBasemapModal}
-          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
+          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
           title="Mapas Base (Satélite / OSM / Carto / Topo)"
         >
           <Layers className="w-3.5 h-3.5 text-amber-400" />
@@ -164,7 +164,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           id="btn-open-export-modal"
           onClick={onOpenExportModal}
           disabled={layers.length === 0}
-          className="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 disabled:opacity-40 disabled:cursor-not-allowed text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+          className="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 disabled:opacity-40 disabled:cursor-not-allowed text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
         >
           <Download className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Exportar (KML/SHP/CSV)</span>
@@ -174,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           id="btn-open-ai-gis"
           onClick={onOpenAiModal}
-          className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-purple-950 transition-colors"
+          className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-purple-200 transition-colors"
         >
           <Sparkles className="w-3.5 h-3.5" />
           <span className="hidden md:inline">Copiloto IA</span>
@@ -187,10 +187,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={handlePublishClick}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-md transition-all ${
               publishSuccess 
-                ? 'bg-emerald-500 text-slate-950 shadow-emerald-900/50' 
+                ? 'bg-emerald-500 text-slate-950 shadow-emerald-200' 
                 : hasUnpublishedChanges
-                ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-900/50 animate-pulse'
-                : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950'
+                ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-200 animate-pulse'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-slate-900 shadow-emerald-200'
             }`}
             title="Salvar alterações e publicar para acesso no Modo Cidadão"
           >
@@ -212,7 +212,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {appMode === 'gestor' ? (
           <button
             onClick={onLogoutGestor}
-            className="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-500/40 text-rose-300 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
+            className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
             title="Sair do modo de edição de gestor"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -221,7 +221,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         ) : (
           <button
             onClick={onToggleAuthModal}
-            className="px-3 py-1.5 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-sky-950 transition-all"
+            className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-600 hover:to-red-400 text-slate-900 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-red-200 transition-all"
             title="Acessar painel técnico com senha"
           >
             <Lock className="w-3.5 h-3.5" />

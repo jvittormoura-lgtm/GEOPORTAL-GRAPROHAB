@@ -14,6 +14,8 @@ import {
   Compass, MapPin, Layers
 } from 'lucide-react';
 
+import { AddressSearch } from './AddressSearch';
+
 interface MapComponentProps {
   layers: GisLayer[];
   activeBasemap: BasemapOption;
@@ -407,7 +409,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           if (tooltipText) {
             leafletLayer.bindTooltip(String(tooltipText), {
               sticky: true,
-              className: 'bg-slate-900 text-white text-xs border border-slate-700 px-2 py-1 rounded-md shadow-lg'
+              className: 'bg-white text-slate-900 text-xs border border-slate-300 px-2 py-1 rounded-md shadow-lg'
             });
           }
 
@@ -535,6 +537,35 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     }
   }, [fitBoundsTrigger]);
 
+  const handleAddressFlyTo = (lat: number, lon: number, bbox?: [number, number, number, number]) => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    
+    if (bbox) {
+      map.flyToBounds([
+        [bbox[0], bbox[2]],
+        [bbox[1], bbox[3]]
+      ], { duration: 1.5, maxZoom: 16 });
+    } else {
+      map.flyTo([lat, lon], 16, { duration: 1.5 });
+    }
+    
+    // Add a temporary marker
+    const marker = L.circleMarker([lat, lon], {
+      radius: 8,
+      fillColor: '#f43f5e',
+      color: '#ffffff',
+      weight: 2,
+      fillOpacity: 1
+    }).addTo(map);
+    
+    setTimeout(() => {
+      if (mapInstanceRef.current && mapInstanceRef.current.hasLayer(marker)) {
+        mapInstanceRef.current.removeLayer(marker);
+      }
+    }, 5000);
+  };
+
   // Coherent metrics calculation for Top-Left HUD (Nº DE LOTES UNIDADES HABITACIONAIS & ÁREA TOTAL DA GLEBA/M²)
   const mapMetrics = useMemo(() => {
     const visibleFeatures: GeoJSON.Feature[] = [];
@@ -548,22 +579,25 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   }, [layers]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-slate-950">
+    <div className="relative w-full h-full overflow-hidden bg-slate-50">
       {/* Leaflet DOM container */}
       <div id="map-container" ref={mapContainerRef} className="w-full h-full z-0" />
 
+      {/* Address Search Bar */}
+      <AddressSearch onFlyTo={handleAddressFlyTo} />
+
       {/* Minimal Floating Spatial Toolbar (Top Right) */}
-      <div className="absolute top-3 right-3 z-30 flex flex-col items-center gap-1.5 p-1.5 bg-slate-900/90 border border-slate-700/80 rounded-xl shadow-xl backdrop-blur-xs">
+      <div className="absolute top-3 right-3 z-30 flex flex-col items-center gap-1.5 p-1.5 bg-white/90 border border-slate-300/80 rounded-xl shadow-xl backdrop-blur-xs">
         <button
           onClick={handleLocateMe}
-          className="p-2 text-slate-300 hover:text-sky-400 hover:bg-slate-800 rounded-lg transition-colors"
+          className="p-2 text-slate-700 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-colors"
           title="Minha Localização GPS"
         >
           <Compass className="w-4 h-4" />
         </button>
         <button
           onClick={handleResetExtent}
-          className="p-2 text-slate-300 hover:text-sky-400 hover:bg-slate-800 rounded-lg transition-colors"
+          className="p-2 text-slate-700 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-colors"
           title="Enquadrar todas as camadas"
         >
           <MapPin className="w-4 h-4" />
@@ -571,23 +605,23 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       </div>
 
       {/* Bottom Floating Coordinate / Zoom HUD */}
-      <div className="absolute bottom-3 left-3 z-30 hidden sm:flex items-center gap-3 px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-[11px] font-mono text-slate-400 backdrop-blur-xs shadow-lg">
+      <div className="absolute bottom-3 left-3 z-30 hidden sm:flex items-center gap-3 px-3 py-1.5 bg-slate-50/80 border border-slate-200 rounded-lg text-[11px] font-mono text-slate-500 backdrop-blur-xs shadow-lg">
         {mouseCoords ? (
           <div>
             <span className="text-slate-500">Lat:</span>{' '}
-            <strong className="text-slate-200">{mouseCoords.lat > 0 ? `+${mouseCoords.lat}` : mouseCoords.lat}°</strong>{' '}
+            <strong className="text-slate-800">{mouseCoords.lat > 0 ? `+${mouseCoords.lat}` : mouseCoords.lat}°</strong>{' '}
             <span className="text-slate-500">Lng:</span>{' '}
-            <strong className="text-slate-200">{mouseCoords.lng > 0 ? `+${mouseCoords.lng}` : mouseCoords.lng}°</strong>
+            <strong className="text-slate-800">{mouseCoords.lng > 0 ? `+${mouseCoords.lng}` : mouseCoords.lng}°</strong>
           </div>
         ) : (
           <span>Mova o cursor sobre o mapa</span>
         )}
         <span>•</span>
         <div>
-          <span className="text-slate-500">Zoom:</span> <strong className="text-sky-400">{currentZoom}</strong>
+          <span className="text-slate-500">Zoom:</span> <strong className="text-red-600">{currentZoom}</strong>
         </div>
         <span>•</span>
-        <div className="text-slate-400">
+        <div className="text-slate-500">
           EPSG:4326 (WGS84)
         </div>
       </div>

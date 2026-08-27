@@ -204,7 +204,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
       case 'date':
         return <Calendar className="w-3.5 h-3.5 text-indigo-400" />;
       default:
-        return <Type className="w-3.5 h-3.5 text-sky-400" />;
+        return <Type className="w-3.5 h-3.5 text-red-600" />;
     }
   };
 
@@ -215,21 +215,21 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
   return (
     <div 
       id="field-manager-modal"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50/80 backdrop-blur-sm"
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-5xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200"
+        className="w-full max-w-5xl bg-white border border-slate-300/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-950 border-b border-slate-800 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-sky-500/10 border border-sky-500/30 rounded-xl text-sky-400">
+            <div className="p-2 bg-red-600/10 border border-red-600/30 rounded-xl text-red-600">
               <Columns className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-white flex items-center gap-2">
+              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
                 Campos da Camada: Ordem na Tabela & Pop-up
                 {isGestor ? (
                   <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold rounded-full flex items-center gap-1">
@@ -241,14 +241,14 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                   </span>
                 )}
               </h3>
-              <p className="text-xs text-slate-400">
-                Camada: <span className="text-sky-300 font-semibold">{layer.name}</span> ({layer.propertiesSchema.length} campos) • Arraste (⠿) para alterar a ordem no Pop-up e na Tabela
+              <p className="text-xs text-slate-500">
+                Camada: <span className="text-red-500 font-semibold">{layer.name}</span> ({layer.propertiesSchema.length} campos) • Arraste (⠿) para alterar a ordem no Pop-up e na Tabela
               </p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -256,15 +256,15 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="mx-6 mt-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-300 text-xs shrink-0">
+          <div className="mx-6 mt-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2 text-rose-700 text-xs shrink-0">
             <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* Action Toolbar */}
-        <div className="px-6 py-3 bg-slate-900/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+        <div className="px-6 py-3 bg-white/60 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
             <Sparkles className="w-4 h-4 text-amber-400" />
             <span>Configuração de Atributos e Pop-up em Tempo Real</span>
           </div>
@@ -276,7 +276,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                 setErrorMsg(null);
               });
             }}
-            className="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-sky-950/40 transition-all shrink-0"
+            className="px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-red-200/40 transition-all shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Adicionar Novo Campo</span>
@@ -287,16 +287,16 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
         {isAddingField && (
           <form 
             onSubmit={handleCreateField}
-            className="mx-6 my-3 p-4 bg-slate-950/80 border border-sky-500/40 rounded-xl space-y-3 shrink-0"
+            className="mx-6 my-3 p-4 bg-slate-50/80 border border-red-600/40 rounded-xl space-y-3 shrink-0"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-sky-300 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-red-500 flex items-center gap-1.5">
                 <Plus className="w-3.5 h-3.5" /> Criar Novo Campo na Camada
               </span>
               <button 
                 type="button" 
                 onClick={() => setIsAddingField(false)}
-                className="text-slate-400 hover:text-slate-200 text-xs"
+                className="text-slate-500 hover:text-slate-800 text-xs"
               >
                 Cancelar
               </button>
@@ -304,23 +304,23 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">Nome do Campo:</label>
+                <label className="block text-[11px] text-slate-500 mb-1">Nome do Campo:</label>
                 <input
                   type="text"
                   placeholder="Ex: status_vistoria"
                   value={newFieldName}
                   onChange={(e) => setNewFieldName(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"
+                  className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-red-600"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">Tipo de Dado:</label>
+                <label className="block text-[11px] text-slate-500 mb-1">Tipo de Dado:</label>
                 <select
                   value={newFieldType}
                   onChange={(e) => setNewFieldType(e.target.value as any)}
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-sky-500"
+                  className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-red-600"
                 >
                   <option value="string">Texto (String)</option>
                   <option value="number">Número (Integer/Float)</option>
@@ -328,13 +328,13 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">Valor Padrão (Opcional):</label>
+                <label className="block text-[11px] text-slate-500 mb-1">Valor Padrão (Opcional):</label>
                 <input
                   type={newFieldType === 'number' ? 'number' : 'text'}
                   placeholder={newFieldType === 'number' ? '0' : 'Vazio'}
                   value={newFieldDefaultValue}
                   onChange={(e) => setNewFieldDefaultValue(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"
+                  className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-red-600"
                 />
               </div>
             </div>
@@ -353,14 +353,14 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
 
         {/* Delete Confirmation Warning */}
         {fieldToDelete && (
-          <div className="mx-6 my-3 p-4 bg-rose-950/60 border border-rose-500/40 rounded-xl space-y-3 shrink-0">
+          <div className="mx-6 my-3 p-4 bg-rose-950/60 border border-rose-200 rounded-xl space-y-3 shrink-0">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-sm font-bold text-rose-200">
                   Confirmar Exclusão do Campo "{fieldToDelete}"?
                 </h4>
-                <p className="text-xs text-rose-300/80 mt-1">
+                <p className="text-xs text-rose-700/80 mt-1">
                   Este atributo será permanentemente removido de todas as {layer.featureCount} feições desta camada GeoJSON. Esta ação não pode ser desfeita.
                 </p>
               </div>
@@ -369,7 +369,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
               <button
                 type="button"
                 onClick={() => setFieldToDelete(null)}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition-colors"
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition-colors"
               >
                 Cancelar
               </button>
@@ -386,13 +386,13 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
         )}
 
         {/* Main Workspace (Grid layout) */}
-        <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
+        <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
           
           {/* Left Side: Field List & Drag-and-drop */}
-          <div className="lg:col-span-7 flex flex-col h-full bg-slate-950/40 overflow-hidden">
-            <div className="px-6 py-3 border-b border-slate-800 bg-slate-900/40 shrink-0">
-              <h4 className="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                <Columns className="w-4 h-4 text-sky-400" />
+          <div className="lg:col-span-7 flex flex-col h-full bg-slate-50/40 overflow-hidden">
+            <div className="px-6 py-3 border-b border-slate-200 bg-white/40 shrink-0">
+              <h4 className="text-xs font-semibold text-slate-700 flex items-center gap-2">
+                <Columns className="w-4 h-4 text-red-600" />
                 Ordem dos Campos
               </h4>
             </div>
@@ -402,9 +402,9 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                   Nenhum campo de atributo encontrado nesta camada GeoJSON.
                 </div>
               ) : (
-                <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950">
+                <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
                   <table className="w-full text-left text-xs border-collapse">
-                    <thead className="bg-slate-900 border-b border-slate-800 text-[10px] text-slate-400 uppercase">
+                    <thead className="bg-white border-b border-slate-200 text-[10px] text-slate-500 uppercase">
                       <tr>
                         <th className="px-3 py-2.5 w-24 text-center">Arraste / Ordem</th>
                         <th className="px-4 py-2.5">Nome do Campo</th>
@@ -412,7 +412,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                         <th className="px-4 py-2.5 w-24 text-right">Ações</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60 font-sans">
+                    <tbody className="divide-y divide-slate-200/60 font-sans">
                       {layer.propertiesSchema.map((field, idx) => {
                         const isEditing = editingFieldKey === field.key;
                         const isVisibleInPopup = currentVisibleFields.includes(field.key);
@@ -427,14 +427,14 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                             onDragOver={handleDragOver}
                             onDrop={(e) => handleDrop(e, idx)}
                             onDragEnd={() => setDraggedIndex(null)}
-                            className={`hover:bg-slate-800/60 transition-all ${
-                              isBeingDragged ? 'opacity-40 bg-sky-950/60 border-y-2 border-sky-400 scale-[0.99]' : ''
+                            className={`hover:bg-slate-100/60 transition-all ${
+                              isBeingDragged ? 'opacity-40 bg-red-50/60 border-y-2 border-red-600 scale-[0.99]' : ''
                             } ${
-                              isEditing ? 'bg-sky-950/40' : ''
+                              isEditing ? 'bg-red-50/40' : ''
                             }`}
                           >
                             {/* Drag Handle & Order Position */}
-                            <td className="px-3 py-2 text-center text-slate-400 font-mono text-xs">
+                            <td className="px-3 py-2 text-center text-slate-500 font-mono text-xs">
                               <div className="flex items-center justify-center gap-2">
                                 <div 
                                   className={`p-1 cursor-grab active:cursor-grabbing text-slate-500 hover:text-amber-400 rounded transition-colors ${isGestor ? '' : 'opacity-40 cursor-not-allowed'}`}
@@ -457,7 +457,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                                       if (e.key === 'Enter') handleSaveRename(field.key);
                                       if (e.key === 'Escape') setEditingFieldKey(null);
                                     }}
-                                    className="px-2.5 py-1 bg-slate-900 border border-sky-500 rounded-lg text-xs text-white font-mono focus:outline-none w-32"
+                                    className="px-2.5 py-1 bg-white border border-red-600 rounded-lg text-xs text-slate-900 font-mono focus:outline-none w-32"
                                     autoFocus
                                   />
                                   <button
@@ -471,7 +471,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                                   <button
                                     type="button"
                                     onClick={() => setEditingFieldKey(null)}
-                                    className="p-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md"
+                                    className="p-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md"
                                     title="Cancelar"
                                   >
                                     <X className="w-3.5 h-3.5" />
@@ -479,11 +479,11 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-2">
-                                  <span className={`font-semibold font-mono text-xs truncate max-w-[120px] ${isTitleInPopup ? 'text-sky-300' : 'text-slate-200'}`}>
+                                  <span className={`font-semibold font-mono text-xs truncate max-w-[120px] ${isTitleInPopup ? 'text-red-500' : 'text-slate-800'}`}>
                                     {field.key}
                                   </span>
                                   {isTitleInPopup && (
-                                    <span className="px-1.5 py-0.5 bg-sky-500/20 text-sky-300 text-[9px] font-bold rounded shrink-0">
+                                    <span className="px-1.5 py-0.5 bg-red-600/20 text-red-500 text-[9px] font-bold rounded shrink-0">
                                       Título
                                     </span>
                                   )}
@@ -499,8 +499,8 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                                   onClick={() => handleTogglePopupVisibility(field.key)}
                                   className={`p-1.5 rounded-lg transition-colors ${
                                     isVisibleInPopup 
-                                      ? 'text-sky-400 hover:bg-sky-500/20' 
-                                      : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800'
+                                      ? 'text-red-600 hover:bg-red-600/20' 
+                                      : 'text-slate-600 hover:text-slate-500 hover:bg-slate-100'
                                   }`}
                                   title={isVisibleInPopup ? 'Visível no pop-up (Clique para ocultar)' : 'Oculto no pop-up (Clique para exibir)'}
                                 >
@@ -513,7 +513,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                                   className={`p-1.5 rounded-lg transition-colors ${
                                     isTitleInPopup 
                                       ? 'text-amber-400 bg-amber-500/20' 
-                                      : 'text-slate-600 hover:text-amber-400 hover:bg-slate-800'
+                                      : 'text-slate-600 hover:text-amber-400 hover:bg-slate-100'
                                   }`}
                                   title={isTitleInPopup ? 'Campo definido como Título do Pop-up' : 'Definir este campo como Título do Pop-up'}
                                 >
@@ -527,7 +527,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => handleStartRename(field)}
-                                  className="p-1.5 text-slate-400 hover:text-sky-300 hover:bg-sky-500/10 rounded-lg transition-colors"
+                                  className="p-1.5 text-slate-500 hover:text-red-500 hover:bg-red-600/10 rounded-lg transition-colors"
                                   title={isGestor ? 'Editar Nome do Campo' : 'Requer login de gestor'}
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
@@ -535,7 +535,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => handleProtected(() => setFieldToDelete(field.key))}
-                                  className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                                  className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
                                   title={isGestor ? 'Excluir Campo' : 'Requer login de gestor'}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -553,15 +553,15 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
           </div>
 
           {/* Right Side: Live Pop-up Preview */}
-          <div className="lg:col-span-5 flex flex-col h-full bg-slate-900/60 overflow-hidden">
-            <div className="px-6 py-3 border-b border-slate-800 bg-slate-900/40 shrink-0">
-              <h4 className="text-xs font-semibold text-slate-300 flex items-center gap-2">
+          <div className="lg:col-span-5 flex flex-col h-full bg-white/60 overflow-hidden">
+            <div className="px-6 py-3 border-b border-slate-200 bg-white/40 shrink-0">
+              <h4 className="text-xs font-semibold text-slate-700 flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-amber-400" />
                 Prévia do Pop-up no Mapa
               </h4>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-start bg-slate-950/20">
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-start bg-slate-50/20">
               <div className="w-full max-w-sm bg-white text-slate-800 rounded-xl p-5 shadow-2xl border border-slate-200 text-xs font-sans">
                 {/* Header */}
                 <div 
@@ -575,7 +575,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                     {currentTitleField && sampleProps[currentTitleField] ? String(sampleProps[currentTitleField]) : (sampleProps.nome_empreendimento || sampleProps.nome || 'Exemplo de Empreendimento')}
                   </h4>
                   {sampleProps.processo_graprohab && (
-                    <div className="text-[11px] text-sky-600 font-semibold mt-0.5">
+                    <div className="text-[11px] text-red-700 font-semibold mt-0.5">
                       Proc. GRAPROHAB: {sampleProps.processo_graprohab}
                     </div>
                   )}
@@ -604,7 +604,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                   </table>
                 </div>
 
-                <div className="border-t border-slate-100 pt-2.5 mt-3 text-[10px] text-slate-400 text-center">
+                <div className="border-t border-slate-100 pt-2.5 mt-3 text-[10px] text-slate-500 text-center">
                   Visualização fiel do balão de informações ao clicar na feição no mapa
                 </div>
               </div>
@@ -614,15 +614,15 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2 text-[11px] text-slate-400">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2 text-[11px] text-slate-500">
             <HelpCircle className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             <span>Arraste as linhas pelo ícone pontilhado (⠿) para reordenar simultaneamente o pop-up e a tabela.</span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-colors shrink-0"
+            className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl text-xs font-semibold transition-colors shrink-0"
           >
             Concluir
           </button>

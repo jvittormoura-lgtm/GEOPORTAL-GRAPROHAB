@@ -230,30 +230,30 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
       onClick={onClose}
     >
       <div 
-        className="bg-slate-900 border border-slate-700/80 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
+        className="bg-white border border-slate-300/80 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 bg-slate-950/90 border-b border-slate-800 flex items-center justify-between gap-3">
+        <div className="px-5 py-4 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 bg-sky-500/15 border border-sky-500/30 rounded-xl text-sky-400 shrink-0">
+            <div className="p-2.5 bg-red-600/15 border border-red-600/30 rounded-xl text-red-600 shrink-0">
               <Layers className="w-5 h-5" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-sky-400 uppercase tracking-wider truncate max-w-[200px]">
+                <span className="text-xs font-bold text-red-600 uppercase tracking-wider truncate max-w-[200px]">
                   {layer?.name || 'Camada'}
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-300">
                   {geomType}
                 </span>
                 {totalFeatures > 0 && (
-                  <span className="text-[11px] text-slate-400 hidden sm:inline">
+                  <span className="text-[11px] text-slate-500 hidden sm:inline">
                     Feição {featureIndex + 1} de {totalFeatures}
                   </span>
                 )}
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white truncate">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 truncate">
                 {featureTitle}
               </h2>
             </div>
@@ -262,22 +262,22 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
           <div className="flex items-center gap-2 shrink-0">
             {/* Feature Stepper */}
             {totalFeatures > 1 && onSelectFeatureIndex && (
-              <div className="flex items-center bg-slate-800/90 border border-slate-700 rounded-lg p-0.5 mr-1">
+              <div className="flex items-center bg-slate-100/90 border border-slate-300 rounded-lg p-0.5 mr-1">
                 <button
                   onClick={() => onSelectFeatureIndex(Math.max(0, featureIndex - 1))}
                   disabled={featureIndex <= 0}
-                  className="p-1 text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 rounded transition-colors"
+                  className="p-1 text-slate-500 hover:text-slate-900 disabled:opacity-30 disabled:hover:text-slate-500 rounded transition-colors"
                   title="Feição anterior"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
-                <span className="text-[11px] font-semibold text-slate-300 px-1.5 min-w-[40px] text-center">
+                <span className="text-[11px] font-semibold text-slate-700 px-1.5 min-w-[40px] text-center">
                   {featureIndex + 1}/{totalFeatures}
                 </span>
                 <button
                   onClick={() => onSelectFeatureIndex(Math.min(totalFeatures - 1, featureIndex + 1))}
                   disabled={featureIndex >= totalFeatures - 1}
-                  className="p-1 text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 rounded transition-colors"
+                  className="p-1 text-slate-500 hover:text-slate-900 disabled:opacity-30 disabled:hover:text-slate-500 rounded transition-colors"
                   title="Próxima feição"
                 >
                   <ArrowRight className="w-4 h-4" />
@@ -287,7 +287,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+              className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
               title="Fechar Pop-up"
             >
               <X className="w-5 h-5" />
@@ -296,7 +296,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
         </div>
 
         {/* Action Toolbar & Metric Strip */}
-        <div className="px-5 py-2.5 bg-slate-950/60 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="px-5 py-2.5 bg-slate-50/60 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs">
           {/* Quick Metrics */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* Lotes / UH metric */}
@@ -304,8 +304,8 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
               const uhVal = extractUhFromProperties(editedProperties);
               if (uhVal > 0) {
                 return (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-sky-500/10 border border-sky-500/20 rounded-md text-sky-300 font-mono font-bold">
-                    <Home className="w-3.5 h-3.5 text-sky-400" />
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-red-600/10 border border-red-600/20 rounded-md text-red-500 font-mono font-bold">
+                    <Home className="w-3.5 h-3.5 text-red-600" />
                     <span>{uhVal.toLocaleString('pt-BR')} UH / Lotes</span>
                   </div>
                 );
@@ -319,10 +319,10 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
               if (areaM2 > 0) {
                 const ha = (areaM2 / 10000).toLocaleString('pt-BR', { maximumFractionDigits: 2 });
                 return (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-emerald-300 font-mono">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-emerald-700 font-mono">
                     <Trees className="w-3.5 h-3.5 text-emerald-400" />
                     <span className="font-bold">{ha} ha</span>
-                    <span className="text-slate-400 text-[10px]">({areaM2.toLocaleString('pt-BR')} m²)</span>
+                    <span className="text-slate-500 text-[10px]">({areaM2.toLocaleString('pt-BR')} m²)</span>
                   </div>
                 );
               }
@@ -341,10 +341,10 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
             {onZoomToFeature && (
               <button
                 onClick={() => onZoomToFeature(feature)}
-                className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg flex items-center gap-1.5 transition-colors"
+                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 hover:text-slate-900 rounded-lg flex items-center gap-1.5 transition-colors"
                 title="Centralizar e aproximar nesta feição"
               >
-                <MapPin className="w-3.5 h-3.5 text-sky-400" />
+                <MapPin className="w-3.5 h-3.5 text-red-600" />
                 <span>Zoom</span>
               </button>
             )}
@@ -352,7 +352,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
             {isGraprohab && onOpenGraprohabDetail && (
               <button
                 onClick={() => onOpenGraprohabDetail(feature)}
-                className="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg font-medium flex items-center gap-1.5 transition-colors"
+                className="px-2.5 py-1.5 bg-red-700 hover:bg-red-600 text-white rounded-lg font-medium flex items-center gap-1.5 transition-colors"
                 title="Ver Ficha Técnica Habitacional do Processo"
               >
                 <FileText className="w-3.5 h-3.5" />
@@ -372,7 +372,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
               className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all ${
                 isEditMode 
                   ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-md shadow-amber-500/20' 
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-800 hover:text-slate-900'
               }`}
               title={appMode === 'gestor' ? "Alternar edição" : "Requer senha de gestor para editar"}
             >
@@ -414,16 +414,16 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
 
           {/* Add Field Panel in Edit Mode */}
           {isEditMode && (
-            <div className="p-3.5 bg-slate-950/80 border border-slate-800 rounded-xl space-y-3">
+            <div className="p-3.5 bg-slate-50/80 border border-slate-200 rounded-xl space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-sky-400" />
+                <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-red-600" />
                   Adicionar Novo Campo na Camada
                 </span>
                 {!isAddingField && (
                   <button
                     onClick={() => setIsAddingField(true)}
-                    className="px-2.5 py-1 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 hover:text-sky-200 border border-sky-500/30 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
+                    className="px-2.5 py-1 bg-red-600/15 hover:bg-red-600/25 text-red-500 hover:text-sky-200 border border-red-600/30 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Novo Campo</span>
@@ -432,37 +432,37 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
               </div>
 
               {isAddingField && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-slate-800">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-slate-200">
                   <div>
-                    <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Nome do Campo</label>
+                    <label className="text-[10px] text-slate-500 uppercase font-semibold block mb-1">Nome do Campo</label>
                     <input
                       type="text"
                       placeholder="ex: observacao_licenciamento"
                       value={newFieldName}
                       onChange={(e) => setNewFieldName(e.target.value)}
-                      className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-red-600"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Tipo</label>
+                    <label className="text-[10px] text-slate-500 uppercase font-semibold block mb-1">Tipo</label>
                     <select
                       value={newFieldType}
                       onChange={(e) => setNewFieldType(e.target.value as any)}
-                      className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-sky-500"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-red-600"
                     >
                       <option value="string">Texto (String)</option>
                       <option value="number">Numérico (Number)</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Valor Inicial</label>
+                    <label className="text-[10px] text-slate-500 uppercase font-semibold block mb-1">Valor Inicial</label>
                     <div className="flex gap-1.5">
                       <input
                         type={newFieldType === 'number' ? 'number' : 'text'}
                         placeholder="Valor padrão"
                         value={newFieldDefaultVal}
                         onChange={(e) => setNewFieldDefaultVal(e.target.value)}
-                        className="flex-1 px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500"
+                        className="flex-1 px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-red-600"
                       />
                       <button
                         onClick={handleConfirmAddField}
@@ -473,7 +473,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
                       </button>
                       <button
                         onClick={() => setIsAddingField(false)}
-                        className="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg text-xs transition-colors"
+                        className="px-2 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 rounded-lg text-xs transition-colors"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -485,14 +485,14 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
           )}
 
           {/* Attributes List / Table */}
-          <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950/40">
-            <div className="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800 flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-300">
+          <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/40">
+            <div className="px-4 py-2.5 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between text-xs">
+              <span className="font-bold text-slate-700">
                 Atributos da Feição ({propertyKeys.length} {propertyKeys.length === 1 ? 'campo' : 'campos'})
               </span>
               <button
                 onClick={handleCopyJson}
-                className="text-slate-400 hover:text-sky-400 flex items-center gap-1 transition-colors"
+                className="text-slate-500 hover:text-red-600 flex items-center gap-1 transition-colors"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? 'Copiado!' : 'Copiar JSON'}</span>
@@ -504,7 +504,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
                 Nenhum atributo cadastrado nesta feição.
               </div>
             ) : (
-              <div className="divide-y divide-slate-800/60">
+              <div className="divide-y divide-slate-200/60">
                 {propertyKeys.map((key) => {
                   const val = editedProperties[key];
                   const isRenamingThis = renamingKey === key;
@@ -512,8 +512,8 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
                   return (
                     <div 
                       key={key} 
-                      className={`p-3 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-800/30 transition-colors ${
-                        isRenamingThis ? 'bg-sky-950/30 border-l-2 border-sky-400' : ''
+                      className={`p-3 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-100/30 transition-colors ${
+                        isRenamingThis ? 'bg-red-50/30 border-l-2 border-red-600' : ''
                       }`}
                     >
                       {/* Field Key Label / Rename Input */}
@@ -525,7 +525,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
                               value={newKeyInput}
                               onChange={(e) => setNewKeyInput(e.target.value)}
                               autoFocus
-                              className="flex-1 px-2 py-1 bg-slate-900 border border-sky-500 rounded text-xs text-white font-mono focus:outline-none"
+                              className="flex-1 px-2 py-1 bg-white border border-red-600 rounded text-xs text-slate-900 font-mono focus:outline-none"
                             />
                             <button
                               onClick={() => handleConfirmRename(key)}
@@ -536,7 +536,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
                             </button>
                             <button
                               onClick={() => setRenamingKey(null)}
-                              className="p-1 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded"
+                              className="p-1 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded"
                               title="Cancelar renomeação"
                             >
                               <X className="w-3 h-3" />
@@ -545,7 +545,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
                         ) : (
                           <div className="flex items-center justify-between w-full pr-2">
                             <span 
-                              className="font-mono text-xs font-semibold text-slate-300 break-all select-all"
+                              className="font-mono text-xs font-semibold text-slate-700 break-all select-all"
                               title={key}
                             >
                               {key}
@@ -554,14 +554,14 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
                               <div className="flex items-center gap-1 opacity-80 hover:opacity-100 shrink-0 ml-1">
                                 <button
                                   onClick={() => handleStartRename(key)}
-                                  className="p-1 text-slate-400 hover:text-sky-400 hover:bg-slate-800 rounded transition-colors"
+                                  className="p-1 text-slate-500 hover:text-red-600 hover:bg-slate-100 rounded transition-colors"
                                   title="Renomear este campo"
                                 >
                                   <Edit3 className="w-3 h-3" />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteFieldLocal(key)}
-                                  className="p-1 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded transition-colors"
+                                  className="p-1 text-slate-500 hover:text-rose-400 hover:bg-slate-100 rounded transition-colors"
                                   title="Excluir este campo da camada"
                                 >
                                   <Trash2 className="w-3 h-3" />
@@ -580,10 +580,10 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
                             value={val !== null && val !== undefined ? String(val) : ''}
                             onChange={(e) => handlePropertyValueChange(key, e.target.value)}
                             placeholder="vazio (null)"
-                            className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-amber-400 transition-colors font-sans"
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-amber-400 transition-colors font-sans"
                           />
                         ) : (
-                          <div className="text-xs text-slate-200 break-words font-sans bg-slate-900/60 px-2.5 py-1.5 rounded-lg border border-slate-800/80">
+                          <div className="text-xs text-slate-800 break-words font-sans bg-white/60 px-2.5 py-1.5 rounded-lg border border-slate-200/80">
                             {val !== null && val !== undefined ? (
                               typeof val === 'object' ? JSON.stringify(val) : String(val)
                             ) : (
@@ -601,7 +601,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 bg-slate-950/90 border-t border-slate-800 flex items-center justify-between gap-3">
+        <div className="px-5 py-3.5 bg-slate-50/90 border-t border-slate-200 flex items-center justify-between gap-3">
           <div>
             {isEditMode ? (
               <button
@@ -628,7 +628,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
                     }
                     setIsEditMode(false);
                   }}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-semibold transition-colors"
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-semibold transition-colors"
                 >
                   Cancelar
                 </button>
@@ -646,7 +646,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
             ) : (
               <button
                 onClick={onClose}
-                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition-colors"
+                className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg text-xs font-semibold transition-colors"
               >
                 Fechar
               </button>
@@ -655,14 +655,14 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
         </div>
       </div>
       {confirmPrompt && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm rounded-2xl">
-          <div className="bg-slate-900 border border-rose-500/30 rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-            <h3 className="text-sm font-bold text-rose-300 mb-2">Confirmar Exclusão</h3>
-            <p className="text-xs text-slate-300 mb-6">{confirmPrompt.msg}</p>
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-50/80 backdrop-blur-sm rounded-2xl">
+          <div className="bg-white border border-rose-500/30 rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+            <h3 className="text-sm font-bold text-rose-700 mb-2">Confirmar Exclusão</h3>
+            <p className="text-xs text-slate-700 mb-6">{confirmPrompt.msg}</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setConfirmPrompt(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition-colors"
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition-colors"
               >
                 Cancelar
               </button>

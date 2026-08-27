@@ -167,7 +167,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
   const hasAnyFilter = municipioFilter.trim() || empreendedorFilter.trim() || protocoloFilter.trim() || dispensaFilter.trim() || !!anoFilter;
 
   return (
-    <div className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-2.5 text-xs text-white z-20 shadow-md">
+    <div className="bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-2.5 text-xs text-slate-900 z-20 shadow-md">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         {/* Search Bars Container */}
         <div className="flex-1 flex flex-col gap-3 relative">
@@ -179,14 +179,14 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
               <select
                 value={municipioFilter}
                 onChange={(e) => onFilterChange(e.target.value, empreendedorFilter, protocoloFilter, dispensaFilter, anoFilter)}
-                className="w-full px-3 py-1.5 bg-slate-950/90 border border-slate-700/80 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-sky-500 transition-all shadow-inner appearance-none cursor-pointer"
+                className="w-full px-3 py-1.5 bg-slate-50/90 border border-slate-300/80 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-red-600 transition-all shadow-inner appearance-none cursor-pointer"
               >
                 <option value="">Todos Municípios</option>
                 {municipalities.map(m => (
                   <option key={m} value={m}>{m}</option>
                 ))}
               </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
                 ▼
               </div>
             </div>
@@ -198,7 +198,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                 placeholder="Empreendedor / Interessado"
                 value={empreendedorFilter}
                 onChange={(e) => onFilterChange(municipioFilter, e.target.value, protocoloFilter, dispensaFilter, anoFilter)}
-                className="w-full px-3 py-1.5 bg-slate-950/90 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all shadow-inner"
+                className="w-full px-3 py-1.5 bg-slate-50/90 border border-slate-300/80 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-red-600 transition-all shadow-inner"
               />
             </div>
           </div>
@@ -212,7 +212,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                 placeholder="Nº Protocolo"
                 value={protocoloFilter}
                 onChange={(e) => onFilterChange(municipioFilter, empreendedorFilter, e.target.value, dispensaFilter, anoFilter)}
-                className="w-full px-3 py-1.5 bg-slate-950/90 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all shadow-inner"
+                className="w-full px-3 py-1.5 bg-slate-50/90 border border-slate-300/80 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-red-600 transition-all shadow-inner"
                 list="protocolos-datalist"
               />
               <datalist id="protocolos-datalist">
@@ -230,7 +230,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                 placeholder="Nº Dispensa"
                 value={dispensaFilter}
                 onChange={(e) => onFilterChange(municipioFilter, empreendedorFilter, protocoloFilter, e.target.value, anoFilter)}
-                className="w-full px-3 py-1.5 bg-slate-950/90 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all shadow-inner"
+                className="w-full px-3 py-1.5 bg-slate-50/90 border border-slate-300/80 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-red-600 transition-all shadow-inner"
                 list="dispensas-datalist"
               />
               <datalist id="dispensas-datalist">
@@ -249,14 +249,14 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                   onClick={() => setShowAnoFilter(!showAnoFilter)}
                   className={`px-2.5 py-1.5 rounded-xl h-[30px] flex items-center gap-1.5 shrink-0 transition-all border shadow-inner text-xs ${
                     anoFilter
-                      ? 'bg-sky-500/20 border-sky-500 text-sky-300 font-semibold'
+                      ? 'bg-red-600/20 border-red-600 text-red-500 font-semibold'
                       : showAnoFilter
-                      ? 'bg-slate-800 border-slate-600 text-white'
-                      : 'bg-slate-950/90 border-slate-700/80 text-slate-300 hover:text-white hover:border-slate-600'
+                      ? 'bg-slate-100 border-slate-300 text-slate-900'
+                      : 'bg-slate-50/90 border-slate-300/80 text-slate-700 hover:text-slate-900 hover:border-slate-300'
                   }`}
                   title="Filtro por Ano de Entrada"
                 >
-                  <Calendar className="w-3.5 h-3.5 text-sky-400" />
+                  <Calendar className="w-3.5 h-3.5 text-red-600" />
                   <span>
                     {anoFilter ? `${anoFilter[0]}–${anoFilter[1]}` : 'Ano'}
                   </span>
@@ -290,7 +290,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                   onFilterChange('', '', '', '', null);
                   setShowAnoFilter(false);
                 }}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-medium transition-colors border border-slate-700 h-[30px] self-end sm:self-start sm:mt-0"
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-xs font-medium transition-colors border border-slate-300 h-[30px] self-end sm:self-start sm:mt-0"
               >
                 Limpar
               </button>
@@ -300,8 +300,8 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
           {/* Quick Search Preview Results Popup (Vertical Dropdown) */}
           <div className="w-full relative z-50">
             {hasAnyFilter && filteredList.length > 0 && (
-              <div className="absolute top-0 left-0 w-full md:w-[400px] mt-1.5 max-h-[350px] overflow-y-auto bg-slate-900/95 backdrop-blur-xl border border-slate-700/80 rounded-xl shadow-2xl flex flex-col p-1.5 gap-0.5">
-                <div className="px-2 pt-1 pb-1.5 mb-1 border-b border-slate-800/80 text-[10px] text-slate-400 font-semibold uppercase tracking-wider flex items-center justify-between">
+              <div className="absolute top-0 left-0 w-full md:w-[400px] mt-1.5 max-h-[350px] overflow-y-auto bg-white/95 backdrop-blur-xl border border-slate-300/80 rounded-xl shadow-2xl flex flex-col p-1.5 gap-0.5">
+                <div className="px-2 pt-1 pb-1.5 mb-1 border-b border-slate-200/80 text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex items-center justify-between">
                   <span>Resultados da Busca</span>
                   <span>{filteredList.length} encontrados</span>
                 </div>
@@ -340,11 +340,11 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                     <button
                       key={idx}
                       onClick={() => onSelectFeature(f)}
-                      className="w-full text-left px-2.5 py-2 bg-transparent hover:bg-slate-800/80 rounded-lg text-slate-200 transition-colors flex items-center gap-2 group"
+                      className="w-full text-left px-2.5 py-2 bg-transparent hover:bg-slate-100/80 rounded-lg text-slate-800 transition-colors flex items-center gap-2 group"
                       title={`Clique para centralizar no mapa: ${title}`}
                     >
-                      <div className="p-1.5 bg-slate-800 group-hover:bg-sky-950/60 rounded-md border border-slate-700 group-hover:border-sky-500/30 transition-colors shrink-0">
-                        <Building className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-400 transition-colors" />
+                      <div className="p-1.5 bg-slate-100 group-hover:bg-red-50/60 rounded-md border border-slate-300 group-hover:border-red-600/30 transition-colors shrink-0">
+                        <Building className="w-3.5 h-3.5 text-slate-500 group-hover:text-red-600 transition-colors" />
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col">
                         <div className="flex items-center">
@@ -352,7 +352,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                           {badge}
                         </div>
                         {(mun || prop) && (
-                          <span className="text-[10px] text-slate-400 font-mono truncate">
+                          <span className="text-[10px] text-slate-500 font-mono truncate">
                             {mun}
                             {mun && prop && ' • '}
                             {prop}
@@ -362,7 +362,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                       {uh > 0 && (
                         <div className="flex flex-col items-end shrink-0 ml-2">
                           <span className="text-[8px] text-slate-500 uppercase tracking-wider mb-[2px]">Lotes/UH</span>
-                          <span className="text-[10px] px-1.5 py-[1px] bg-sky-950/40 text-sky-300 rounded-md font-mono font-bold border border-sky-500/20">
+                          <span className="text-[10px] px-1.5 py-[1px] bg-red-50/40 text-red-500 rounded-md font-mono font-bold border border-red-600/20">
                             {uh}
                           </span>
                         </div>
@@ -375,26 +375,26 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
           </div>
         </div>
         {/* HUD Indicator (Top Right/Center in Consumer Portal) - Dynamic Metrics */}
-        <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-slate-800 pt-2 md:pt-0 md:pl-4 shrink-0">
+        <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-slate-200 pt-2 md:pt-0 md:pl-4 shrink-0">
           <div className="text-right">
-            <div className="flex items-center justify-end gap-1 text-[10px] text-slate-400 uppercase font-mono">
-              <Home className="w-3 h-3 text-sky-400" />
+            <div className="flex items-center justify-end gap-1 text-[10px] text-slate-500 uppercase font-mono">
+              <Home className="w-3 h-3 text-red-600" />
               <span>Unidades/Lotes Registrados</span>
             </div>
-            <span className="text-sm font-bold text-sky-400 font-mono tracking-tight" title="Soma total do campo Nº de Unidades Habitacionais (UH)">
-              {stats.totalUh > 0 ? stats.totalUh.toLocaleString('pt-BR') : '0'} <span className="text-xs font-normal text-sky-300">UH</span>
+            <span className="text-sm font-bold text-red-600 font-mono tracking-tight" title="Soma total do campo Nº de Unidades Habitacionais (UH)">
+              {stats.totalUh > 0 ? stats.totalUh.toLocaleString('pt-BR') : '0'} <span className="text-xs font-normal text-red-500">UH</span>
             </span>
           </div>
 
-          <div className="w-px h-7 bg-slate-800" />
+          <div className="w-px h-7 bg-slate-100" />
 
           <div className="text-right">
-            <div className="flex items-center justify-end gap-1 text-[10px] text-slate-400 uppercase font-mono">
+            <div className="flex items-center justify-end gap-1 text-[10px] text-slate-500 uppercase font-mono">
               <Trees className="w-3 h-3 text-emerald-400" />
               <span>Área Mapeada</span>
             </div>
             <span className="text-sm font-bold text-emerald-400 font-mono tracking-tight" title={`Área total da gleba: ${stats.totalAreaM2.toLocaleString('pt-BR')} m²`}>
-              {stats.totalHectares} <span className="text-xs font-normal text-emerald-300">ha</span>
+              {stats.totalHectares} <span className="text-xs font-normal text-emerald-700">ha</span>
             </span>
           </div>
         </div>

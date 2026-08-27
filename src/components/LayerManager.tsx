@@ -60,7 +60,7 @@ const DebouncedSlider = ({
 
   return (
     <div className="mt-3 flex items-start gap-2 px-1" title={title} onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
-      <span className="text-[10px] text-slate-400 w-14 mt-0.5">{label}:</span>
+      <span className="text-[10px] text-slate-500 w-14 mt-0.5">{label}:</span>
       <div className="flex-1 flex flex-col">
         <input
           type="range"
@@ -69,7 +69,7 @@ const DebouncedSlider = ({
           onChange={(e) => handleChange(parseFloat(e.target.value))}
           onPointerUp={handlePointerUp}
           onTouchEnd={handlePointerUp}
-          className="w-full accent-sky-500 h-1.5 bg-slate-700/80 rounded-lg cursor-pointer"
+          className="w-full accent-red-600 h-1.5 bg-slate-200/80 rounded-lg cursor-pointer"
         />
         {rulerMarks && (
           <div className="flex justify-between w-full mt-1.5 pointer-events-none relative px-0.5">
@@ -83,7 +83,7 @@ const DebouncedSlider = ({
           </div>
         )}
       </div>
-      <span className="text-[10px] font-mono text-slate-300 w-8 text-right mt-0.5">
+      <span className="text-[10px] font-mono text-slate-700 w-8 text-right mt-0.5">
         {formatValue(localVal)}
       </span>
     </div>
@@ -176,25 +176,25 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
   return (
     <div 
       id="layer-manager-container"
-      className="flex flex-col h-full bg-slate-900 border-r border-slate-800 text-slate-100 select-none overflow-hidden"
+      className="flex flex-col h-full bg-white border-r border-slate-200 text-slate-900 select-none overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950/80">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50/80">
         <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-sky-400" />
-          <span className="font-semibold text-xs uppercase tracking-wider text-slate-200">
+          <Layers className="w-4 h-4 text-red-600" />
+          <span className="font-semibold text-xs uppercase tracking-wider text-slate-800">
             Tipologia de empreendimentos ({layers.length})
           </span>
         </div>
         {appMode === 'gestor' ? (
-          <span className="text-[10px] px-2 py-0.5 bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-semibold rounded-full flex items-center gap-1">
+          <span className="text-[10px] px-2 py-0.5 bg-emerald-50 border border-emerald-500/30 text-emerald-700 font-semibold rounded-full flex items-center gap-1">
             <Unlock className="w-3 h-3 text-emerald-400" />
             Edição
           </span>
         ) : (
           <button
             onClick={() => onRequireAuth(() => {})}
-            className="text-[10px] px-2 py-0.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-medium rounded-full flex items-center gap-1 transition-colors"
+            className="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-medium rounded-full flex items-center gap-1 transition-colors"
             title="Clique para desbloquear modo de edição com senha"
           >
             <Lock className="w-3 h-3 text-amber-400" />
@@ -207,8 +207,8 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
         {layers.length === 0 ? (
           <div className="p-6 text-center text-slate-500 text-xs space-y-2">
-            <Layers className="w-8 h-8 mx-auto opacity-40 text-slate-400" />
-            <p className="font-medium text-slate-400">Nenhuma camada carregada</p>
+            <Layers className="w-8 h-8 mx-auto opacity-40 text-slate-500" />
+            <p className="font-medium text-slate-500">Nenhuma camada carregada</p>
             <p className="text-[11px] text-slate-500">
               Faça upload de arquivos GeoJSON ou selecione uma das camadas oficiais do Estado de SP.
             </p>
@@ -231,11 +231,11 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                 onDragEnd={() => { setDraggedLayerId(null); setDragOverLayerId(null); }}
                 onClick={() => onSelectActiveLayer(layer.id)}
                 className={`group relative hover:z-[100] rounded-xl border transition-all cursor-pointer ${
-                  dragOverLayerId === layer.id ? 'border-t-4 border-t-sky-500 bg-sky-900/20' : ''
+                  dragOverLayerId === layer.id ? 'border-t-4 border-t-red-600 bg-red-100/20' : ''
                 } ${
                   isActive
-                    ? 'bg-slate-800/90 border-sky-500/70 shadow-lg shadow-sky-950/30 z-10'
-                    : 'bg-slate-900/60 border-slate-800 hover:bg-slate-800/40 hover:border-slate-700'
+                    ? 'bg-slate-100/90 border-red-600/70 shadow-lg shadow-red-200/30 z-10'
+                    : 'bg-white/60 border-slate-200 hover:bg-slate-100/40 hover:border-slate-300'
                 } ${draggedLayerId === layer.id ? 'opacity-50 scale-[0.98]' : 'opacity-100'}`}
               >
                 {/* Main Card Header */}
@@ -244,7 +244,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                     <div className="flex items-center gap-2 min-w-0">
                       {/* Drag Handle */}
                       <div 
-                        className="cursor-grab active:cursor-grabbing p-1 text-slate-500 hover:text-white transition-colors" 
+                        className="cursor-grab active:cursor-grabbing p-1 text-slate-500 hover:text-slate-900 transition-colors" 
                         title="Clicar e arrastar para reordenar"
                         onMouseEnter={() => setActiveDragHandleId(layer.id)}
                         onMouseLeave={() => setActiveDragHandleId(null)}
@@ -261,8 +261,8 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                         }}
                         className={`p-1 rounded-md transition-colors ${
                           layer.visible
-                            ? 'text-sky-400 hover:bg-sky-500/10'
-                            : 'text-slate-500 hover:bg-slate-800'
+                            ? 'text-red-600 hover:bg-red-600/10'
+                            : 'text-slate-500 hover:bg-slate-100'
                         }`}
                         title={layer.visible ? 'Ocultar camada' : 'Exibir camada'}
                       >
@@ -295,17 +295,17 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                                     setEditingLayerId(null);
                                   }
                                 }}
-                                className="w-[100px] bg-slate-900 border border-sky-500 rounded px-1 text-xs text-white focus:outline-none"
+                                className="w-[100px] bg-white border border-red-600 rounded px-1 text-xs text-slate-900 focus:outline-none"
                               />
                               <button onClick={() => {
                                 if (editName.trim() && onRenameLayer) onRenameLayer(layer.id, editName.trim());
                                 setEditingLayerId(null);
-                              }} className="text-emerald-400 hover:text-emerald-300"><Check className="w-3.5 h-3.5" /></button>
-                              <button onClick={() => setEditingLayerId(null)} className="text-slate-400 hover:text-slate-200"><X className="w-3.5 h-3.5" /></button>
+                              }} className="text-emerald-400 hover:text-emerald-700"><Check className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => setEditingLayerId(null)} className="text-slate-500 hover:text-slate-800"><X className="w-3.5 h-3.5" /></button>
                             </div>
                           ) : (
                             <>
-                              <h4 className="font-semibold text-xs text-white truncate max-w-[130px]" title={layer.name}>
+                              <h4 className="font-semibold text-xs text-slate-900 truncate max-w-[130px]" title={layer.name}>
                                 {layer.name}
                               </h4>
                               {onRenameLayer && (
@@ -316,7 +316,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                                     setEditingLayerId(layer.id);
                                     setEditName(layer.name);
                                   }}
-                                  className="text-slate-500 hover:text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="text-slate-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                                   title="Renomear Camada"
                                 >
                                   <Pencil className="w-3 h-3" />
@@ -325,14 +325,14 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                               
                               <button 
                                 type="button"
-                                className="relative ml-0.5 flex items-center cursor-pointer p-1 hover:bg-slate-800 rounded transition-colors"
+                                className="relative ml-0.5 flex items-center cursor-pointer p-1 hover:bg-slate-100 rounded transition-colors"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setViewingDescId(layer.id);
                                 }}
                                 title="Ver descrição da camada"
                               >
-                                <Info className={`w-3.5 h-3.5 ${layer.description ? 'text-sky-400' : 'text-slate-600'} transition-colors`} />
+                                <Info className={`w-3.5 h-3.5 ${layer.description ? 'text-red-600' : 'text-slate-600'} transition-colors`} />
                               </button>
                               
                               {viewingDescId === layer.id && (
@@ -344,29 +344,29 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                                   }}
                                 >
                                   <div 
-                                    className="bg-slate-900 border border-slate-800 rounded-xl p-5 w-[400px] max-w-[90vw] shadow-2xl flex flex-col gap-4"
+                                    className="bg-white border border-slate-200 rounded-xl p-5 w-[400px] max-w-[90vw] shadow-2xl flex flex-col gap-4"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                                      <h3 className="text-white font-semibold text-sm flex items-center gap-2 truncate pr-2" title={layer.name}>
-                                        <Info className="w-4 h-4 text-sky-400 shrink-0" />
+                                    <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                                      <h3 className="text-slate-900 font-semibold text-sm flex items-center gap-2 truncate pr-2" title={layer.name}>
+                                        <Info className="w-4 h-4 text-red-600 shrink-0" />
                                         <span className="truncate">{layer.name}</span>
                                       </h3>
                                       <button 
                                         onClick={() => setViewingDescId(null)}
-                                        className="text-slate-400 hover:text-slate-200 transition-colors"
+                                        className="text-slate-500 hover:text-slate-800 transition-colors"
                                       >
                                         <X className="w-4 h-4" />
                                       </button>
                                     </div>
-                                    <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
+                                    <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
                                       {layer.description ? layer.description : <span className="text-slate-500 italic">Esta camada não possui descrição.</span>}
                                     </div>
-                                    <div className="flex items-center justify-end mt-2 pt-3 border-t border-slate-800">
+                                    <div className="flex items-center justify-end mt-2 pt-3 border-t border-slate-200">
                                       <button 
                                         type="button"
                                         onClick={() => setViewingDescId(null)}
-                                        className="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
+                                        className="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
                                       >
                                         Fechar
                                       </button>
@@ -383,7 +383,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                                     setEditingDescId(layer.id);
                                     setEditDescText(layer.description || '');
                                   }}
-                                  className="text-slate-500 hover:text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1"
+                                  className="text-slate-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity ml-1"
                                   title="Editar Descrição"
                                 >
                                   <Pencil className="w-3 h-3" />
@@ -399,22 +399,22 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                                   }}
                                 >
                                   <div 
-                                    className="bg-slate-900 border border-slate-800 rounded-xl p-4 w-[350px] shadow-2xl flex flex-col gap-3"
+                                    className="bg-white border border-slate-200 rounded-xl p-4 w-[350px] shadow-2xl flex flex-col gap-3"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    <h3 className="text-white font-semibold text-sm">Editar Descrição da Camada</h3>
+                                    <h3 className="text-slate-900 font-semibold text-sm">Editar Descrição da Camada</h3>
                                     <textarea
                                       autoFocus
                                       value={editDescText}
                                       onChange={(e) => setEditDescText(e.target.value)}
                                       placeholder="Adicione uma descrição para esta camada..."
-                                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-slate-200 focus:border-sky-500 focus:outline-none min-h-[100px] resize-none"
+                                      className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm text-slate-800 focus:border-red-600 focus:outline-none min-h-[100px] resize-none"
                                     />
                                     <div className="flex items-center justify-end gap-2 mt-2">
                                       <button 
                                         type="button"
                                         onClick={() => setEditingDescId(null)}
-                                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-300 hover:bg-slate-800 transition-colors"
+                                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                                       >
                                         Cancelar
                                       </button>
@@ -426,7 +426,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                                           }
                                           setEditingDescId(null);
                                         }}
-                                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/50 hover:bg-sky-500/30 transition-colors"
+                                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-600/20 text-red-600 border border-red-600/50 hover:bg-red-600/30 transition-colors"
                                       >
                                         Salvar
                                       </button>
@@ -437,7 +437,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                             </>
                           )}
                           {layer.isRealtime && (
-                            <span className="flex items-center gap-1 px-1.5 py-0.2 bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-full text-[9px] font-semibold animate-pulse">
+                            <span className="flex items-center gap-1 px-1.5 py-0.2 bg-rose-500/20 text-rose-700 border border-rose-200 rounded-full text-[9px] font-semibold animate-pulse">
                               <Activity className="w-2.5 h-2.5" />
                               LIVE
                             </span>
@@ -449,7 +449,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                        <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-0.5">
                           <span className="flex items-center gap-1">
                             {getGeometryIcon(layer.geometryType)}
                             {layer.geometryType}
@@ -499,7 +499,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                   )}
 
                   {/* Action Buttons Toolbar */}
-                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+                  <div className="mt-3 pt-2.5 border-t border-slate-200/80 flex items-center justify-between">
                     <div className="flex items-center gap-1">
                       {appMode === 'gestor' && (
                         <button
@@ -507,10 +507,10 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                             e.stopPropagation();
                             handleProtectedAction(() => onOpenStyleModal(layer));
                           }}
-                          className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs flex items-center gap-1 transition-colors"
+                          className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg text-xs flex items-center gap-1 transition-colors"
                           title="Estilizar Camada / Cores"
                         >
-                          <Palette className="w-3 h-3 text-sky-400" />
+                          <Palette className="w-3 h-3 text-red-600" />
                           <span className="text-[10px] hidden sm:inline">Estilo</span>
                         </button>
                       )}
@@ -524,7 +524,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                           className={`p-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors ${
                             layer.filters.some(f => f.active) || layer.spatialFilter?.enabled
                               ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40'
-                              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
+                              : 'bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900'
                           }`}
                           title="Filtros Avançados"
                         >
@@ -543,7 +543,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                           e.stopPropagation();
                           onOpenAttributeTable(layer);
                         }}
-                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs flex items-center gap-1 transition-colors"
+                        className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg text-xs flex items-center gap-1 transition-colors"
                         title="Ver Tabela de Atributos"
                       >
                         <Table className="w-3 h-3 text-emerald-400" />
@@ -556,10 +556,10 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                             e.stopPropagation();
                             onOpenFieldManager(layer);
                           }}
-                          className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs flex items-center gap-1 transition-colors"
+                          className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg text-xs flex items-center gap-1 transition-colors"
                           title="Gerenciar ordem dos campos no pop-up e tabela, visibilidade e renomeação"
                         >
-                          <Columns className="w-3 h-3 text-sky-400" />
+                          <Columns className="w-3 h-3 text-red-600" />
                           <span className="text-[10px] hidden sm:inline">Campos</span>
                         </button>
                       )}
@@ -571,7 +571,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                           e.stopPropagation();
                           handleProtectedAction(() => onDuplicateLayer(layer.id));
                         }}
-                        className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-700/60 rounded-md transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-md transition-colors"
                         title={appMode === 'gestor' ? "Duplicar camada" : "Requer senha de gestor"}
                       >
                         <Copy className="w-3 h-3" />
@@ -581,7 +581,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                           e.stopPropagation();
                           handleProtectedAction(() => onDeleteLayer(layer.id));
                         }}
-                        className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-colors"
                         title={appMode === 'gestor' ? "Excluir camada" : "Requer senha de gestor"}
                       >
                         <Trash2 className="w-3 h-3" />
@@ -592,15 +592,15 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
 
                 {/* Thematic Legend Dropdown Preview */}
                 {hasThematic && layer.thematic && (
-                  <div className="border-t border-slate-800/80 bg-slate-950/40 p-2.5 rounded-b-xl">
+                  <div className="border-t border-slate-200/80 bg-slate-50/40 p-2.5 rounded-b-xl">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleLegend(layer.id);
                       }}
-                      className="w-full flex items-center justify-between text-[11px] text-slate-400 hover:text-slate-200 mb-1"
+                      className="w-full flex items-center justify-between text-[11px] text-slate-500 hover:text-slate-800 mb-1"
                     >
-                      <span className="font-semibold text-slate-300">
+                      <span className="font-semibold text-slate-700">
                         Legenda: {layer.thematic.property}
                       </span>
                       {isLegendOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
@@ -615,7 +615,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                                 className="w-3 h-3 rounded-xs border border-white/20 shrink-0"
                                 style={{ backgroundColor: cls.color }}
                               />
-                              <span className="text-slate-300 truncate max-w-[150px]">{cls.label}</span>
+                              <span className="text-slate-700 truncate max-w-[150px]">{cls.label}</span>
                             </div>
                             {cls.count !== undefined && (
                               <span className="text-slate-500 font-mono">{cls.count}</span>

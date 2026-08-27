@@ -31,23 +31,23 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-50/80 backdrop-blur-sm">
+      <div className="bg-white border border-slate-300/80 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-white/50">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-sky-500/10 rounded-lg border border-sky-500/20">
-              <Layers className="w-5 h-5 text-sky-400" />
+            <div className="p-2 bg-red-600/10 rounded-lg border border-red-600/20">
+              <Layers className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-100">{title}</h2>
-              <p className="text-[11px] text-slate-400 font-medium">Visualização de Propriedades</p>
+              <h2 className="text-sm font-bold text-slate-900">{title}</h2>
+              <p className="text-[11px] text-slate-500 font-medium">Visualização de Propriedades</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -55,15 +55,15 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
         {/* Content - Attributes Table */}
         <div className="flex-1 overflow-y-auto p-5 scrollbar-thin scrollbar-thumb-slate-700">
-          <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+          <div className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-900 border-b border-slate-800">
+              <thead className="bg-white border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3 font-semibold text-slate-300 w-1/3">Propriedade (Chave)</th>
-                  <th className="px-4 py-3 font-semibold text-slate-300">Valor</th>
+                  <th className="px-4 py-3 font-semibold text-slate-700 w-1/3">Propriedade (Chave)</th>
+                  <th className="px-4 py-3 font-semibold text-slate-700">Valor</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-200/60">
                 {Object.entries(p).length === 0 ? (
                   <tr>
                     <td colSpan={2} className="px-4 py-6 text-center text-slate-500">
@@ -72,11 +72,11 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                   </tr>
                 ) : (
                   Object.entries(p).map(([key, val]) => (
-                    <tr key={key} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="px-4 py-2.5 text-slate-400 font-mono text-[11px] break-all border-r border-slate-800/40">
+                    <tr key={key} className="hover:bg-slate-100/30 transition-colors">
+                      <td className="px-4 py-2.5 text-slate-500 font-mono text-[11px] break-all border-r border-slate-200/40">
                         {key}
                       </td>
-                      <td className="px-4 py-2.5 text-slate-200 break-words whitespace-pre-wrap">
+                      <td className="px-4 py-2.5 text-slate-800 break-words whitespace-pre-wrap">
                         {val === null || val === undefined ? (
                           <span className="text-slate-600 italic">nulo</span>
                         ) : (
@@ -92,14 +92,14 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         </div>
 
         {/* Footer actions */}
-        <div className="px-5 py-4 bg-slate-950/80 border-t border-slate-800 flex items-center justify-end gap-3">
+        <div className="px-5 py-4 bg-slate-50/80 border-t border-slate-200 flex items-center justify-end gap-3">
           {onCenterOnMap && (
             <button
               onClick={() => {
                 onCenterOnMap(feature);
                 onClose();
               }}
-              className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-sky-950 transition-all flex items-center gap-1.5"
+              className="px-4 py-2 bg-red-700 hover:bg-red-600 text-white rounded-xl text-xs font-semibold shadow-lg shadow-red-200 transition-all flex items-center gap-1.5"
             >
               <MapPin className="w-4 h-4" />
               <span>Centralizar no Mapa</span>
@@ -107,7 +107,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           )}
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-medium transition-colors"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-medium transition-colors"
           >
             Fechar
           </button>

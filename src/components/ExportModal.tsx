@@ -255,22 +255,22 @@ COMO ATUALIZAR MENSALMENTE:
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
       <div 
         id="export-modal"
-        className="w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+        className="w-full max-w-2xl bg-white border border-slate-300/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/90">
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg">
               <Download className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Exportar Dados Geográficos</h2>
-              <p className="text-xs text-slate-400">Converta e baixe camadas em múltiplos formatos vetoriais GIS</p>
+              <h2 className="text-lg font-semibold text-slate-900">Exportar Dados Geográficos</h2>
+              <p className="text-xs text-slate-500">Converta e baixe camadas em múltiplos formatos vetoriais GIS</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors"
+            className="text-slate-500 hover:text-slate-900 p-2 rounded-lg hover:bg-slate-100 transition-colors"
           >
             ✕
           </button>
@@ -280,12 +280,12 @@ COMO ATUALIZAR MENSALMENTE:
         <div className="p-6 overflow-y-auto space-y-5">
           {/* Layer Selection (hidden or styled when exporting full github bundle) */}
           {selectedFormat === 'github_bundle' ? (
-            <div className="p-4 bg-emerald-950/30 border border-emerald-500/40 rounded-xl space-y-2">
-              <div className="flex items-center gap-2 text-emerald-300 font-semibold text-xs uppercase tracking-wider">
+            <div className="p-4 bg-emerald-950/30 border border-emerald-200 rounded-xl space-y-2">
+              <div className="flex items-center gap-2 text-emerald-700 font-semibold text-xs uppercase tracking-wider">
                 <Package className="w-4 h-4 text-emerald-400" />
                 <span>Exportação de Todas as {layers.length} Camadas para GitHub Pages</span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-slate-700 leading-relaxed">
                 Este pacote gera os arquivos <strong>.geojson</strong> de cada camada ativa e o arquivo de configuração <strong>mapas-config.json</strong> com estilos e visibilidade preservados.
               </p>
               <div className="text-[11px] text-emerald-400/90 flex items-center gap-1.5 pt-1">
@@ -295,13 +295,13 @@ COMO ATUALIZAR MENSALMENTE:
             </div>
           ) : (
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
                 Selecione a Camada de Origem
               </label>
               <select
                 value={selectedLayerId}
                 onChange={(e) => setSelectedLayerId(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 font-medium"
+                className="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-emerald-500 font-medium"
               >
                 {layers.map((l) => (
                   <option key={l.id} value={l.id}>
@@ -314,7 +314,7 @@ COMO ATUALIZAR MENSALMENTE:
 
           {/* Format Selection Grid */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
               Formato de Exportação Desejado
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -330,27 +330,27 @@ COMO ATUALIZAR MENSALMENTE:
                       isSelected
                         ? 'bg-emerald-950/40 border-emerald-500 ring-1 ring-emerald-500 text-emerald-200'
                         : fmt.isLocked
-                          ? 'bg-slate-900/60 border-slate-800 hover:border-slate-700 text-slate-400 opacity-80 hover:opacity-100'
-                          : 'bg-slate-800/60 border-slate-700/60 hover:bg-slate-800 hover:border-slate-600 text-slate-300'
+                          ? 'bg-white/60 border-slate-200 hover:border-slate-300 text-slate-500 opacity-80 hover:opacity-100'
+                          : 'bg-slate-100/60 border-slate-300/60 hover:bg-slate-100 hover:border-slate-300 text-slate-700'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Icon className={`w-4 h-4 ${isSelected ? 'text-emerald-400' : fmt.isLocked ? 'text-amber-400/80' : 'text-slate-400'}`} />
-                        <span className="font-semibold text-sm text-white">{fmt.title}</span>
+                        <Icon className={`w-4 h-4 ${isSelected ? 'text-emerald-400' : fmt.isLocked ? 'text-amber-400/80' : 'text-slate-500'}`} />
+                        <span className="font-semibold text-sm text-slate-900">{fmt.title}</span>
                       </div>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium flex items-center gap-1 ${
                         isSelected 
-                          ? 'bg-emerald-500/20 text-emerald-300' 
+                          ? 'bg-emerald-500/20 text-emerald-700' 
                           : fmt.isLocked
                             ? 'bg-amber-950/60 border border-amber-500/30 text-amber-300'
-                            : 'bg-slate-700 text-slate-400'
+                            : 'bg-slate-200 text-slate-500'
                       }`}>
                         {fmt.isLocked && <Lock className="w-2.5 h-2.5" />}
                         {fmt.badge}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">{fmt.desc}</p>
+                    <p className="text-xs text-slate-500 leading-relaxed">{fmt.desc}</p>
                   </button>
                 );
               })}
@@ -359,30 +359,30 @@ COMO ATUALIZAR MENSALMENTE:
 
           {/* Options */}
           {selectedFormat !== 'github_bundle' && (
-            <div className="p-4 bg-slate-800/50 rounded-xl border border-slate-700/60 space-y-3">
-              <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+            <div className="p-4 bg-slate-100/50 rounded-xl border border-slate-300/60 space-y-3">
+              <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider block">
                 Opções de Filtro e Nomenclatura
               </span>
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
-                  <label className="block text-xs text-slate-400 mb-1">Nome do Arquivo</label>
+                  <label className="block text-xs text-slate-500 mb-1">Nome do Arquivo</label>
                   <input
                     type="text"
                     placeholder={currentLayer?.name || 'nome_do_arquivo'}
                     value={fileName}
                     onChange={(e) => setFileName(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
                 <div className="flex-1 flex flex-col justify-end">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300 select-none">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 select-none">
                     <input
                       type="checkbox"
                       checked={exportFilteredOnly}
                       onChange={(e) => setExportFilteredOnly(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 bg-slate-900 border-slate-700"
+                      className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 bg-white border-slate-300"
                     />
                     <span>
                       Exportar apenas feições filtradas ({currentLayer?.filteredCount ?? currentLayer?.featureCount ?? 0} de {currentLayer?.featureCount ?? 0})
@@ -392,13 +392,13 @@ COMO ATUALIZAR MENSALMENTE:
               </div>
 
               {selectedFormat === 'csv' && (
-                <div className="pt-2 border-t border-slate-700/60 flex flex-wrap gap-4 text-xs text-slate-300">
+                <div className="pt-2 border-t border-slate-300/60 flex flex-wrap gap-4 text-xs text-slate-700">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={includeLatLon}
                       onChange={(e) => setIncludeLatLon(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 bg-slate-900 border-slate-700"
+                      className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 bg-white border-slate-300"
                     />
                     <span>Incluir colunas Latitude e Longitude</span>
                   </label>
@@ -407,7 +407,7 @@ COMO ATUALIZAR MENSALMENTE:
                       type="checkbox"
                       checked={includeWkt}
                       onChange={(e) => setIncludeWkt(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 bg-slate-900 border-slate-700"
+                      className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 bg-white border-slate-300"
                     />
                     <span>Incluir coluna WKT (Well-Known Text)</span>
                   </label>
@@ -421,7 +421,7 @@ COMO ATUALIZAR MENSALMENTE:
             <div className={`p-3.5 rounded-xl border flex items-center gap-2.5 text-xs ${
               statusMessage.type === 'success'
                 ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-200'
-                : 'bg-rose-950/40 border-rose-500/50 text-rose-200'
+                : 'bg-rose-50 border-rose-500/50 text-rose-200'
             }`}>
               {statusMessage.type === 'success' ? (
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -434,14 +434,14 @@ COMO ATUALIZAR MENSALMENTE:
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between">
-          <span className="text-xs text-slate-400">
+        <div className="px-6 py-4 border-t border-slate-200 bg-white/90 flex items-center justify-between">
+          <span className="text-xs text-slate-500">
             CRS: EPSG:4326 (WGS 84 Geográfico)
           </span>
           <div className="flex gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-medium rounded-lg transition-colors"
             >
               Cancelar
             </button>
