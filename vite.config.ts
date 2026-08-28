@@ -5,7 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: './',
+    base: '/GEOPORTAL-GRAPROHAB/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

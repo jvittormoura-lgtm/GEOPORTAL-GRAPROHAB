@@ -148,6 +148,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
 
 
+
+
         {/* Basemaps Modal Trigger */}
         <button
           id="btn-open-basemaps"

@@ -113,12 +113,10 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
   const [expandedLegends, setExpandedLegends] = React.useState<Record<string, boolean>>({});
   const [editingLayerId, setEditingLayerId] = React.useState<string | null>(null);
   const [editName, setEditName] = React.useState("");
-  const [editingDescId, setEditingDescId] = React.useState<string | null>(null);
-  const [editDescText, setEditDescText] = React.useState("");
-  const [viewingDescId, setViewingDescId] = React.useState<string | null>(null);
   const [draggedLayerId, setDraggedLayerId] = React.useState<string | null>(null);
   const [dragOverLayerId, setDragOverLayerId] = React.useState<string | null>(null);
   const [activeDragHandleId, setActiveDragHandleId] = React.useState<string | null>(null);
+  const [showTipologiaInfo, setShowTipologiaInfo] = React.useState(false);
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDraggedLayerId(id);
@@ -185,6 +183,14 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
           <span className="font-semibold text-xs uppercase tracking-wider text-slate-800">
             Tipologia de empreendimentos ({layers.length})
           </span>
+          <button 
+            type="button" 
+            onClick={() => setShowTipologiaInfo(true)}
+            className="p-1 hover:bg-slate-200 rounded-full text-slate-500 hover:text-slate-800 transition-colors"
+            title="Informações sobre Tipologia de Empreendimentos"
+          >
+            <Info className="w-4 h-4" />
+          </button>
         </div>
         {appMode === 'gestor' ? (
           <span className="text-[10px] px-2 py-0.5 bg-emerald-50 border border-emerald-500/30 text-emerald-700 font-semibold rounded-full flex items-center gap-1">
@@ -323,117 +329,6 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                                 </button>
                               )}
                               
-                              <button 
-                                type="button"
-                                className="relative ml-0.5 flex items-center cursor-pointer p-1 hover:bg-slate-100 rounded transition-colors"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setViewingDescId(layer.id);
-                                }}
-                                title="Ver descrição da camada"
-                              >
-                                <Info className={`w-3.5 h-3.5 ${layer.description ? 'text-red-600' : 'text-slate-600'} transition-colors`} />
-                              </button>
-                              
-                              {viewingDescId === layer.id && (
-                                <div 
-                                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setViewingDescId(null);
-                                  }}
-                                >
-                                  <div 
-                                    className="bg-white border border-slate-200 rounded-xl p-5 w-[400px] max-w-[90vw] shadow-2xl flex flex-col gap-4"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                                      <h3 className="text-slate-900 font-semibold text-sm flex items-center gap-2 truncate pr-2" title={layer.name}>
-                                        <Info className="w-4 h-4 text-red-600 shrink-0" />
-                                        <span className="truncate">{layer.name}</span>
-                                      </h3>
-                                      <button 
-                                        onClick={() => setViewingDescId(null)}
-                                        className="text-slate-500 hover:text-slate-800 transition-colors"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                    </div>
-                                    <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
-                                      {layer.description ? layer.description : <span className="text-slate-500 italic">Esta camada não possui descrição.</span>}
-                                    </div>
-                                    <div className="flex items-center justify-end mt-2 pt-3 border-t border-slate-200">
-                                      <button 
-                                        type="button"
-                                        onClick={() => setViewingDescId(null)}
-                                        className="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
-                                      >
-                                        Fechar
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                              
-                              {appMode === 'gestor' && onUpdateDescription && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setEditingDescId(layer.id);
-                                    setEditDescText(layer.description || '');
-                                  }}
-                                  className="text-slate-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity ml-1"
-                                  title="Editar Descrição"
-                                >
-                                  <Pencil className="w-3 h-3" />
-                                </button>
-                              )}
-                              
-                              {editingDescId === layer.id && (
-                                <div 
-                                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setEditingDescId(null);
-                                  }}
-                                >
-                                  <div 
-                                    className="bg-white border border-slate-200 rounded-xl p-4 w-[350px] shadow-2xl flex flex-col gap-3"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <h3 className="text-slate-900 font-semibold text-sm">Editar Descrição da Camada</h3>
-                                    <textarea
-                                      autoFocus
-                                      value={editDescText}
-                                      onChange={(e) => setEditDescText(e.target.value)}
-                                      placeholder="Adicione uma descrição para esta camada..."
-                                      className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm text-slate-800 focus:border-red-600 focus:outline-none min-h-[100px] resize-none"
-                                    />
-                                    <div className="flex items-center justify-end gap-2 mt-2">
-                                      <button 
-                                        type="button"
-                                        onClick={() => setEditingDescId(null)}
-                                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                                      >
-                                        Cancelar
-                                      </button>
-                                      <button 
-                                        type="button"
-                                        onClick={() => {
-                                          if (onUpdateDescription) {
-                                            onUpdateDescription(layer.id, editDescText.trim());
-                                          }
-                                          setEditingDescId(null);
-                                        }}
-                                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-600/20 text-red-600 border border-red-600/50 hover:bg-red-600/30 transition-colors"
-                                      >
-                                        Salvar
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
                             </>
                           )}
                           {layer.isRealtime && (
@@ -629,6 +524,57 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
           })
         )}
       </div>
+
+      {/* Tipologia Info Modal */}
+      {showTipologiaInfo && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setShowTipologiaInfo(false)}
+        >
+          <div 
+            className="bg-white border border-slate-200 rounded-xl p-5 w-full max-w-2xl shadow-2xl flex flex-col gap-4 max-h-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-slate-900 font-semibold text-base flex items-center gap-2">
+                <Info className="w-5 h-5 text-red-600" />
+                Características dos Empreendimentos
+              </h3>
+              <button 
+                onClick={() => setShowTipologiaInfo(false)}
+                className="text-slate-500 hover:text-slate-800 transition-colors p-1"
+                title="Fechar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="text-sm text-slate-700 space-y-4 overflow-y-auto pr-2 pb-2">
+              <p><strong>1. Condomínio (Protocolo):</strong> Projetos que exigem <strong className="text-red-600 font-semibold">análise obrigatória</strong> do colegiado devido ao porte (mais de 800 unidades verticais, 200 horizontais, 350 mistos ou área superior a 50.000 m²) ou por <strong className="text-red-600 font-semibold">restrição ambiental</strong> (área protegida &ge;10.000 m²).</p>
+              
+              <p><strong>2. Loteamento:</strong> Subdivisão de gleba em lotes com abertura de novas vias ou prolongamento das existentes. <strong className="text-red-600 font-semibold">Análise obrigatória</strong> do colegiado.</p>
+              
+              <p><strong>3. Conjunto Habitacional:</strong> Loteamento destinado à construção de unidades habitacionais e equipamentos comunitários. <strong className="text-red-600 font-semibold">Análise obrigatória</strong> do colegiado.</p>
+              
+              <p><strong>4. Condomínio (Dispensa):</strong> Projetos de até 800 unidades (verticais), 200 (horizontais) ou 350 (mistos) em áreas com infraestrutura e saneamento já implantados. <strong className="text-red-600 font-semibold">Não há análise</strong> do colegiado devido ao Não Enquadramento.</p>
+              
+              <p><strong>5. Desmembramento (Dispensa):</strong> Subdivisão em até 10 lotes, ou áreas maiores que já possuam infraestrutura completa e redes de saneamento em toda a testada. <strong className="text-red-600 font-semibold">Não há análise</strong> do colegiado devido ao Não Enquadramento.</p>
+              
+              <p><strong>6. Desmembramento (Protocolo):</strong> Subdivisão em mais de 10 lotes em áreas não servidas por redes de infraestrutura e saneamento. <strong className="text-red-600 font-semibold">Análise obrigatória</strong> do colegiado.</p>
+            </div>
+            
+            <div className="flex justify-end pt-3 border-t border-slate-200">
+              <button 
+                type="button"
+                onClick={() => setShowTipologiaInfo(false)}
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
