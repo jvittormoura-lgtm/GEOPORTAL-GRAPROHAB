@@ -11,6 +11,21 @@
 }
 
 /* Custom scrollbars */
+.results-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.results-scrollbar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 8px;
+}
+.results-scrollbar::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  border-radius: 8px;
+}
+.results-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #e2e8f0;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

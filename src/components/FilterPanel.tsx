@@ -157,6 +157,16 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {filters.length > 0 && (
+              <button
+                onClick={handleClearAll}
+                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 hover:border-red-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+                title="Limpar todos os filtros desta camada"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Limpar Filtros</span>
+              </button>
+            )}
             {onOpenAiAssistant && (
               <button
                 onClick={() => {
@@ -169,8 +179,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 <span>Pedir à IA</span>
               </button>
             )}
-            <button onClick={onClose} className="text-slate-500 hover:text-slate-900 p-2 rounded-lg hover:bg-slate-100">
-              ✕
+            <button onClick={onClose} className="text-slate-500 hover:text-slate-900 p-2 rounded-lg hover:bg-slate-100" title="Fechar painel">
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>

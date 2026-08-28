@@ -78,7 +78,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         className="w-full max-w-md bg-white border border-slate-300/80 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200"
       >
         {/* Header */}
-        <div className="px-6 py-5 bg-gradient-to-r from-slate-950 to-slate-900 border-b border-slate-200 flex items-center justify-between">
+        <div className="px-6 py-5 bg-white border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-600/10 border border-red-600/30 text-red-600 flex items-center justify-center">
               <Lock className="w-5 h-5" />
@@ -102,7 +102,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Content */}
         <div className="p-6 space-y-4">
-          <div className="p-3 bg-red-50/40 border border-red-600/20 rounded-xl text-xs text-sky-200 flex items-start gap-2.5">
+          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-start gap-2.5">
             <Building2 className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
             <span>
               O upload de polígonos GeoJSON/SHP, edição de estilos e gestão de camadas do Estado de SP são restritos aos analistas e técnicos credenciados do GRAPROHAB.

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { 
-  Search, Building, Home, Filter, ChevronUp, ChevronDown, Trees, Calendar, CheckCircle2, AlertCircle
+  Search, Building, Home, Filter, ChevronUp, ChevronDown, Trees, Calendar, CheckCircle2, AlertCircle, X
 } from 'lucide-react';
 import { GisLayer } from '../types/gis';
 import { DualRangeSlider } from './DualRangeSlider';
@@ -9,7 +9,8 @@ import {
   matchSmartSearch, 
   extractUhFromProperties,
   normalizeSearchText,
-  extractYearFromProperties
+  extractYearFromProperties,
+  filterFeatures
 } from '../utils/geoJsonParser';
 
 interface ConsumerPortalProps {
@@ -35,13 +36,15 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
 }) => {
   const [showAnoFilter, setShowAnoFilter] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
+  const [isResultsExpanded, setIsResultsExpanded] = useState(true);
 
   // Extract all features from visible layers
   const allFeatures = useMemo(() => {
     const list: GeoJSON.Feature[] = [];
     layers.filter(l => l.visible).forEach(l => {
       if (l.data && l.data.features) {
-        list.push(...l.data.features);
+        const visibleFeatures = filterFeatures(l.data.features, l.filters, l.spatialFilter);
+        list.push(...visibleFeatures);
       }
     });
     return list;
@@ -308,9 +311,11 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                   onFilterChange('', '', '', '', null);
                   setShowAnoFilter(false);
                 }}
-                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-xs font-medium transition-colors border border-slate-300 h-[30px] self-end sm:self-start sm:mt-0"
+                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border-red-200 hover:border-red-300 rounded-xl text-xs font-semibold transition-colors border h-[30px] self-end sm:self-start sm:mt-0 flex items-center gap-1.5 shrink-0 shadow-sm"
+                title="Limpar todos os filtros da busca"
               >
-                Limpar
+                <X className="w-3.5 h-3.5" />
+                <span>Limpar Filtros</span>
               </button>
             )}
           </div>
@@ -318,11 +323,23 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
           {/* Quick Search Preview Results Popup (Vertical Dropdown) */}
           <div className="w-full relative z-50">
             {hasAnyFilter && filteredList.length > 0 && (
-              <div className="absolute top-0 left-0 w-full md:w-[400px] mt-1.5 max-h-[350px] overflow-y-auto bg-white/95 backdrop-blur-xl border border-slate-300/80 rounded-xl shadow-2xl flex flex-col p-1.5 gap-0.5">
+              <div className="absolute top-0 left-0 w-full md:w-[400px] mt-1.5 bg-white/95 backdrop-blur-xl border border-slate-300/80 rounded-xl shadow-2xl flex flex-col p-1.5 gap-0.5 overflow-hidden">
                 <div className="px-2 pt-1 pb-1.5 mb-1 border-b border-slate-200/80 text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex items-center justify-between">
                   <span>Resultados da Busca</span>
-                  <span>{filteredList.length} encontrados</span>
+                  <div className="flex items-center gap-2">
+                    <span>{filteredList.length} encontrados</span>
+                    <button 
+                      onClick={() => setIsResultsExpanded(!isResultsExpanded)}
+                      className="p-1 hover:bg-slate-200/50 rounded-md transition-colors text-slate-400 hover:text-slate-600"
+                      title={isResultsExpanded ? "Recolher resultados" : "Expandir resultados"}
+                    >
+                      {isResultsExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                 </div>
+                
+                <div className={`overflow-y-auto results-scrollbar transition-all duration-300 ease-in-out ${isResultsExpanded ? 'max-h-[350px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="flex flex-col gap-0.5">
                 {filteredList.map((f, idx) => {
                   const p = f.properties || {};
                   
@@ -388,6 +405,8 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                     </button>
                   );
                 })}
+                  </div>
+                </div>
               </div>
             )}
           </div>

@@ -572,7 +572,7 @@ export default function App() {
     let hasDispensaFilter = !!dispensa.trim();
     let hasMatch = false;
 
-    setLayers(prev => {
+    const applyFiltersToLayers = (prev: GisLayer[]) => {
       const newLayers = prev.map(l => {
         // 1. Keep any existing manual filters that are NOT from the quick search bar
         const existingFilters = l.filters?.filter(f => !['search_mun', 'search_emp', 'search_prot', 'search_disp', 'search_ano'].includes(f.id)) || [];
@@ -630,7 +630,10 @@ export default function App() {
       }
 
       return newLayers;
-    });
+    };
+
+    setLayers(applyFiltersToLayers);
+    setPublishedLayers(applyFiltersToLayers);
   };
 
   const handleOpenProjectDetail = (feature: GeoJSON.Feature) => {

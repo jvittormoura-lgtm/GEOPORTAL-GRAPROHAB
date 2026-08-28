@@ -80,15 +80,24 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           camadas_fixas: [] as any[]
         };
 
+        const nameCounts: Record<string, number> = {};
+
         for (let i = 0; i < layers.length; i++) {
           const lyr = layers[i];
-          const safeName = lyr.name
+          let safeName = lyr.name
             .toLowerCase()
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/[^a-z0-9_-]/g, '_')
             .replace(/_+/g, '_')
             .replace(/^_|_$/g, '') || `camada_${i + 1}`;
+          
+          if (nameCounts[safeName]) {
+            nameCounts[safeName]++;
+            safeName = `${safeName}_${nameCounts[safeName]}`;
+          } else {
+            nameCounts[safeName] = 1;
+          }
           
           const layerFileName = `${safeName}.geojson`;
           
