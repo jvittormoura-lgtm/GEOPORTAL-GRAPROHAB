@@ -95,7 +95,7 @@
     {
       "nome": "Desmembramentos Dispensados",
       "arquivo": "data/desmembramentos_dispensados.geojson",
-      "visivel": false,
+      "visivel": true,
       "opacity": 1,
       "popupVisibleFields": [],
       "popupFieldOrder": [
