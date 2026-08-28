@@ -192,17 +192,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-200 animate-pulse'
                 : 'bg-emerald-600 hover:bg-emerald-500 text-slate-900 shadow-emerald-200'
             }`}
-            title="Salvar alterações e publicar para acesso no Modo Cidadão"
+            title="Salvar alterações na memória do navegador"
           >
             {publishSuccess ? (
               <>
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Publicado com Sucesso!</span>
+                <span>Salvo com Sucesso!</span>
               </>
             ) : (
               <>
                 <Send className="w-3.5 h-3.5" />
-                <span>{hasUnpublishedChanges ? 'Salvar & Publicar (Alterações)' : 'Salvar & Publicar'}</span>
+                <span>{hasUnpublishedChanges ? 'Salvar no navegador (Alterações)' : 'Salvar no navegador'}</span>
               </>
             )}
           </button>

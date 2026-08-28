@@ -100,13 +100,6 @@ export interface ThematicConfig {
   classes: ThematicClass[];
 }
 
-export interface SpatialFilter {
-  enabled: boolean;
-  type: 'bbox' | 'radius' | 'drawn';
-  bbox?: [number, number, number, number]; // [minLng, minLat, maxLng, maxLat]
-  center?: [number, number]; // [lng, lat]
-  radiusKm?: number;
-}
 
 export interface GisLayer {
   id: string;
@@ -120,7 +113,6 @@ export interface GisLayer {
   thematic?: ThematicConfig;
   isHeatmap?: boolean;
   filters: AttributeFilter[];
-  spatialFilter?: SpatialFilter;
   featureCount: number;
   filteredCount: number;
   propertiesSchema: PropertySchema[];

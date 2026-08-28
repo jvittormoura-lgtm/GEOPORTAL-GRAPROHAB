@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { GisLayer, AttributeFilter, FilterOperator, SpatialFilter } from '../types/gis';
-import { Filter, Plus, Trash2, CheckCircle2, SlidersHorizontal, Map, X, Sparkles } from 'lucide-react';
+import { GisLayer, AttributeFilter, FilterOperator } from '../types/gis';
+import { Filter, Plus, Trash2, CheckCircle2, SlidersHorizontal, Map, X, Sparkles, MapPin } from 'lucide-react';
 
 interface FilterPanelProps {
   layer: GisLayer | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateFilters: (layerId: string, filters: AttributeFilter[], spatialFilter?: SpatialFilter) => void;
+  onUpdateFilters: (layerId: string, filters: AttributeFilter[]) => void;
   onOpenAiAssistant?: () => void;
+  onRequestPickRadiusCenter?: () => void;
 }
 
 const OPERATOR_LABELS: Record<FilterOperator, string> = {
@@ -40,9 +41,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   onOpenAiAssistant
 }) => {
   const [filters, setFilters] = useState<AttributeFilter[]>([]);
-  const [spatialEnabled, setSpatialEnabled] = useState<boolean>(false);
-  const [spatialType, setSpatialType] = useState<'bbox' | 'radius'>('bbox');
-  const [radiusKm, setRadiusKm] = useState<number>(500);
 
   // New filter creation state
   const [newProp, setNewProp] = useState<string>('');
@@ -54,9 +52,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   React.useEffect(() => {
     if (layer && isOpen) {
       setFilters([...layer.filters]);
-      setSpatialEnabled(!!layer.spatialFilter?.enabled);
-      setSpatialType(layer.spatialFilter?.type === 'radius' ? 'radius' : 'bbox');
-      setRadiusKm(layer.spatialFilter?.radiusKm || 500);
       const initialProp = layer.propertiesSchema[0]?.key || '';
       setNewProp(initialProp);
       const schema = layer.propertiesSchema.find(p => p.key === initialProp);
@@ -89,44 +84,30 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     setFilters(updated);
     setNewVal('');
     setNewSecVal('');
-    saveChanges(updated, spatialEnabled, spatialType, radiusKm);
+    saveChanges(updated);
   };
 
   const handleRemoveFilter = (id: string) => {
     const updated = filters.filter(f => f.id !== id);
     setFilters(updated);
-    saveChanges(updated, spatialEnabled, spatialType, radiusKm);
+    saveChanges(updated);
   };
 
   const handleToggleFilter = (id: string) => {
     const updated = filters.map(f => f.id === id ? { ...f, active: !f.active } : f);
     setFilters(updated);
-    saveChanges(updated, spatialEnabled, spatialType, radiusKm);
+    saveChanges(updated);
   };
 
   const handleClearAll = () => {
     setFilters([]);
-    setSpatialEnabled(false);
-    saveChanges([], false, spatialType, radiusKm);
+    saveChanges([]);
   };
 
   const saveChanges = (
-    currentFilters: AttributeFilter[],
-    isSpatial: boolean,
-    sType: 'bbox' | 'radius',
-    rad: number
+    currentFilters: AttributeFilter[]
   ) => {
-    let spatial: SpatialFilter | undefined = undefined;
-    if (isSpatial) {
-      spatial = {
-        enabled: true,
-        type: sType,
-        bbox: layer.bbox,
-        center: [(layer.bbox[0] + layer.bbox[2]) / 2, (layer.bbox[1] + layer.bbox[3]) / 2],
-        radiusKm: rad
-      };
-    }
-    onUpdateFilters(layer.id, currentFilters, spatial);
+    onUpdateFilters(layer.id, currentFilters);
   };
 
   const applicableOperators: FilterOperator[] = propSchema?.type === 'number'
@@ -171,7 +152,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               <button
                 onClick={() => {
                   onClose();
-                  onOpenAiAssistant();
+                  if (onOpenAiAssistant) onOpenAiAssistant();
                 }}
                 className="px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
               >
@@ -304,83 +285,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               Adicionar Filtro à Camada
             </button>
           </div>
-
-          {/* Spatial Filter Options */}
-          <div className="p-4 bg-slate-100/40 rounded-xl border border-slate-300/60 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Map className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-semibold text-slate-800 uppercase tracking-wider">
-                  Filtro Espacial Geográfico
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={spatialEnabled}
-                onChange={(e) => {
-                  setSpatialEnabled(e.target.checked);
-                  saveChanges(filters, e.target.checked, spatialType, radiusKm);
-                }}
-                className="w-4 h-4 rounded text-emerald-600 bg-white border-slate-300"
-              />
-            </div>
-
-            {spatialEnabled && (
-              <div className="space-y-3 pt-2">
-                <div className="flex gap-3">
-                  <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="spatialType"
-                      checked={spatialType === 'bbox'}
-                      onChange={() => {
-                        setSpatialType('bbox');
-                        saveChanges(filters, true, 'bbox', radiusKm);
-                      }}
-                      className="text-emerald-500"
-                    />
-                    <span>Limitar pela extensão da tela / Bounding Box</span>
-                  </label>
-                  <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="spatialType"
-                      checked={spatialType === 'radius'}
-                      onChange={() => {
-                        setSpatialType('radius');
-                        saveChanges(filters, true, 'radius', radiusKm);
-                      }}
-                      className="text-emerald-500"
-                    />
-                    <span>Raio de Proximidade (Buffer)</span>
-                  </label>
-                </div>
-
-                {spatialType === 'radius' && (
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs text-slate-700">
-                      <span>Raio de busca:</span>
-                      <span className="font-mono text-emerald-400 font-semibold">{radiusKm} km</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="10"
-                      max="3000"
-                      step="10"
-                      value={radiusKm}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value);
-                        setRadiusKm(val);
-                        saveChanges(filters, true, 'radius', val);
-                      }}
-                      className="w-full accent-emerald-500"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
           {/* Active Filters List */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">

@@ -8,7 +8,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import localforage from 'localforage';
 import { 
   GisLayer, BasemapOption, LayerStyle, ThematicConfig, 
-  AttributeFilter, SpatialFilter, AppMode 
+  AttributeFilter, AppMode 
 } from './types/gis';
 import { BASEMAPS, BasemapSelector } from './components/BasemapSelector';
 import { Navbar } from './components/Navbar';
@@ -29,7 +29,7 @@ import {
   parseGeoJson, detectGeometryType, calculateBoundingBox, 
   extractPropertySchemas, filterFeatures 
 } from './utils/geoJsonParser';
-import { PanelRightClose, PanelRight, CheckCircle2, AlertCircle, Upload } from 'lucide-react';
+import { PanelRightClose, PanelRight, CheckCircle2, AlertCircle, Upload, MapPin } from 'lucide-react';
 
 const DEFAULT_LAYER_COLORS = [
   { fill: '#38bdf8', stroke: '#0284c7' },
@@ -46,7 +46,8 @@ export default function App() {
   const [lastPublishedAt, setLastPublishedAt] = useState<number | null>(null);
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState<boolean>(false);
   const [activeLayerId, setActiveLayerId] = useState<string | null>(null);
-  const [activeBasemap, setActiveBasemap] = useState<BasemapOption>(BASEMAPS[0]); // Carto Dark
+  const [activeBasemap, setActiveBasemap] = useState<BasemapOption>(BASEMAPS[0]);
+
   const [selectedFeature, setSelectedFeature] = useState<GeoJSON.Feature | null>(null);
 
   // Authentication & Environment Modes (Gestor vs Consumidor)
@@ -281,10 +282,10 @@ export default function App() {
     try {
       await localforage.setItem('graprohab_layers', publishedCopy);
       await localforage.setItem('graprohab_published_at', now);
-      showToast('Camadas e dados publicados com sucesso!', 'success');
+      showToast('Camadas e dados salvos no navegador com sucesso!', 'success');
     } catch (e) {
       console.error('Falha ao salvar no localforage:', e);
-      showToast('Erro ao publicar. Verifique o console.', 'error');
+      showToast('Erro ao salvar. Verifique o console.', 'error');
     }
   };
 
@@ -526,14 +527,13 @@ export default function App() {
     showToast('Camada removida com sucesso.');
   };
 
-  const handleUpdateFilters = (layerId: string, filters: AttributeFilter[], spatialFilter?: SpatialFilter) => {
+  const handleUpdateFilters = (layerId: string, filters: AttributeFilter[]) => {
     setLayers(prev => prev.map(l => {
       if (l.id === layerId) {
-        const filtered = filterFeatures(l.data.features, filters, spatialFilter);
+        const filtered = filterFeatures(l.data.features, filters);
         return {
           ...l,
           filters,
-          spatialFilter,
           filteredCount: filtered.length
         };
       }
@@ -612,7 +612,7 @@ export default function App() {
         }
 
         // 3. Apply the combined filters to the layer's features
-        const filtered = filterFeatures(l.data.features, dynamicFilters, l.spatialFilter);
+        const filtered = filterFeatures(l.data.features, dynamicFilters);
         
         if ((hasProtocoloFilter || hasDispensaFilter) && filtered.length > 0) {
           hasMatch = true;
@@ -987,6 +987,8 @@ export default function App() {
       {/* Consumer Consultation Portal Bar */}
       <ConsumerPortal
         layers={currentModeLayers}
+        activeBasemap={activeBasemap}
+        appMode={appMode}
         onSelectFeature={handleOpenProjectDetail}
         onFilterChange={handleMultiFilterChange}
         municipioFilter={consumerMunicipio}
@@ -1273,7 +1275,7 @@ export default function App() {
             const l = layers.find(item => item.id === layerId);
             if (l) {
               const updatedFilters = [...l.filters, filter];
-              handleUpdateFilters(layerId, updatedFilters, l.spatialFilter);
+              handleUpdateFilters(layerId, updatedFilters);
               showToast(`Filtro "${filter.property} ${filter.operator} ${filter.value}" aplicado pela IA!`);
             }
           }}

@@ -22,6 +22,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   isOpen,
   onClose,
   appMode = 'cidadao',
+
   onRequireAuth
 }) => {
   const [selectedLayerId, setSelectedLayerId] = useState<string>(activeLayerId || (layers[0]?.id || ''));
@@ -135,8 +136,7 @@ COMO ATUALIZAR MENSALMENTE:
         if (exportFilteredOnly) {
           exportFeatures = filterFeatures(
             currentLayer.data.features,
-            currentLayer.filters,
-            currentLayer.spatialFilter
+            currentLayer.filters
           );
         }
 
@@ -223,7 +223,7 @@ COMO ATUALIZAR MENSALMENTE:
     {
       id: 'shp',
       title: 'Shapefile ESRI (.zip)',
-      desc: 'Pacote binário completo com .SHP, .SHX, .DBF e projeção WGS84 .PRJ para QGIS, ArcGIS e AutoCAD',
+      desc: `Pacote binário completo com .SHP, .SHX, .DBF e projeção SIRGAS 2000 .PRJ para QGIS, ArcGIS e AutoCAD`,
       icon: Archive,
       badge: 'GIS Padrão'
     },

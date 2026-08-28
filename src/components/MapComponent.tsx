@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import L from 'leaflet';
+import proj4 from 'proj4';
 import { BasemapOption, GisLayer } from '../types/gis';
 import { 
   filterFeatures, 
-  haversineDistance, 
+  
   calculateFeatureArea,
   extractUhFromProperties,
   extractAreaM2FromProperties,
@@ -11,7 +12,7 @@ import {
   calculateBoundingBox
 } from '../utils/geoJsonParser';
 import { 
-  Compass, MapPin, Layers
+  Compass, MapPin, Layers, ChevronDown
 } from 'lucide-react';
 
 import { AddressSearch } from './AddressSearch';
@@ -32,6 +33,7 @@ interface MapComponentProps {
 export const MapComponent: React.FC<MapComponentProps> = ({
   layers,
   activeBasemap,
+
   selectedFeature,
   fitBoundsTrigger,
   onFeatureClick,
@@ -50,6 +52,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   // Mouse HUD
   const [mouseCoords, setMouseCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [currentZoom, setCurrentZoom] = useState<number>(3);
+  const [coordFormat, setCoordFormat] = useState<'geo' | 'utm'>('utm');
 
   // Initialize Map
   useEffect(() => {
@@ -364,7 +367,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       if (!layer.visible) return;
 
       // Filter features
-      const filtered = filterFeatures(layer.data.features, layer.filters, layer.spatialFilter);
+      const filtered = filterFeatures(layer.data.features, layer.filters);
       if (filtered.length === 0) return;
 
       const filteredCollection: GeoJSON.FeatureCollection = {
@@ -520,7 +523,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         
         validLayers.forEach(l => {
-          const filtered = filterFeatures(l.data.features, l.filters, l.spatialFilter);
+          const filtered = filterFeatures(l.data.features, l.filters);
           if (filtered.length > 0) {
             const bbox = calculateBoundingBox(filtered);
             minX = Math.min(minX, bbox[0]);
@@ -571,7 +574,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     const visibleFeatures: GeoJSON.Feature[] = [];
     layers.filter(l => l.visible).forEach(l => {
       if (l.data && l.data.features) {
-        const filtered = filterFeatures(l.data.features, l.filters, l.spatialFilter);
+        const filtered = filterFeatures(l.data.features, l.filters);
         visibleFeatures.push(...filtered);
       }
     });
@@ -607,22 +610,45 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       {/* Bottom Floating Coordinate / Zoom HUD */}
       <div className="absolute bottom-3 left-3 z-30 hidden sm:flex items-center gap-3 px-3 py-1.5 bg-slate-50/80 border border-slate-200 rounded-lg text-[11px] font-mono text-slate-500 backdrop-blur-xs shadow-lg">
         {mouseCoords ? (
-          <div>
-            <span className="text-slate-500">Lat:</span>{' '}
-            <strong className="text-slate-800">{mouseCoords.lat > 0 ? `+${mouseCoords.lat}` : mouseCoords.lat}°</strong>{' '}
-            <span className="text-slate-500">Lng:</span>{' '}
-            <strong className="text-slate-800">{mouseCoords.lng > 0 ? `+${mouseCoords.lng}` : mouseCoords.lng}°</strong>
-          </div>
+          coordFormat === 'geo' ? (
+            <div className="flex items-center cursor-pointer hover:bg-slate-200/50 px-2 py-0.5 rounded transition-colors" onClick={() => setCoordFormat('utm')} title="Alternar para UTM (X/Y)">
+              <span className="text-slate-500 mr-1">Lat:</span>
+              <strong className="text-slate-800 mr-2">{mouseCoords.lat > 0 ? `+${mouseCoords.lat}` : mouseCoords.lat}°</strong>
+              <span className="text-slate-500 mr-1">Lng:</span>
+              <strong className="text-slate-800">{mouseCoords.lng > 0 ? `+${mouseCoords.lng}` : mouseCoords.lng}°</strong>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
+            </div>
+          ) : (() => {
+            const zone = Math.floor((mouseCoords.lng + 180) / 6) + 1;
+            const isNorth = mouseCoords.lat >= 0;
+            // Define SIRGAS 2000 (GRS80 ellipsoid) instead of WGS84
+            const utmProj = `+proj=utm +zone=${zone} ${isNorth ? '+north' : '+south'} +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs`;
+            const [x, y] = proj4('EPSG:4326', utmProj, [mouseCoords.lng, mouseCoords.lat]);
+            // Calculate EPSG code for SIRGAS 2000 UTM (North = 31950 + zone, South = 31960 + zone)
+            const epsgCode = isNorth ? 31950 + zone : 31960 + zone;
+            return (
+              <div className="flex items-center cursor-pointer hover:bg-slate-200/50 px-2 py-0.5 rounded transition-colors" onClick={() => setCoordFormat('geo')} title="Alternar para Geográfica (Lat/Lng)">
+                <span className="text-slate-500 mr-2 font-medium">
+                  EPSG:{epsgCode} (UTM {zone}{isNorth ? 'N' : 'S'})
+                </span>
+                <span className="text-slate-500 mr-1">X:</span>
+                <strong className="text-slate-800 mr-2">{x.toFixed(2)}</strong>
+                <span className="text-slate-500 mr-1">Y:</span>
+                <strong className="text-slate-800">{y.toFixed(2)}</strong>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
+              </div>
+            );
+          })()
         ) : (
-          <span>Mova o cursor sobre o mapa</span>
+          <span className="px-2">Mova o cursor sobre o mapa</span>
         )}
         <span>•</span>
         <div>
           <span className="text-slate-500">Zoom:</span> <strong className="text-red-600">{currentZoom}</strong>
         </div>
         <span>•</span>
-        <div className="text-slate-500">
-          EPSG:4326 (WGS84)
+        <div className="flex items-center text-slate-500 font-semibold">
+          SIRGAS 2000
         </div>
       </div>
     </div>

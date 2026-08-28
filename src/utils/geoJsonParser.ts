@@ -1,4 +1,4 @@
-import { AttributeFilter, GeometryType, PropertySchema, SpatialFilter } from '../types/gis';
+import { AttributeFilter, GeometryType, PropertySchema } from '../types/gis';
 
 /**
  * Normalizes text for search and filtering:
@@ -467,10 +467,9 @@ export function extractPropertySchemas(features: GeoJSON.Feature[]): PropertySch
 
 export function filterFeatures(
   features: GeoJSON.Feature[],
-  filters: AttributeFilter[],
-  spatialFilter?: SpatialFilter
+  filters: AttributeFilter[]
 ): GeoJSON.Feature[] {
-  if ((!filters || filters.length === 0) && (!spatialFilter || !spatialFilter.enabled)) {
+  if (!filters || filters.length === 0) {
     return features;
   }
 
@@ -580,38 +579,8 @@ export function filterFeatures(
       }
     }
 
-    // 2. Spatial filtering
-    if (spatialFilter && spatialFilter.enabled) {
-      if (spatialFilter.type === 'bbox' && spatialFilter.bbox) {
-        const [minLng, minLat, maxLng, maxLat] = spatialFilter.bbox;
-        const bbox = calculateBoundingBox([f]);
-        // Check if feature intersects bbox
-        const outside = bbox[2] < minLng || bbox[0] > maxLng || bbox[3] < minLat || bbox[1] > maxLat;
-        if (outside) return false;
-      } else if (spatialFilter.type === 'radius' && spatialFilter.center && spatialFilter.radiusKm) {
-        const [cLng, cLat] = spatialFilter.center;
-        const [fMinLng, fMinLat] = calculateBoundingBox([f]);
-        const distKm = haversineDistance(cLat, cLng, fMinLat, fMinLng);
-        if (distKm > spatialFilter.radiusKm) return false;
-      }
-    }
-
     return true;
   });
-}
-
-export function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Earth radius in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
 }
 
 export function calculateFeatureArea(input: GeoJSON.Geometry | GeoJSON.Feature | null | undefined): number {

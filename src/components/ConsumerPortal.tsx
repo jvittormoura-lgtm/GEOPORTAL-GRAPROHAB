@@ -43,7 +43,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
     const list: GeoJSON.Feature[] = [];
     layers.filter(l => l.visible).forEach(l => {
       if (l.data && l.data.features) {
-        const visibleFeatures = filterFeatures(l.data.features, l.filters, l.spatialFilter);
+        const visibleFeatures = filterFeatures(l.data.features, l.filters);
         list.push(...visibleFeatures);
       }
     });

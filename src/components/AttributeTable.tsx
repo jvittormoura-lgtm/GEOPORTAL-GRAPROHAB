@@ -101,7 +101,7 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
   const displayFeatures = useMemo(() => {
     if (!layer) return [];
     let list = showOnlyFiltered 
-      ? filterFeatures(layer.data.features, layer.filters, layer.spatialFilter)
+      ? filterFeatures(layer.data.features, layer.filters)
       : layer.data.features;
 
     if (searchTerm.trim()) {

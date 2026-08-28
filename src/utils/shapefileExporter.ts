@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 
-const WGS84_PRJ = `GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]`;
+
+const SIRGAS2000_PRJ = `GEOGCS["SIRGAS_2000",DATUM["Sistema_de_Referencia_Geocentrico_para_las_AmericaS_2000",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]`;
 
 export async function exportToShapefileZip(
   geojson: GeoJSON.FeatureCollection,
@@ -323,7 +324,7 @@ export async function exportToShapefileZip(
   zip.file(`${cleanBase}.shp`, shpBlob);
   zip.file(`${cleanBase}.shx`, shxBlob);
   zip.file(`${cleanBase}.dbf`, dbfBlob);
-  zip.file(`${cleanBase}.prj`, WGS84_PRJ);
+  zip.file(`${cleanBase}.prj`, SIRGAS2000_PRJ);
 
   return await zip.generateAsync({ type: 'blob' });
 }
