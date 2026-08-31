@@ -519,7 +519,16 @@ export function filterFeatures(
         continue;
       }
 
-      const val = props[filter.property];
+      let val = props[filter.property];
+      
+      // Fallback for inconsistent casing across shapefiles
+      if (val === undefined) {
+        const lowerProp = filter.property.toLowerCase();
+        const foundKey = Object.keys(props).find(k => k.toLowerCase() === lowerProp);
+        if (foundKey) {
+          val = props[foundKey];
+        }
+      }
 
       if (filter.operator === 'isNull') {
         if (val !== null && val !== undefined && val !== '') return false;

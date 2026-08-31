@@ -173,6 +173,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
 
         {/* AI GIS Copilot Button */}
+        {/* 
         <button
           id="btn-open-ai-gis"
           onClick={onOpenAiModal}
@@ -181,6 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <Sparkles className="w-3.5 h-3.5" />
           <span className="hidden md:inline">Copiloto IA</span>
         </button>
+        */}
 
         {/* Gestor: Save & Publish to Citizen Button */}
         {appMode === 'gestor' && onPublishToPublic && (

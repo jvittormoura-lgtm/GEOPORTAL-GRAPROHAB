@@ -22,6 +22,9 @@ interface ConsumerPortalProps {
   protocoloFilter: string;
   dispensaFilter: string;
   anoFilter: [number, number] | null;
+  onOpenGlobalFilters: () => void;
+  globalFiltersCount: number;
+  onClearGlobalFilters: () => void;
 }
 
 export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
@@ -33,6 +36,9 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
   protocoloFilter,
   dispensaFilter,
   anoFilter,
+  onOpenGlobalFilters,
+  globalFiltersCount,
+  onClearGlobalFilters,
 }) => {
   const [showAnoFilter, setShowAnoFilter] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
@@ -125,50 +131,14 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
     return extractFeaturesMetrics(allFeatures);
   }, [allFeatures]);
 
+  const hasQuickFilter = municipioFilter.trim() || empreendedorFilter.trim() || protocoloFilter.trim() || dispensaFilter.trim() || !!anoFilter;
+  const hasAnyFilter = hasQuickFilter || globalFiltersCount > 0;
+
   // Filtered matching list for quick dropdown / preview using smart accent-insensitive search
   const filteredList = useMemo(() => {
-    if (!municipioFilter.trim() && !empreendedorFilter.trim() && !protocoloFilter.trim() && !dispensaFilter.trim() && !anoFilter) return [];
-
-    return allFeatures.filter(f => {
-      const p = f.properties || {};
-      
-      let matchMun = true;
-      if (municipioFilter.trim()) {
-        const featMun = p.municipio || p.MUNICIPIO || p.cidade || p.CIDADE || p.Municipio || '';
-        matchMun = normalizeSearchText(String(featMun)) === normalizeSearchText(municipioFilter);
-      }
-
-      let matchEmp = true;
-      if (empreendedorFilter.trim()) {
-        const rawEmp = p.PROPRIETARIO ?? p.proprietario ?? p.Proprietario ?? '';
-        matchEmp = matchSmartSearch(String(rawEmp), empreendedorFilter);
-      }
-
-      let matchProt = true;
-      if (protocoloFilter.trim()) {
-        const rawProt = p.PROTOCOLO ?? p.protocolo ?? p.Protocolo ?? '';
-        matchProt = matchSmartSearch(String(rawProt), protocoloFilter);
-      }
-      
-      let matchDisp = true;
-      if (dispensaFilter.trim()) {
-        const rawDisp = p.expediente_dispensa ?? p.dispensa ?? p.DISPENSA ?? p['Expediente Dispensa'] ?? p['EXPEDIENTE DISPENSA'] ?? '';
-        matchDisp = matchSmartSearch(String(rawDisp), dispensaFilter);
-      }
-
-      let matchAno = true;
-      if (anoFilter) {
-        const numAno = extractYearFromProperties(p);
-        if (numAno === null || numAno < anoFilter[0] || numAno > anoFilter[1]) {
-          matchAno = false;
-        }
-      }
-
-      return matchMun && matchEmp && matchProt && matchDisp && matchAno;
-    });
-  }, [allFeatures, municipioFilter, empreendedorFilter, protocoloFilter, dispensaFilter, anoFilter]);
-
-  const hasAnyFilter = municipioFilter.trim() || empreendedorFilter.trim() || protocoloFilter.trim() || dispensaFilter.trim() || !!anoFilter;
+    if (!hasQuickFilter) return [];
+    return allFeatures;
+  }, [allFeatures, hasQuickFilter]);
 
   return (
     <div className="bg-slate-50/95 backdrop-blur-md border-b-2 border-red-600/20 px-4 py-3 text-xs text-slate-900 z-20 shadow-md">
@@ -264,7 +234,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
 
             {/* Ano Range Slider Toggle & Content */}
             {globalAnoRange && (
-              <div className="relative z-50 flex items-center">
+              <div className="relative z-50 flex flex-col items-start gap-1">
                 <button
                   type="button"
                   onClick={() => setShowAnoFilter(!showAnoFilter)}
@@ -281,6 +251,24 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                   <span>
                     {anoFilter ? `${anoFilter[0]}–${anoFilter[1]}` : 'Ano'}
                   </span>
+                </button>
+                
+                <button
+                  onClick={onOpenGlobalFilters}
+                  className={`px-2 py-1 rounded-md text-[10px] flex items-center gap-1 transition-colors border ${
+                    globalFiltersCount > 0
+                      ? 'bg-indigo-600/10 border-indigo-500/30 text-indigo-700 font-medium'
+                      : 'bg-transparent border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                  }`}
+                  title="Filtros Avançados Globais"
+                >
+                  <Filter className="w-3 h-3 text-indigo-400" />
+                  Filtros avançados
+                  {globalFiltersCount > 0 && (
+                    <span className="px-1 py-0.5 bg-indigo-500 text-[9px] text-white rounded-full font-mono leading-none">
+                      {globalFiltersCount}
+                    </span>
+                  )}
                 </button>
 
                 {showAnoFilter && (
@@ -310,6 +298,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
                 onClick={() => {
                   onFilterChange('', '', '', '', null);
                   setShowAnoFilter(false);
+                  onClearGlobalFilters();
                 }}
                 className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border-red-200 hover:border-red-300 rounded-xl text-xs font-semibold transition-colors border h-[30px] self-end sm:self-start sm:mt-0 flex items-center gap-1.5 shrink-0 shadow-sm"
                 title="Limpar todos os filtros da busca"
@@ -322,7 +311,7 @@ export const ConsumerPortal: React.FC<ConsumerPortalProps> = ({
           
           {/* Quick Search Preview Results Popup (Vertical Dropdown) */}
           <div className="w-full relative z-50">
-            {hasAnyFilter && filteredList.length > 0 && (
+            {hasQuickFilter && filteredList.length > 0 && (
               <div className="absolute top-0 left-0 w-full md:w-[400px] mt-1.5 bg-white/95 backdrop-blur-xl border border-slate-300/80 rounded-xl shadow-2xl flex flex-col p-1.5 gap-0.5 overflow-hidden">
                 <div className="px-2 pt-1 pb-1.5 mb-1 border-b border-slate-200/80 text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex items-center justify-between">
                   <span>Resultados da Busca</span>

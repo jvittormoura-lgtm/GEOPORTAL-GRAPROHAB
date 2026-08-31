@@ -413,27 +413,6 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          onOpenFilterPanel(layer);
-                        }}
-                        className={`p-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors ${
-                          layer.filters.some(f => f.active) || layer.spatialFilter?.enabled
-                            ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40'
-                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900'
-                        }`}
-                        title="Filtros Avançados"
-                      >
-                        <Filter className="w-3 h-3 text-indigo-400" />
-                        <span className="text-[10px] hidden sm:inline">Filtros Avançados</span>
-                        {layer.filters.filter(f => f.active).length > 0 && (
-                          <span className="px-1 py-0.1 bg-indigo-500 text-[9px] text-white rounded-full font-mono">
-                            {layer.filters.filter(f => f.active).length}
-                          </span>
-                        )}
-                      </button>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
                           onOpenAttributeTable(layer);
                         }}
                         className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-lg text-xs flex items-center gap-1 transition-colors"

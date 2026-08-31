@@ -4,7 +4,7 @@ import Papa from "papaparse";
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import localforage from 'localforage';
 import { 
   GisLayer, BasemapOption, LayerStyle, ThematicConfig, 
@@ -27,7 +27,7 @@ import { ConsumerPortal } from './components/ConsumerPortal';
 import { SAMPLE_DATASETS } from './utils/sampleDatasets';
 import { 
   parseGeoJson, detectGeometryType, calculateBoundingBox, 
-  extractPropertySchemas, filterFeatures 
+  extractPropertySchemas, filterFeatures, parseNumericValue 
 } from './utils/geoJsonParser';
 import { PanelRightClose, PanelRight, CheckCircle2, AlertCircle, Upload, MapPin } from 'lucide-react';
 
@@ -62,6 +62,7 @@ export default function App() {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isStyleModalOpen, setIsStyleModalOpen] = useState(false);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [isGlobalFilterPanelOpen, setIsGlobalFilterPanelOpen] = useState(false);
   const [isAttributeTableOpen, setIsAttributeTableOpen] = useState(false);
   const [isFieldManagerOpen, setIsFieldManagerOpen] = useState(false);
   const [fieldManagerLayerId, setFieldManagerLayerId] = useState<string | null>(null);
@@ -113,6 +114,29 @@ export default function App() {
     options?: { isRealtime?: boolean; realtimeUrl?: string }
   ): GisLayer => {
     const features = geojson.features || [];
+
+    // Coerce specific fields (like Area) to be treated as numbers instead of strings
+    const areaKeys = [
+      'ÁREA TOTAL DA GLEBA/M²', 'AREA TOTAL DA GLEBA/M²', 'ÁREA TOTAL DA GLEBA / M²',
+      'AREA TOTAL DA GLEBA / M²', 'AREA_TOTAL_DA_GLEBA_M2', 'AREA_TOTAL_GLEBA_M2',
+      'AREA_GLEBA_M2', 'area_gleba_m2', 'AREA_TOTAL_M2', 'area_total_m2',
+      'AREA_TOTAL', 'area_total', 'AREA_GLEBA', 'area_gleba', 'AREA_M2', 'area_m2',
+      'Área (m²)'
+    ];
+
+    features.forEach(f => {
+      if (f.properties) {
+        for (const k of areaKeys) {
+          if (f.properties[k] !== undefined && typeof f.properties[k] === 'string') {
+            const val = parseNumericValue(f.properties[k]);
+            if (!isNaN(val)) {
+              f.properties[k] = val;
+            }
+          }
+        }
+      }
+    });
+
     const geomType = detectGeometryType(features);
     const bbox = calculateBoundingBox(features);
     const schema = extractPropertySchemas(features);
@@ -158,11 +182,35 @@ export default function App() {
         const storedTime = await localforage.getItem<number>('graprohab_published_at');
         
         if (hasInitialized && Array.isArray(storedLayers)) {
-          const validated = storedLayers.map(l => ({
-            ...l,
-            geometryType: detectGeometryType(l.data?.features || []),
-            featureCount: l.data?.features?.length || 0
-          }));
+          // Coerce Area keys for previously stored data
+          const areaKeys = [
+            'ÁREA TOTAL DA GLEBA/M²', 'AREA TOTAL DA GLEBA/M²', 'ÁREA TOTAL DA GLEBA / M²',
+            'AREA TOTAL DA GLEBA / M²', 'AREA_TOTAL_DA_GLEBA_M2', 'AREA_TOTAL_GLEBA_M2',
+            'AREA_GLEBA_M2', 'area_gleba_m2', 'AREA_TOTAL_M2', 'area_total_m2',
+            'AREA_TOTAL', 'area_total', 'AREA_GLEBA', 'area_gleba', 'AREA_M2', 'area_m2',
+            'Área (m²)'
+          ];
+          const validated = storedLayers.map(l => {
+            const features = l.data?.features || [];
+            features.forEach(f => {
+              if (f.properties) {
+                for (const k of areaKeys) {
+                  if (f.properties[k] !== undefined && typeof f.properties[k] === 'string') {
+                    const val = parseNumericValue(f.properties[k]);
+                    if (!isNaN(val)) {
+                      f.properties[k] = val;
+                    }
+                  }
+                }
+              }
+            });
+            return {
+              ...l,
+              geometryType: detectGeometryType(features),
+              featureCount: features.length,
+              propertiesSchema: extractPropertySchemas(features)
+            };
+          });
           setLayers(validated);
           setPublishedLayers(validated);
           if (validated.length > 0) {
@@ -528,17 +576,23 @@ export default function App() {
   };
 
   const handleUpdateFilters = (layerId: string, filters: AttributeFilter[]) => {
-    setLayers(prev => prev.map(l => {
-      if (l.id === layerId) {
-        const filtered = filterFeatures(l.data.features, filters);
+    const applyUpdate = (prev: GisLayer[]) => prev.map(l => {
+      if (layerId === 'GLOBAL' || l.id === layerId) {
+        const quickFilters = l.filters?.filter(f => f.id.startsWith('search_')) || [];
+        const incomingAdvancedFilters = filters.filter(f => !f.id.startsWith('search_'));
+        const newFilters = [...quickFilters, ...incomingAdvancedFilters];
+        const filtered = filterFeatures(l.data.features, newFilters);
         return {
           ...l,
-          filters,
+          filters: newFilters,
           filteredCount: filtered.length
         };
       }
       return l;
-    }));
+    });
+
+    setLayers(applyUpdate);
+    setPublishedLayers(applyUpdate);
   };
 
   const handleSaveStyle = (
@@ -960,7 +1014,34 @@ export default function App() {
     showToast('Atributos da feição atualizados com sucesso!');
   };
 
-  const activeLayer = layers.find(l => l.id === activeLayerId) || layers[0] || null;
+  const globalPropertiesSchema = useMemo(() => {
+    const visibleLayers = currentModeLayers.filter(l => l.visible);
+    const allFeatures = visibleLayers.flatMap(l => l.data.features || []);
+    return extractPropertySchemas(allFeatures);
+  }, [currentModeLayers]);
+
+  const globalVirtualLayer = useMemo(() => {
+    const visibleLayers = currentModeLayers.filter(l => l.visible);
+    const globalFeatureCount = visibleLayers.reduce((acc, l) => acc + (l.data.features?.length || 0), 0);
+    const globalFilteredCount = visibleLayers.reduce((acc, l) => acc + l.filteredCount, 0);
+    const globalFilters = visibleLayers[0]?.filters?.filter(f => !f.id.startsWith('search_')) || [];
+
+    return {
+      id: 'GLOBAL',
+      name: 'Filtros Globais',
+      propertiesSchema: globalPropertiesSchema,
+      filters: globalFilters,
+      featureCount: globalFeatureCount,
+      filteredCount: globalFilteredCount,
+      data: { features: visibleLayers.flatMap(l => l.data.features || []) },
+      type: 'polygon',
+      visible: true,
+      opacity: 1,
+      style: {} as any
+    } as unknown as GisLayer;
+  }, [currentModeLayers, globalPropertiesSchema]);
+
+  const activeLayer = currentModeLayers.find(l => l.id === activeLayerId) || currentModeLayers[0] || null;
 
   return (
     <div 
@@ -996,6 +1077,9 @@ export default function App() {
         protocoloFilter={consumerProtocolo}
         dispensaFilter={consumerDispensa}
         anoFilter={consumerAnoRange}
+        onOpenGlobalFilters={() => setIsGlobalFilterPanelOpen(true)}
+        globalFiltersCount={layers[0]?.filters?.filter(f => !f.id.startsWith('search_') && f.active).length || 0}
+        onClearGlobalFilters={() => handleUpdateFilters('GLOBAL', [])}
       />
 
       {/* Main Workspace Area */}
@@ -1263,15 +1347,33 @@ export default function App() {
           }}
           onUpdateFilters={handleUpdateFilters}
           onOpenAiAssistant={() => setIsAiModalOpen(true)}
+          onSelectFeature={handleOpenProjectDetail}
         />
       )}
 
-      {isAiModalOpen && activeLayer && (
+      {isGlobalFilterPanelOpen && (
+        <FilterPanel
+          layer={globalVirtualLayer}
+          isOpen={isGlobalFilterPanelOpen}
+          onClose={() => setIsGlobalFilterPanelOpen(false)}
+          onUpdateFilters={handleUpdateFilters}
+          onOpenAiAssistant={() => setIsAiModalOpen(true)}
+          onSelectFeature={handleOpenProjectDetail}
+        />
+      )}
+
+      {isAiModalOpen && (isGlobalFilterPanelOpen ? globalVirtualLayer : (editingLayer || activeLayer)) && (
         <AiGisModal
-          layer={activeLayer}
+          layer={(isGlobalFilterPanelOpen ? globalVirtualLayer : (editingLayer || activeLayer))!}
           isOpen={isAiModalOpen}
           onClose={() => setIsAiModalOpen(false)}
           onApplySuggestedFilter={(layerId, filter) => {
+            if (layerId === 'GLOBAL') {
+              const updatedFilters = [...globalVirtualLayer.filters, filter];
+              handleUpdateFilters('GLOBAL', updatedFilters);
+              showToast(`Filtro "${filter.property} ${filter.operator} ${filter.value}" aplicado pela IA!`);
+              return;
+            }
             const l = layers.find(item => item.id === layerId);
             if (l) {
               const updatedFilters = [...l.filters, filter];

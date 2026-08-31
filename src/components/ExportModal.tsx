@@ -445,7 +445,7 @@ COMO ATUALIZAR MENSALMENTE:
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-200 bg-white/90 flex items-center justify-between">
           <span className="text-xs text-slate-500">
-            CRS: EPSG:4326 (WGS 84 Geográfico)
+            CRS: EPSG:4674 (SIRGAS 2000 Geográfico)
           </span>
           <div className="flex gap-2">
             <button
