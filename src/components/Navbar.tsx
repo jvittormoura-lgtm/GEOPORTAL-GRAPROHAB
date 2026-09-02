@@ -105,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 SP
               </span>
             </div>
-            <span className="text-[9px] sm:text-[10px] text-slate-500 whitespace-nowrap truncate">Portal de Empreendimentos Habitacionais</span>
+            <span className="text-[9px] sm:text-[10px] text-slate-500 whitespace-nowrap truncate">Portal de Empreendimentos Georreferenciados</span>
           </div>
         </div>
 
@@ -173,16 +173,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
 
         {/* AI GIS Copilot Button */}
-        {/* 
-        <button
+        {/* <button
           id="btn-open-ai-gis"
           onClick={onOpenAiModal}
           className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-purple-200 transition-colors"
         >
           <Sparkles className="w-3.5 h-3.5" />
           <span className="hidden md:inline">Copiloto IA</span>
-        </button>
-        */}
+        </button> */}
 
         {/* Gestor: Save & Publish to Citizen Button */}
         {appMode === 'gestor' && onPublishToPublic && (

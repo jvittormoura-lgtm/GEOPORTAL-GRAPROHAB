@@ -13,7 +13,8 @@ import {
 } from '../utils/geoJsonParser';
 import { 
   Compass, MapPin, Layers, ChevronDown
-} from 'lucide-react';
+, Ruler, Trash2, X } from 'lucide-react';
+import * as turf from '@turf/turf';
 
 import { AddressSearch } from './AddressSearch';
 
@@ -53,6 +54,13 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   const [mouseCoords, setMouseCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [currentZoom, setCurrentZoom] = useState<number>(3);
   const [coordFormat, setCoordFormat] = useState<'geo' | 'utm'>('utm');
+  // Measurement state
+  const [isMeasuring, setIsMeasuring] = useState(false);
+  const [measurePoints, setMeasurePoints] = useState<L.LatLng[]>([]);
+  const [measureMouse, setMeasureMouse] = useState<L.LatLng | null>(null);
+  const [measurementResult, setMeasurementResult] = useState<{distance: number, area: number | null}>({distance: 0, area: null});
+  const measureGroupRef = useRef<L.FeatureGroup | null>(null);
+
 
   // Initialize Map
   useEffect(() => {
@@ -64,6 +72,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       zoomControl: false,
       attributionControl: true
     });
+
+    map.attributionControl.setPrefix('<b style="color: #3b82f6;">GRAPROHAB</b> | <a href="https://leafletjs.com" target="_blank">Leaflet</a>');
 
     // Custom zoom control in bottom-right
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -540,6 +550,91 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     }
   }, [fitBoundsTrigger]);
 
+  // Measurement Interaction
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    const onMapClick = (e: L.LeafletMouseEvent) => {
+      if (!isMeasuring) return;
+      setMeasurePoints(prev => [...prev, e.latlng]);
+    };
+    
+    const onMouseMove = (e: L.LeafletMouseEvent) => {
+      if (!isMeasuring) return;
+      setMeasureMouse(e.latlng);
+    };
+
+    if (isMeasuring) {
+      document.getElementById('map-container')?.classList.add('cursor-crosshair');
+      map.on('click', onMapClick);
+      map.on('mousemove', onMouseMove);
+    } else {
+      document.getElementById('map-container')?.classList.remove('cursor-crosshair');
+      map.off('click', onMapClick);
+      map.off('mousemove', onMouseMove);
+      setMeasurePoints([]);
+      setMeasureMouse(null);
+    }
+
+    return () => {
+      map.off('click', onMapClick);
+      map.off('mousemove', onMouseMove);
+      document.getElementById('map-container')?.classList.remove('cursor-crosshair');
+    };
+  }, [isMeasuring]);
+
+  // Measurement Rendering and Calculation
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    
+    if (!measureGroupRef.current) {
+      measureGroupRef.current = L.featureGroup().addTo(map);
+    }
+    const group = measureGroupRef.current;
+    group.clearLayers();
+    
+    if (!isMeasuring) {
+       setMeasurementResult({ distance: 0, area: null });
+       return;
+    }
+    
+    const currentPoints = [...measurePoints];
+    if (measureMouse) {
+      currentPoints.push(measureMouse);
+    }
+    
+    if (currentPoints.length > 0) {
+      if (currentPoints.length > 1) {
+        L.polyline(currentPoints, { color: '#f43f5e', weight: 3, dashArray: '5, 5' }).addTo(group);
+      }
+      
+      const polyPts = measureMouse ? [...measurePoints, measureMouse] : [...measurePoints];
+      if (polyPts.length > 2) {
+        L.polygon(polyPts, { color: '#f43f5e', weight: 0, fillColor: '#f43f5e', fillOpacity: 0.2 }).addTo(group);
+      }
+      
+      measurePoints.forEach(pt => {
+        L.circleMarker(pt, { radius: 5, color: '#f43f5e', fillColor: '#fff', weight: 2, fillOpacity: 1 }).addTo(group);
+      });
+      
+      let dist = 0;
+      let ar: number | null = null;
+      if (currentPoints.length > 1) {
+        const coords = currentPoints.map(p => [p.lng, p.lat]);
+        const line = turf.lineString(coords);
+        dist = turf.length(line, { units: 'kilometers' });
+      }
+      
+      if (polyPts.length > 2) {
+        const polyCoords = [...polyPts.map(p => [p.lng, p.lat]), [polyPts[0].lng, polyPts[0].lat]];
+        const poly = turf.polygon([polyCoords]);
+        ar = turf.area(poly);
+      }
+      setMeasurementResult({ distance: dist, area: ar });
+    }
+  }, [measurePoints, measureMouse, isMeasuring]);
   const handleAddressFlyTo = (lat: number, lon: number, bbox?: [number, number, number, number]) => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -605,10 +700,67 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         >
           <MapPin className="w-4 h-4" />
         </button>
+        <button
+          onClick={() => setIsMeasuring(!isMeasuring)}
+          className={`p-2 rounded-lg transition-colors ${isMeasuring ? 'bg-red-100 text-red-600' : 'text-slate-700 hover:text-red-600 hover:bg-slate-100'}`}
+          title="Medir Distância e Área"
+        >
+          <Ruler className="w-4 h-4" />
+        </button>
       </div>
 
+      {isMeasuring && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-[1000] bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-lg flex items-center gap-4">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Distância Total</span>
+            <span className="text-sm font-bold text-slate-800">
+              {measurementResult.distance < 1 
+                ? `${(measurementResult.distance * 1000).toFixed(0)} m` 
+                : `${measurementResult.distance.toFixed(2)} km`}
+            </span>
+          </div>
+          
+          <div className="w-px h-8 bg-slate-200"></div>
+          
+          <div className="flex flex-col">
+            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Área</span>
+            <span className="text-sm font-bold text-slate-800">
+              {measurementResult.area === null 
+                ? '--' 
+                : measurementResult.area > 10000 
+                  ? `${(measurementResult.area / 10000).toFixed(2)} ha` 
+                  : `${measurementResult.area.toFixed(0)} m²`}
+            </span>
+          </div>
+          
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setMeasurePoints([]);
+              setMeasurementResult({ distance: 0, area: null });
+            }}
+            className="ml-2 p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            title="Limpar Medição"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+          
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMeasuring(false);
+            }}
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+            title="Fechar"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+
       {/* Bottom Floating Coordinate / Zoom HUD */}
-      <div className="absolute bottom-3 left-3 z-30 hidden sm:flex items-center gap-3 px-3 py-1.5 bg-slate-50/80 border border-slate-200 rounded-lg text-[11px] font-mono text-slate-500 backdrop-blur-xs shadow-lg">
+      <div className="absolute bottom-3 left-3 z-[1000] hidden sm:flex items-center gap-3 px-3 py-1.5 bg-slate-50/80 border border-slate-200 rounded-lg text-[11px] font-mono text-slate-500 backdrop-blur-xs shadow-lg">
         {mouseCoords ? (
           coordFormat === 'geo' ? (
             <div className="flex items-center cursor-pointer hover:bg-slate-200/50 px-2 py-0.5 rounded transition-colors" onClick={() => setCoordFormat('utm')} title="Alternar para UTM (X/Y)">

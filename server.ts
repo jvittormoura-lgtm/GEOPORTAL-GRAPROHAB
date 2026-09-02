@@ -8,8 +8,9 @@ dotenv.config();
 
 let aiClient: GoogleGenAI | null = null;
 function getAiClient(): GoogleGenAI | null {
-  if (!aiClient && process.env.GEMINI_API_KEY) {
-    aiClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const apiKey = process.env.CUSTOM_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+  if (!aiClient && apiKey) {
+    aiClient = new GoogleGenAI({ apiKey });
   }
   return aiClient;
 }
@@ -55,30 +56,42 @@ async function startServer() {
         });
       }
 
-      const systemInstruction = `Você é o WebMap GIS Copilot, um especialista em Sistemas de Informação Geográfica (GIS), análise espacial e processamento GeoJSON.
-Responda sempre em Português do Brasil com clareza técnica e objetividade.
-Quando o usuário pedir para filtrar dados com base em uma pergunta ou comando, além da explicação amigável, forneça se aplicável um bloco JSON estruturado de sugestão de filtro no formato:
+      const systemInstruction = `Você é o WebMap GIS Copilot, um especialista em Sistemas de Informação Geográfica (GIS), análise de dados e processamento GeoJSON.
+Responda sempre em Português do Brasil de forma elegante, direta e com clareza técnica.
+Você receberá os dados da camada (ou uma grande amostra). O usuário pode pedir para filtrar dados ou pedir informações analíticas.
+IMPORTANTE SOBRE A SUA ANÁLISE:
+- Se o usuário pedir rankings (ex: "Top 10", "Maiores", "Menores") ou totalizações, você DEVE calcular isso usando os dados JSON fornecidos no prompt e escrever a lista resultante diretamente no texto da resposta. NUNCA diga que o usuário precisa aplicar o filtro primeiro para ver o resultado; você é o analista, faça a contagem internamente e entregue a lista pronta no texto.
+IMPORTANTE SOBRE A FORMATAÇÃO: 
+1. Mantenha o texto limpo e agradável de ler para um usuário comum. 
+2. Evite o uso excessivo de asteriscos (***). Use formatação apenas para destacar informações vitais. 
+3. Se gerar listas, use bullet points simples (-).
+
+Forneça a sua resposta analítica em texto (estatísticas, rankings, etc) e, no FINAL da sua resposta, se o usuário pedir para FILTRAR algo, anexe um bloco JSON estruturado de sugestão de filtro no formato exato abaixo (e nada mais no JSON):
 \`\`\`json
 {
   "suggestedFilter": {
     "property": "nome_do_campo",
     "operator": "=" | "!=" | ">" | ">=" | "<" | "<=" | "contains" | "in",
     "value": 100,
-    "explanation": "Filtrando registros onde campo > 100"
-  },
-  "spatialInsight": "Resumo analítico espacial dos dados"
+    "explanation": "Breve explicação do filtro"
+  }
 }
 \`\`\``;
 
+      const featuresToAnalyze = sampleFeatures || [];
+      const dataToPrompt = featuresToAnalyze.length > 5000 
+          ? featuresToAnalyze.slice(0, 5000) 
+          : featuresToAnalyze;
+
       const userContent = `Camada ativa: "${layerName || 'Sem camada selecionada'}"
 Esquema de Atributos: ${JSON.stringify(propertiesSchema || [])}
-Amostra de dados (primeiros registros): ${JSON.stringify((sampleFeatures || []).slice(0, 3))}
+Dados para análise (limite de 5000 registros): ${JSON.stringify(dataToPrompt)}
 
 Pergunta / Pedido do usuário:
 ${prompt}`;
 
       const response = await client.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents: [
           { role: 'user', parts: [{ text: `${systemInstruction}\n\n${userContent}` }] }
         ]

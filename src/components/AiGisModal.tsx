@@ -88,6 +88,8 @@ export const AiGisModal: React.FC<AiGisModalProps> = ({
           if (parsed.suggestedFilter) {
             suggestedFilter = parsed.suggestedFilter;
           }
+          // Remove the JSON block from the text shown to the user
+          assistantText = assistantText.replace(jsonMatch[0], '').trim();
         } catch {
           // ignore parsing error
         }

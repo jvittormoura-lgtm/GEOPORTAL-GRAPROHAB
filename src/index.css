@@ -148,3 +148,14 @@
 .leaflet-control-attribution a {
   color: #38bdf8 !important;
 }
+
+/* Push Leaflet scale control up to avoid overlapping with custom datum HUD */
+.leaflet-bottom.leaflet-left .leaflet-control-scale {
+  margin-bottom: 45px !important;
+  margin-left: 12px !important;
+}
+
+/* Measurement Tool cursor override */
+.cursor-crosshair, .cursor-crosshair .leaflet-interactive {
+  cursor: crosshair !important;
+}

@@ -498,11 +498,15 @@ export default function App() {
   };
 
   const handleChangeOpacity = (id: string, opacity: number) => {
-    setLayers(prev => {
-      const updated = prev.map(l => l.id === id ? { ...l, opacity } : l);
-      persistLayers(updated);
-      return updated;
-    });
+    if (appMode === 'gestor') {
+      setLayers(prev => {
+        const updated = prev.map(l => l.id === id ? { ...l, opacity } : l);
+        persistLayers(updated);
+        return updated;
+      });
+    } else {
+      setPublishedLayers(prev => prev.map(l => l.id === id ? { ...l, opacity } : l));
+    }
   };
 
   const handleChangeSmoothFactor = (id: string, smoothFactor: number) => {
@@ -522,17 +526,30 @@ export default function App() {
   };
 
   const handleReorderLayers = (activeId: string, overId: string) => {
-    setLayers(prev => {
-      const oldIndex = prev.findIndex(l => l.id === activeId);
-      const newIndex = prev.findIndex(l => l.id === overId);
-      if (oldIndex === -1 || newIndex === -1) return prev;
-      
-      const newLayers = [...prev];
-      const [removed] = newLayers.splice(oldIndex, 1);
-      newLayers.splice(newIndex, 0, removed);
-      persistLayers(newLayers);
-      return newLayers;
-    });
+    if (appMode === 'gestor') {
+      setLayers(prev => {
+        const oldIndex = prev.findIndex(l => l.id === activeId);
+        const newIndex = prev.findIndex(l => l.id === overId);
+        if (oldIndex === -1 || newIndex === -1) return prev;
+        
+        const newLayers = [...prev];
+        const [removed] = newLayers.splice(oldIndex, 1);
+        newLayers.splice(newIndex, 0, removed);
+        persistLayers(newLayers);
+        return newLayers;
+      });
+    } else {
+      setPublishedLayers(prev => {
+        const oldIndex = prev.findIndex(l => l.id === activeId);
+        const newIndex = prev.findIndex(l => l.id === overId);
+        if (oldIndex === -1 || newIndex === -1) return prev;
+        
+        const newLayers = [...prev];
+        const [removed] = newLayers.splice(oldIndex, 1);
+        newLayers.splice(newIndex, 0, removed);
+        return newLayers;
+      });
+    }
   };
 
   const handleUpdateDescription = (id: string, newDescription: string) => {
@@ -1362,9 +1379,9 @@ export default function App() {
         />
       )}
 
-      {isAiModalOpen && (isGlobalFilterPanelOpen ? globalVirtualLayer : (editingLayer || activeLayer)) && (
+      {isAiModalOpen && (
         <AiGisModal
-          layer={(isGlobalFilterPanelOpen ? globalVirtualLayer : (editingLayer || activeLayer))!}
+          layer={isFilterPanelOpen ? (editingLayer || activeLayer)! : globalVirtualLayer}
           isOpen={isAiModalOpen}
           onClose={() => setIsAiModalOpen(false)}
           onApplySuggestedFilter={(layerId, filter) => {

@@ -174,8 +174,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 <span>Limpar Filtros</span>
               </button>
             )}
-            {/* 
-            {onOpenAiAssistant && (
+            {/* {onOpenAiAssistant && (
               <button
                 onClick={() => {
                   onClose();
@@ -186,8 +185,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Pedir à IA</span>
               </button>
-            )}
-            */}
+            )} */}
             <button onClick={onClose} className="text-slate-500 hover:text-slate-900 p-2 rounded-lg hover:bg-slate-100" title="Fechar painel">
               <X className="w-4 h-4" />
             </button>
