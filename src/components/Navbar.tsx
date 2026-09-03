@@ -150,16 +150,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
 
 
-        {/* Basemaps Modal Trigger */}
-        <button
-          id="btn-open-basemaps"
-          onClick={onOpenBasemapModal}
-          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
-          title="Mapas Base (Satélite / OSM / Carto / Topo)"
-        >
-          <Layers className="w-3.5 h-3.5 text-amber-400" />
-          <span className="hidden sm:inline">{activeBasemap.name}</span>
-        </button>
 
         {/* Export Button */}
         <button

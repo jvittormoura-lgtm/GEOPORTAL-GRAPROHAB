@@ -16,11 +16,13 @@ import {
 , Ruler, Trash2, X } from 'lucide-react';
 import * as turf from '@turf/turf';
 
-import { AddressSearch } from './AddressSearch';
+import { MapToolbar } from './MapToolbar';
+
 
 interface MapComponentProps {
   layers: GisLayer[];
   activeBasemap: BasemapOption;
+  onSelectBasemap: (basemap: BasemapOption) => void;
   selectedFeature: GeoJSON.Feature | null;
   fitBoundsTrigger?: number;
   onFeatureClick?: (feature: GeoJSON.Feature, layerId: string, featureIndex?: number) => void;
@@ -34,7 +36,7 @@ interface MapComponentProps {
 export const MapComponent: React.FC<MapComponentProps> = ({
   layers,
   activeBasemap,
-
+  onSelectBasemap,
   selectedFeature,
   fitBoundsTrigger,
   onFeatureClick,
@@ -681,33 +683,15 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       {/* Leaflet DOM container */}
       <div id="map-container" ref={mapContainerRef} className="w-full h-full z-0" />
 
-      {/* Address Search Bar */}
-      <AddressSearch onFlyTo={handleAddressFlyTo} />
-
-      {/* Minimal Floating Spatial Toolbar (Top Right) */}
-      <div className="absolute top-3 right-3 z-30 flex flex-col items-center gap-1.5 p-1.5 bg-white/90 border border-slate-300/80 rounded-xl shadow-xl backdrop-blur-xs">
-        <button
-          onClick={handleLocateMe}
-          className="p-2 text-slate-700 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-colors"
-          title="Minha Localização GPS"
-        >
-          <Compass className="w-4 h-4" />
-        </button>
-        <button
-          onClick={handleResetExtent}
-          className="p-2 text-slate-700 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-colors"
-          title="Enquadrar todas as camadas"
-        >
-          <MapPin className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => setIsMeasuring(!isMeasuring)}
-          className={`p-2 rounded-lg transition-colors ${isMeasuring ? 'bg-red-100 text-red-600' : 'text-slate-700 hover:text-red-600 hover:bg-slate-100'}`}
-          title="Medir Distância e Área"
-        >
-          <Ruler className="w-4 h-4" />
-        </button>
-      </div>
+      <MapToolbar 
+        onFlyTo={handleAddressFlyTo}
+        activeBasemap={activeBasemap}
+        onSelectBasemap={onSelectBasemap}
+        onLocateMe={handleLocateMe}
+        onResetExtent={handleResetExtent}
+        isMeasuring={isMeasuring}
+        onToggleMeasure={() => setIsMeasuring(!isMeasuring)}
+      />
 
       {isMeasuring && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 z-[1000] bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-lg flex items-center gap-4">

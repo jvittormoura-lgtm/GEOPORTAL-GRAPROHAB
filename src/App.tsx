@@ -29,7 +29,7 @@ import {
   parseGeoJson, detectGeometryType, calculateBoundingBox, 
   extractPropertySchemas, filterFeatures, parseNumericValue 
 } from './utils/geoJsonParser';
-import { PanelRightClose, PanelRight, CheckCircle2, AlertCircle, Upload, MapPin } from 'lucide-react';
+import { PanelRight, PanelRightClose, CheckCircle2, AlertCircle, Upload, MapPin } from 'lucide-react';
 
 const DEFAULT_LAYER_COLORS = [
   { fill: '#38bdf8', stroke: '#0284c7' },
@@ -1068,6 +1068,7 @@ export default function App() {
       <Navbar
         layers={currentModeLayers}
         activeBasemap={activeBasemap}
+            onSelectBasemap={(b) => setActiveBasemap(b)}
         appMode={appMode}
         onToggleAuthModal={() => setIsAuthModalOpen(true)}
         onLogoutGestor={handleLogoutGestor}
@@ -1086,6 +1087,7 @@ export default function App() {
       <ConsumerPortal
         layers={currentModeLayers}
         activeBasemap={activeBasemap}
+            onSelectBasemap={(b) => setActiveBasemap(b)}
         appMode={appMode}
         onSelectFeature={handleOpenProjectDetail}
         onFilterChange={handleMultiFilterChange}
@@ -1104,11 +1106,13 @@ export default function App() {
         
         {/* Center Interactive Map */}
         <main className="flex-1 relative h-full w-full">
+          
+          
           {/* Toggle Sidebar Button */}
           <button
             id="btn-toggle-sidebar"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="absolute top-3 right-16 z-[1000] p-2 bg-white/90 border border-slate-300/80 rounded-xl text-slate-700 hover:text-slate-900 shadow-xl backdrop-blur-xs transition-colors"
+            className="absolute top-3 right-3 z-[1000] flex items-center justify-center w-11 h-11 bg-white/90 border border-slate-300/80 rounded-xl text-slate-700 hover:text-red-600 hover:bg-slate-100 shadow-xl backdrop-blur-xs transition-colors"
             title={isSidebarOpen ? 'Recolher Painel' : 'Expandir Painel'}
           >
             {isSidebarOpen ? <PanelRightClose className="w-5 h-5" /> : <PanelRight className="w-5 h-5" />}
@@ -1117,8 +1121,11 @@ export default function App() {
           <MapComponent
             layers={currentModeLayers}
             activeBasemap={activeBasemap}
+            onSelectBasemap={(b) => setActiveBasemap(b)}
             selectedFeature={selectedFeature}
             fitBoundsTrigger={fitBoundsTrigger}
+            isSidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
             onFeatureClick={(feature, layerId, featureIndex) => {
               handleOpenFeatureInspector(feature, layerId, featureIndex);
             }}
