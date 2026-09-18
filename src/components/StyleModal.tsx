@@ -77,11 +77,11 @@ export const StyleModal: React.FC<StyleModalProps> = ({
 
     if (prop.type === 'number') {
       const numValues = (values as number[]).filter(v => typeof v === 'number' && !isNaN(v)).sort((a, b) => a - b);
-      if (numValues.length === 0) return;
+      if (numValues?.length === 0) return;
 
-      const numClasses = palette.length;
+      const numClasses = palette?.length;
       const min = numValues[0];
-      const max = numValues[numValues.length - 1];
+      const max = numValues[numValues?.length - 1];
       const step = (max - min) / numClasses;
 
       const classes: ThematicClass[] = [];
@@ -101,12 +101,12 @@ export const StyleModal: React.FC<StyleModalProps> = ({
       setThematicClasses(classes);
     } else {
       // Categorical unique values
-      const uniqueVals = Array.from<string>(new Set(values.map((v: any) => String(v)))).slice(0, palette.length);
+      const uniqueVals = Array.from<string>(new Set(values.map((v: any) => String(v)))).slice(0, palette?.length);
       const classes: ThematicClass[] = uniqueVals.map((val: string, idx: number) => {
         const count = values.filter(v => String(v) === val).length;
         return {
           value: String(val),
-          color: palette[idx % palette.length],
+          color: palette[idx % palette?.length],
           label: String(val),
           count
         };
@@ -117,7 +117,7 @@ export const StyleModal: React.FC<StyleModalProps> = ({
 
   const handleSave = () => {
     let thematicConfig: ThematicConfig | undefined = undefined;
-    if (thematicEnabled && thematicClasses.length > 0) {
+    if (thematicEnabled && thematicClasses?.length > 0) {
       thematicConfig = {
         enabled: true,
         property: selectedProperty,
@@ -169,7 +169,7 @@ export const StyleModal: React.FC<StyleModalProps> = ({
           <button
             onClick={() => {
               setActiveTab('thematic');
-              if (thematicClasses.length === 0 && selectedProperty) {
+              if (thematicClasses?.length === 0 && selectedProperty) {
                 generateThematicClasses(selectedProperty, selectedPalette);
               }
             }}
@@ -359,7 +359,7 @@ export const StyleModal: React.FC<StyleModalProps> = ({
                   checked={thematicEnabled}
                   onChange={(e) => {
                     setThematicEnabled(e.target.checked);
-                    if (e.target.checked && thematicClasses.length === 0) {
+                    if (e.target.checked && thematicClasses?.length === 0) {
                       generateThematicClasses(selectedProperty, selectedPalette);
                     }
                   }}
@@ -414,7 +414,7 @@ export const StyleModal: React.FC<StyleModalProps> = ({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                        Classes / Intervalos Gerados ({thematicClasses.length})
+                        Classes / Intervalos Gerados ({thematicClasses?.length})
                       </span>
                       <button
                         onClick={() => generateThematicClasses(selectedProperty, selectedPalette)}

@@ -136,7 +136,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     let stroke = defaultStroke;
 
     // Check thematic classification
-    if (layer.thematic && layer.thematic.enabled && layer.thematic.classes.length > 0) {
+    if (layer.thematic && layer.thematic.enabled && layer.thematic.classes?.length > 0) {
       const propKey = layer.thematic.property;
       const rawVal = feature.properties ? feature.properties[propKey] : null;
 
@@ -247,7 +247,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           break;
         }
       }
-      if (!foundTitle && layer.propertiesSchema && layer.propertiesSchema.length > 0) {
+      if (!foundTitle && layer.propertiesSchema && layer.propertiesSchema?.length > 0) {
         const firstKey = layer.propertiesSchema[0].key;
         if (props[firstKey] !== undefined && props[firstKey] !== null) {
           foundTitle = String(props[firstKey]);
@@ -258,16 +258,16 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
     // Determine field display order and visibility
     let orderedKeys: string[] = [];
-    if (layer.popupFieldOrder && layer.popupFieldOrder.length > 0) {
+    if (layer.popupFieldOrder && layer.popupFieldOrder?.length > 0) {
       orderedKeys = [...layer.popupFieldOrder];
-    } else if (layer.propertiesSchema && layer.propertiesSchema.length > 0) {
+    } else if (layer.propertiesSchema && layer.propertiesSchema?.length > 0) {
       orderedKeys = layer.propertiesSchema.map(p => p.key);
     } else {
       orderedKeys = Object.keys(props);
     }
 
     // Filter by visibility if defined
-    if (layer.popupVisibleFields && layer.popupVisibleFields.length > 0) {
+    if (layer.popupVisibleFields && layer.popupVisibleFields?.length > 0) {
       orderedKeys = orderedKeys.filter(k => layer.popupVisibleFields!.includes(k));
     }
     
@@ -380,7 +380,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
       // Filter features
       const filtered = filterFeatures(layer.data.features, layer.filters);
-      if (filtered.length === 0) return;
+      if (filtered?.length === 0) return;
 
       const filteredCollection: GeoJSON.FeatureCollection = {
         type: 'FeatureCollection',
@@ -506,9 +506,9 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    if (layers.length > 0) {
-      const validLayers = layers.filter(l => l.visible && l.data.features.length > 0);
-      if (validLayers.length > 0) {
+    if (layers?.length > 0) {
+      const validLayers = layers.filter(l => l.visible && l.data?.features?.length > 0);
+      if (validLayers?.length > 0) {
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         validLayers.forEach(l => {
           minX = Math.min(minX, l.bbox[0]);
@@ -517,7 +517,13 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           maxY = Math.max(maxY, l.bbox[3]);
         });
         if (minX !== Infinity) {
-          map.fitBounds([[minY, minX], [maxY, maxX]], { padding: [40, 40] });
+          if (minX >= -180 && maxX <= 180 && minY >= -90 && maxY <= 90) {
+            try {
+              map.fitBounds([[minY, minX], [maxY, maxX]], { padding: [40, 40] });
+            } catch(e) {
+              console.warn('Leaflet fitBounds falhou:', e);
+            }
+          }
           return;
         }
       }
@@ -530,13 +536,13 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       const map = mapInstanceRef.current;
       if (!map) return;
 
-      const validLayers = layers.filter(l => l.visible && l.data.features.length > 0);
-      if (validLayers.length > 0) {
+      const validLayers = layers.filter(l => l.visible && l.data?.features?.length > 0);
+      if (validLayers?.length > 0) {
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         
         validLayers.forEach(l => {
           const filtered = filterFeatures(l.data.features, l.filters);
-          if (filtered.length > 0) {
+          if (filtered?.length > 0) {
             const bbox = calculateBoundingBox(filtered);
             minX = Math.min(minX, bbox[0]);
             minY = Math.min(minY, bbox[1]);
@@ -546,7 +552,14 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         });
 
         if (minX !== Infinity) {
-          map.fitBounds([[minY, minX], [maxY, maxX]], { padding: [40, 40], maxZoom: 16 });
+          // Safety check to prevent Leaflet from crashing on UTM coordinates
+          if (minX >= -180 && maxX <= 180 && minY >= -90 && maxY <= 90) {
+            try {
+              map.fitBounds([[minY, minX], [maxY, maxX]], { padding: [40, 40], maxZoom: 16 });
+            } catch(e) {
+              console.warn('Leaflet fitBounds falhou:', e);
+            }
+          }
         }
       }
     }
@@ -607,13 +620,13 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       currentPoints.push(measureMouse);
     }
     
-    if (currentPoints.length > 0) {
-      if (currentPoints.length > 1) {
+    if (currentPoints?.length > 0) {
+      if (currentPoints?.length > 1) {
         L.polyline(currentPoints, { color: '#f43f5e', weight: 3, dashArray: '5, 5' }).addTo(group);
       }
       
       const polyPts = measureMouse ? [...measurePoints, measureMouse] : [...measurePoints];
-      if (polyPts.length > 2) {
+      if (polyPts?.length > 2) {
         L.polygon(polyPts, { color: '#f43f5e', weight: 0, fillColor: '#f43f5e', fillOpacity: 0.2 }).addTo(group);
       }
       
@@ -623,13 +636,13 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       
       let dist = 0;
       let ar: number | null = null;
-      if (currentPoints.length > 1) {
+      if (currentPoints?.length > 1) {
         const coords = currentPoints.map(p => [p.lng, p.lat]);
         const line = turf.lineString(coords);
         dist = turf.length(line, { units: 'kilometers' });
       }
       
-      if (polyPts.length > 2) {
+      if (polyPts?.length > 2) {
         const polyCoords = [...polyPts.map(p => [p.lng, p.lat]), [polyPts[0].lng, polyPts[0].lat]];
         const poly = turf.polygon([polyCoords]);
         ar = turf.area(poly);

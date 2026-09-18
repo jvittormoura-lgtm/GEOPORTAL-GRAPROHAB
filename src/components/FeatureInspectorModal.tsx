@@ -92,7 +92,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
     }
   }, [feature, featureIndex, appMode]);
 
-  const totalFeatures = layer?.data.features.length || 0;
+  const totalFeatures = layer?.data.features?.length || 0;
   const geomType = feature?.geometry?.type || 'Desconhecido';
 
   // Calculate geometric metric
@@ -488,7 +488,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
           <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/40">
             <div className="px-4 py-2.5 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between text-xs">
               <span className="font-bold text-slate-700">
-                Atributos da Feição ({propertyKeys.length} {propertyKeys.length === 1 ? 'campo' : 'campos'})
+                Atributos da Feição ({propertyKeys?.length} {propertyKeys?.length === 1 ? 'campo' : 'campos'})
               </span>
               <button
                 onClick={handleCopyJson}
@@ -499,7 +499,7 @@ export const FeatureInspectorModal: React.FC<FeatureInspectorModalProps> = ({
               </button>
             </div>
 
-            {propertyKeys.length === 0 ? (
+            {propertyKeys?.length === 0 ? (
               <div className="p-8 text-center text-slate-500 text-sm">
                 Nenhum atributo cadastrado nesta feição.
               </div>

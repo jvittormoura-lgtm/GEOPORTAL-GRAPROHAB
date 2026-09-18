@@ -4,7 +4,7 @@ import {
   Layers, Eye, EyeOff, Sliders, Filter, Table, 
   Trash2, ZoomIn, Palette, Activity, Copy, Flame, MapPin, 
   Shapes, MoveRight, ChevronDown, ChevronRight, Lock, Unlock, ShieldAlert,
-  Columns, Pencil, Check, X, Info, GripVertical
+  Columns, Pencil, Check, X, Info, GripVertical, UploadCloud
 } from 'lucide-react';
 
 interface LayerManagerProps {
@@ -22,6 +22,7 @@ interface LayerManagerProps {
   onOpenFieldManager?: (layer: GisLayer) => void;
   onDuplicateLayer: (id: string) => void;
   onDeleteLayer: (id: string) => void;
+  onUpdateLayerData?: (id: string, file: File) => void;
   onRequireAuth: (callback: () => void) => void;
   onRenameLayer?: (id: string, newName: string) => void;
   onUpdateDescription?: (id: string, newDescription: string) => void;
@@ -108,7 +109,8 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
   onRequireAuth,
   onRenameLayer,
   onUpdateDescription,
-  onReorderLayers
+  onReorderLayers,
+  onUpdateLayerData
 }) => {
   const [expandedLegends, setExpandedLegends] = React.useState<Record<string, boolean>>({});
   const [editingLayerId, setEditingLayerId] = React.useState<string | null>(null);
@@ -181,7 +183,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-red-600" />
           <span className="font-semibold text-xs uppercase tracking-wider text-slate-800">
-            Tipologia de empreendimentos ({layers.length})
+            Tipologia de empreendimentos ({layers?.length})
           </span>
           <button 
             type="button" 
@@ -211,7 +213,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
 
       {/* Layer List */}
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {layers.length === 0 ? (
+        {layers?.length === 0 ? (
           <div className="p-6 text-center text-slate-500 text-xs space-y-2">
             <Layers className="w-8 h-8 mx-auto opacity-40 text-slate-500" />
             <p className="font-medium text-slate-500">Nenhuma camada carregada</p>
@@ -222,7 +224,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
         ) : (
           layers.map((layer) => {
             const isActive = activeLayerId === layer.id;
-            const hasThematic = layer.thematic && layer.thematic.enabled && layer.thematic.classes.length > 0;
+            const hasThematic = layer.thematic && layer.thematic.enabled && layer.thematic.classes?.length > 0;
             const isLegendOpen = expandedLegends[layer.id] ?? true;
 
             return (
@@ -246,72 +248,72 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
               >
                 {/* Main Card Header */}
                 <div className="p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      {/* Drag Handle */}
-                      <div 
-                        className="cursor-grab active:cursor-grabbing p-1 text-slate-500 hover:text-slate-900 transition-colors" 
-                        title="Clicar e arrastar para reordenar"
-                        onMouseEnter={() => setActiveDragHandleId(layer.id)}
-                        onMouseLeave={() => setActiveDragHandleId(null)}
-                        onPointerDown={() => setActiveDragHandleId(layer.id)}
-                      >
-                        <GripVertical className="w-4 h-4" />
-                      </div>
-                      {/* Visibility checkbox */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onToggleVisibility(layer.id);
-                        }}
-                        className={`p-1 rounded-md transition-colors ${
-                          layer.visible
-                            ? 'text-red-600 hover:bg-red-600/10'
-                            : 'text-slate-500 hover:bg-slate-100'
-                        }`}
-                        title={layer.visible ? 'Ocultar camada' : 'Exibir camada'}
-                      >
-                        {layer.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                      </button>
+                  <div className="flex items-start gap-2.5 w-full">
+                    {/* Drag Handle */}
+                    <div 
+                      className="cursor-grab active:cursor-grabbing p-1 text-slate-500 hover:text-slate-900 transition-colors shrink-0 mt-0.5" 
+                      title="Clicar e arrastar para reordenar"
+                      onMouseEnter={() => setActiveDragHandleId(layer.id)}
+                      onMouseLeave={() => setActiveDragHandleId(null)}
+                      onPointerDown={() => setActiveDragHandleId(layer.id)}
+                    >
+                      <GripVertical className="w-4 h-4" />
+                    </div>
+                    {/* Visibility checkbox */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleVisibility(layer.id);
+                      }}
+                      className={`p-1 rounded-md transition-colors shrink-0 mt-0.5 ${
+                        layer.visible
+                          ? 'text-red-600 hover:bg-red-600/10'
+                          : 'text-slate-500 hover:bg-slate-100'
+                      }`}
+                      title={layer.visible ? 'Ocultar camada' : 'Exibir camada'}
+                    >
+                      {layer.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </button>
 
-                      {/* Color marker dot */}
-                      <div
-                        className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-xs"
-                        style={{ backgroundColor: layer.style.fillColor }}
-                      />
+                    {/* Color marker dot */}
+                    <div
+                      className="w-3 h-3 rounded-full border border-white/40 shrink-0 shadow-xs mt-1.5"
+                      style={{ backgroundColor: layer.style.fillColor }}
+                    />
 
-                      {/* Name & Type */}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          {editingLayerId === layer.id ? (
-                            <div className="flex items-center gap-1 w-full" onClick={(e) => e.stopPropagation()}>
-                              <input
-                                autoFocus
-                                type="text"
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    if (editName.trim() && onRenameLayer) {
-                                      onRenameLayer(layer.id, editName.trim());
-                                    }
-                                    setEditingLayerId(null);
-                                  } else if (e.key === 'Escape') {
-                                    setEditingLayerId(null);
+                    {/* Name & Type */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-1.5">
+                        {editingLayerId === layer.id ? (
+                          <div className="flex items-center gap-1 w-full" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              autoFocus
+                              type="text"
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  if (editName.trim() && onRenameLayer) {
+                                    onRenameLayer(layer.id, editName.trim());
                                   }
-                                }}
-                                className="w-[100px] bg-white border border-red-600 rounded px-1 text-xs text-slate-900 focus:outline-none"
-                              />
-                              <button onClick={() => {
-                                if (editName.trim() && onRenameLayer) onRenameLayer(layer.id, editName.trim());
-                                setEditingLayerId(null);
-                              }} className="text-emerald-400 hover:text-emerald-700"><Check className="w-3.5 h-3.5" /></button>
-                              <button onClick={() => setEditingLayerId(null)} className="text-slate-500 hover:text-slate-800"><X className="w-3.5 h-3.5" /></button>
-                            </div>
-                          ) : (
-                            <>
-                              <h4 className="font-semibold text-xs text-slate-900 truncate max-w-[130px]" title={layer.name}>
+                                  setEditingLayerId(null);
+                                } else if (e.key === 'Escape') {
+                                  setEditingLayerId(null);
+                                }
+                              }}
+                              className="flex-1 min-w-0 bg-white border border-red-600 rounded px-1.5 py-0.5 text-xs text-slate-900 focus:outline-none"
+                            />
+                            <button onClick={() => {
+                              if (editName.trim() && onRenameLayer) onRenameLayer(layer.id, editName.trim());
+                              setEditingLayerId(null);
+                            }} className="text-emerald-400 hover:text-emerald-700 shrink-0"><Check className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => setEditingLayerId(null)} className="text-slate-500 hover:text-slate-800 shrink-0"><X className="w-3.5 h-3.5" /></button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-start gap-1.5 flex-1 min-w-0">
+                              <h4 className="font-semibold text-xs text-slate-900 break-words leading-snug select-text" title={layer.name}>
                                 {layer.name}
                               </h4>
                               {onRenameLayer && (
@@ -322,15 +324,16 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                                     setEditingLayerId(layer.id);
                                     setEditName(layer.name);
                                   }}
-                                  className="text-slate-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="text-slate-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 shrink-0 mt-0.5"
                                   title="Renomear Camada"
                                 >
                                   <Pencil className="w-3 h-3" />
                                 </button>
                               )}
-                              
-                            </>
-                          )}
+                            </div>
+                          </>
+                        )}
+                        <div className="flex items-center gap-1 shrink-0">
                           {layer.isRealtime && (
                             <span className="flex items-center gap-1 px-1.5 py-0.2 bg-rose-500/20 text-rose-700 border border-rose-200 rounded-full text-[9px] font-semibold animate-pulse">
                               <Activity className="w-2.5 h-2.5" />
@@ -343,20 +346,20 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                             </span>
                           )}
                         </div>
+                      </div>
 
-                        <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-0.5">
-                          <span className="flex items-center gap-1">
-                            {getGeometryIcon(layer.geometryType)}
-                            {layer.geometryType}
-                          </span>
-                          <span>•</span>
-                          <span className="font-mono text-emerald-400">
-                            {layer.filteredCount}{' '}
-                            {layer.filteredCount !== layer.featureCount && (
-                              <span className="text-slate-500">/ {layer.featureCount}</span>
-                            )}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-1">
+                        <span className="flex items-center gap-1">
+                          {getGeometryIcon(layer.geometryType)}
+                          {layer.geometryType}
+                        </span>
+                        <span>•</span>
+                        <span className="font-mono text-emerald-600 font-medium">
+                          {layer.filteredCount}{' '}
+                          {layer.filteredCount !== layer.featureCount && (
+                            <span className="text-slate-500">/ {layer.featureCount}</span>
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -438,6 +441,35 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1">
+                      
+                      {onUpdateLayerData && (
+                        <>
+                          <input 
+                            type="file" 
+                            id={`file-upload-${layer.id}`} 
+                            className="hidden" 
+                            accept=".geojson,.json,.csv"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handleProtectedAction(() => onUpdateLayerData(layer.id, e.target.files![0]));
+                                e.target.value = '';
+                              }
+                            }} 
+                          />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleProtectedAction(() => {
+                                document.getElementById(`file-upload-${layer.id}`)?.click();
+                              });
+                            }}
+                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                            title={appMode === 'gestor' ? "Atualizar arquivo GeoJSON/CSV da camada" : "Requer senha de gestor"}
+                          >
+                            <UploadCloud className="w-3 h-3" />
+                          </button>
+                        </>
+                      )}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -481,16 +513,18 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
                     {isLegendOpen && (
                       <div className="space-y-1 pt-1 max-h-32 overflow-y-auto">
                         {layer.thematic.classes.map((cls, cIdx) => (
-                          <div key={cIdx} className="flex items-center justify-between text-[10px]">
-                            <div className="flex items-center gap-2">
+                          <div key={cIdx} className="flex items-start justify-between gap-2 text-[10px] py-0.5">
+                            <div className="flex items-start gap-2 flex-1 min-w-0">
                               <span
-                                className="w-3 h-3 rounded-xs border border-white/20 shrink-0"
+                                className="w-3 h-3 rounded-xs border border-white/20 shrink-0 mt-0.5"
                                 style={{ backgroundColor: cls.color }}
                               />
-                              <span className="text-slate-700 truncate max-w-[150px]">{cls.label}</span>
+                              <span className="text-slate-700 break-words leading-tight flex-1" title={cls.label}>
+                                {cls.label}
+                              </span>
                             </div>
                             {cls.count !== undefined && (
-                              <span className="text-slate-500 font-mono">{cls.count}</span>
+                              <span className="text-slate-500 font-mono shrink-0">{cls.count}</span>
                             )}
                           </div>
                         ))}

@@ -20,6 +20,7 @@ import { AttributeTable } from './components/AttributeTable';
 import { FieldManagerModal } from './components/FieldManagerModal';
 import { FeatureInspectorModal } from './components/FeatureInspectorModal';
 import { ExportModal } from './components/ExportModal';
+import { FieldMappingModal } from './components/FieldMappingModal';
 import { AiGisModal } from './components/AiGisModal';
 import { AuthModal } from './components/AuthModal';
 import { ProjectDetailModal } from './components/ProjectDetailModal';
@@ -44,6 +45,7 @@ export default function App() {
   const [layers, setLayers] = useState<GisLayer[]>([]);
   const [publishedLayers, setPublishedLayers] = useState<GisLayer[]>([]);
   const [lastPublishedAt, setLastPublishedAt] = useState<number | null>(null);
+  const [pendingUpdateLayer, setPendingUpdateLayer] = useState<{id: string, geojson: GeoJSON.FeatureCollection, newSchema: any[]} | null>(null);
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState<boolean>(false);
   const [activeLayerId, setActiveLayerId] = useState<string | null>(null);
   const [activeBasemap, setActiveBasemap] = useState<BasemapOption>(BASEMAPS[0]);
@@ -139,8 +141,14 @@ export default function App() {
 
     const geomType = detectGeometryType(features);
     const bbox = calculateBoundingBox(features);
+    
+    if (bbox[0] < -180 || bbox[2] > 180 || bbox[1] < -90 || bbox[3] > 90) {
+      setTimeout(() => {
+        showToast('Aviso crítico: As coordenadas da camada estão fora do padrão geográfico WGS84 (parecem ser UTM). Elas não aparecerão no mapa!', 'error');
+      }, 500);
+    }
     const schema = extractPropertySchemas(features);
-    const colorPreset = DEFAULT_LAYER_COLORS[layers.length % DEFAULT_LAYER_COLORS.length];
+    const colorPreset = DEFAULT_LAYER_COLORS[(layers?.length || 0) % DEFAULT_LAYER_COLORS.length];
 
     const defaultStyle: LayerStyle = {
       fillColor: colorPreset.fill,
@@ -162,15 +170,15 @@ export default function App() {
       opacity: 1,
       style: defaultStyle,
       filters: [],
-      featureCount: features.length,
-      filteredCount: features.length,
+      featureCount: features?.length || 0,
+      filteredCount: features?.length || 0,
       propertiesSchema: schema,
       bbox,
       createdAt: Date.now(),
       isRealtime: options?.isRealtime,
       realtimeUrl: options?.realtimeUrl
     };
-  }, [layers.length]);
+  }, [layers?.length]);
 
   // Load published layers from local storage or initialize with mapas-config.json
   useEffect(() => {
@@ -207,7 +215,7 @@ export default function App() {
             return {
               ...l,
               geometryType: detectGeometryType(features),
-              featureCount: features.length,
+              featureCount: features?.length || 0,
               propertiesSchema: extractPropertySchemas(features)
             };
           });
@@ -232,10 +240,10 @@ export default function App() {
         const res = await fetch(configUrl);
         if (res.ok) {
           const config = await res.json();
-          if (config && Array.isArray(config.camadas_fixas) && config.camadas_fixas.length > 0) {
+          if (config && Array.isArray(config.camadas_fixas) && config.camadas_fixas?.length > 0) {
             const staticLayers: GisLayer[] = [];
             
-            for (let i = 0; i < config.camadas_fixas.length; i++) {
+            for (let i = 0; i < config.camadas_fixas?.length; i++) {
               const item = config.camadas_fixas[i];
               if (item.arquivo) {
                 let fileUrl = item.arquivo;
@@ -280,7 +288,7 @@ export default function App() {
               }
             }
 
-            if (staticLayers.length > 0) {
+            if (staticLayers?.length > 0) {
               setLayers(staticLayers);
               setPublishedLayers(staticLayers);
               setActiveLayerId(staticLayers[0].id);
@@ -339,7 +347,7 @@ export default function App() {
 
   // Discard draft changes and rollback to last published version
   const handleDiscardDraftChanges = () => {
-    if (publishedLayers.length > 0) {
+    if (publishedLayers?.length > 0) {
       setLayers(JSON.parse(JSON.stringify(publishedLayers)));
       setHasUnpublishedChanges(false);
       showToast('Alterações descartadas. Restaurado para a última versão publicada.');
@@ -347,7 +355,7 @@ export default function App() {
   };
 
   // The layers active for current mode
-  const currentModeLayers = appMode === 'gestor' ? layers : (publishedLayers.length > 0 ? publishedLayers : layers);
+  const currentModeLayers = appMode === 'gestor' ? layers : (publishedLayers?.length > 0 ? publishedLayers : layers);
 
   // Protected Action Checker (Prompts Password if in Consumidor mode)
   const requireAuth = (action: () => void) => {
@@ -376,6 +384,110 @@ export default function App() {
   };
 
   // Handle file drop / upload
+  // Handle updating an existing layer's data
+  const handleUpdateLayerData = async (id: string, file: File) => {
+    try {
+      const text = await file.text();
+      let geojson: GeoJSON.FeatureCollection;
+
+      if (file.name.endsWith('.csv')) {
+        const parsed = Papa.parse(text, { header: true, dynamicTyping: true });
+        const rows = parsed.data as Record<string, any>[];
+        const features: GeoJSON.Feature[] = [];
+        rows.forEach((row) => {
+          const lat = row.latitude ?? row.lat ?? row.Latitude ?? row.LAT;
+          const lng = row.longitude ?? row.lng ?? row.lon ?? row.Longitude ?? row.LON;
+          if (typeof lat === 'number' && typeof lng === 'number') {
+            features.push({
+              type: 'Feature',
+              properties: row,
+              geometry: { type: 'Point', coordinates: [lng, lat] }
+            });
+          }
+        });
+        if (features?.length === 0) {
+          throw new Error('Nenhuma coordenada válida encontrada no arquivo CSV.');
+        }
+        geojson = { type: 'FeatureCollection', features };
+      } else {
+        geojson = parseGeoJson(text);
+      }
+
+      const newSchema = extractPropertySchemas(geojson.features);
+      const updateBbox = calculateBoundingBox(geojson.features);
+      if (updateBbox[0] < -180 || updateBbox[2] > 180 || updateBbox[1] < -90 || updateBbox[3] > 90) {
+        showToast('Aviso: As coordenadas do arquivo parecem estar em UTM/Sistema Projetado. O mapa espera Lat/Lng (WGS84). As feições não vão aparecer.', 'error');
+      }
+      setPendingUpdateLayer({ id, geojson, newSchema });
+    } catch (err: any) {
+      showToast('Erro ao atualizar camada: ' + err.message, 'error');
+    }
+  };
+
+
+  const handleConfirmUpdateMapping = (mapping: Record<string, string>) => {
+    if (!pendingUpdateLayer) return;
+    const { id, geojson } = pendingUpdateLayer;
+    
+    // Apply mapping to features
+    const updatedFeatures = geojson.features.map(f => {
+      const oldProps = f.properties || {};
+      const newProps: any = {};
+      
+      // 1. Apply mapped fields
+      Object.entries(mapping).forEach(([oldKey, newKey]) => {
+        // newKey is the name of the column in the NEW uploaded file (e.g. NU_PROTOCOLO)
+        // oldKey is the name of the column the system expects (e.g. PROTOCOLO)
+        if (newKey && oldProps[newKey] !== undefined) {
+          newProps[oldKey] = oldProps[newKey];
+        } else if (newKey === "") {
+           // It was explicitly ignored, leave it undefined
+        }
+      });
+      
+      // 2. Discard unmapped new fields
+      // The prompt requested that anything not explicitly "linked" in the modal is discarded.
+      
+      return { ...f, properties: newProps };
+    });
+    
+    const updatedGeojson = { ...geojson, features: updatedFeatures };
+
+    setLayers(prev => {
+      const updated = prev.map(layer => {
+        if (layer.id === id) {
+          const newSchema = extractPropertySchemas(updatedFeatures);
+          const updatedLayer = {
+            ...layer,
+            data: updatedGeojson,
+            featureCount: updatedFeatures?.length || 0,
+            geometryType: detectGeometryType(updatedFeatures),
+            propertiesSchema: newSchema, 
+            filters: [], // Reset filters because schema/data changed
+            filteredCount: updatedFeatures?.length || 0,
+            boundingBox: calculateBoundingBox(updatedFeatures)
+          };
+          
+          if (updatedLayer.thematic && updatedLayer.thematic.property) {
+            const propExists = newSchema.some(s => s.key === updatedLayer.thematic.property);
+            if (!propExists) {
+              updatedLayer.thematic = { ...updatedLayer.thematic, enabled: false };
+            }
+          }
+          return updatedLayer;
+        }
+        return layer;
+      });
+      persistLayers(updated);
+      setPublishedLayers(updated);
+      setFitBoundsTrigger(prev => prev + 1);
+      return updated;
+    });
+
+    setPendingUpdateLayer(null);
+    showToast('Dados da camada atualizados com sucesso!');
+  };
+
   const handleLoadGeoJsonFile = async (file: File) => {
     try {
       const text = await file.text();
@@ -402,7 +514,7 @@ export default function App() {
           }
         });
 
-        if (features.length === 0) {
+        if (features?.length === 0) {
           throw new Error('Nenhuma coordenada de latitude e longitude válida encontrada no arquivo CSV.');
         }
 
@@ -429,9 +541,9 @@ export default function App() {
         dynamicFilters.push({ id: 'search_disp', property: '*', type: 'string', operator: 'match_dispensa', value: consumerDispensa.trim(), active: true });
       }
 
-      if (dynamicFilters.length > 0) {
+      if (dynamicFilters?.length > 0) {
         newLayer.filters = dynamicFilters;
-        newLayer.filteredCount = filterFeatures(newLayer.data.features, newLayer.filters).length;
+        newLayer.filteredCount = filterFeatures(newLayer.data.features, newLayer.filters)?.length || 0;
       }
 
       setLayers(prev => {
@@ -469,9 +581,9 @@ export default function App() {
       dynamicFilters.push({ id: 'search_disp', property: '*', type: 'string', operator: 'match_dispensa', value: consumerDispensa.trim(), active: true });
     }
 
-    if (dynamicFilters.length > 0) {
+    if (dynamicFilters?.length > 0) {
       newLayer.filters = dynamicFilters;
-      newLayer.filteredCount = filterFeatures(newLayer.data.features, newLayer.filters).length;
+      newLayer.filteredCount = filterFeatures(newLayer.data.features, newLayer.filters)?.length || 0;
     }
 
     setLayers(prev => {
@@ -602,7 +714,7 @@ export default function App() {
         return {
           ...l,
           filters: newFilters,
-          filteredCount: filtered.length
+          filteredCount: filtered?.length || 0
         };
       }
       return l;
@@ -685,14 +797,14 @@ export default function App() {
         // 3. Apply the combined filters to the layer's features
         const filtered = filterFeatures(l.data.features, dynamicFilters);
         
-        if ((hasProtocoloFilter || hasDispensaFilter) && filtered.length > 0) {
+        if ((hasProtocoloFilter || hasDispensaFilter) && filtered?.length > 0) {
           hasMatch = true;
         }
 
         return {
           ...l,
           filters: dynamicFilters,
-          filteredCount: filtered.length
+          filteredCount: filtered?.length || 0
         };
       });
 
@@ -727,8 +839,8 @@ export default function App() {
       setLayers(prev => prev.map(l => l.id === activeLayer.id ? {
         ...l,
         data: updatedCollection,
-        featureCount: updatedFeatures.length,
-        filteredCount: updatedFeatures.length,
+        featureCount: updatedFeatures?.length || 0,
+        filteredCount: updatedFeatures?.length || 0,
         propertiesSchema: schema,
         bbox
       } : l));
@@ -976,8 +1088,8 @@ export default function App() {
       return {
         ...l,
         data: updatedCollection,
-        featureCount: updatedFeatures.length,
-        filteredCount: updatedFeatures.length,
+        featureCount: updatedFeatures?.length || 0,
+        filteredCount: updatedFeatures?.length || 0,
         propertiesSchema: newSchema,
         bbox
       };
@@ -1097,7 +1209,7 @@ export default function App() {
         dispensaFilter={consumerDispensa}
         anoFilter={consumerAnoRange}
         onOpenGlobalFilters={() => setIsGlobalFilterPanelOpen(true)}
-        globalFiltersCount={layers[0]?.filters?.filter(f => !f.id.startsWith('search_') && f.active).length || 0}
+        globalFiltersCount={layers[0]?.filters?.filter(f => !f.id.startsWith('search_') && f.active)?.length || 0}
         onClearGlobalFilters={() => handleUpdateFilters('GLOBAL', [])}
       />
 
@@ -1202,6 +1314,7 @@ export default function App() {
               }}
               onDuplicateLayer={handleDuplicateLayer}
               onDeleteLayer={handleDeleteLayer}
+              onUpdateLayerData={handleUpdateLayerData}
               onRequireAuth={requireAuth}
               onReorderLayers={handleReorderLayers}
             />
@@ -1242,6 +1355,16 @@ export default function App() {
       )}
 
       {/* Feature Inspector & Attribute/Field Editor Modal */}
+      
+      {pendingUpdateLayer && layers.find(l => l.id === pendingUpdateLayer.id) && (
+        <FieldMappingModal
+          layer={layers.find(l => l.id === pendingUpdateLayer.id)!}
+          newSchema={pendingUpdateLayer.newSchema}
+          onConfirm={handleConfirmUpdateMapping}
+          onCancel={() => setPendingUpdateLayer(null)}
+        />
+      )}
+
       {isFeatureInspectorOpen && inspectorFeature && (
         <FeatureInspectorModal
           isOpen={isFeatureInspectorOpen}
@@ -1407,8 +1530,6 @@ export default function App() {
           }}
         />
       )}
-
-
       {/* Toast Notification */}
       {toastMessage && (
         <div 

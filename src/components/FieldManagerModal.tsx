@@ -242,7 +242,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
                 )}
               </h3>
               <p className="text-xs text-slate-500">
-                Camada: <span className="text-red-500 font-semibold">{layer.name}</span> ({layer.propertiesSchema.length} campos) • Arraste (⠿) para alterar a ordem no Pop-up e na Tabela
+                Camada: <span className="text-red-500 font-semibold">{layer.name}</span> ({layer.propertiesSchema?.length} campos) • Arraste (⠿) para alterar a ordem no Pop-up e na Tabela
               </p>
             </div>
           </div>
@@ -397,7 +397,7 @@ export const FieldManagerModal: React.FC<FieldManagerModalProps> = ({
               </h4>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {layer.propertiesSchema.length === 0 ? (
+              {layer.propertiesSchema?.length === 0 ? (
                 <div className="text-center py-12 text-slate-500 text-xs">
                   Nenhum campo de atributo encontrado nesta camada GeoJSON.
                 </div>

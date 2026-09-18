@@ -83,7 +83,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   }, [layer, isOpen, filteredSchema]);
 
   const filteredList = React.useMemo(() => {
-    if (!layer || !layer.data.features || filters.length === 0) return [];
+    if (!layer || !layer.data.features || filters?.length === 0) return [];
     return filterFeatures(layer.data.features, filters);
   }, [layer, filters]);
 
@@ -164,7 +164,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {filters.length > 0 && (
+            {filters?.length > 0 && (
               <button
                 onClick={handleClearAll}
                 className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 hover:border-red-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
@@ -315,9 +315,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                Filtros Ativos ({filters.length})
+                Filtros Ativos ({filters?.length})
               </span>
-              {filters.length > 0 && (
+              {filters?.length > 0 && (
                 <button
                   onClick={handleClearAll}
                   className="text-xs text-rose-400 hover:text-rose-700 flex items-center gap-1"
@@ -328,7 +328,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               )}
             </div>
 
-            {filters.length === 0 ? (
+            {filters?.length === 0 ? (
               <div className="p-6 text-center bg-slate-50/40 rounded-xl border border-slate-200 text-xs text-slate-500">
                 Nenhum filtro de atributo ativo. Todas as {layer.featureCount} feições estão sendo exibidas.
               </div>
@@ -375,11 +375,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             )}
             
             {/* Resultados Preview */}
-            {filters.length > 0 && filteredList.length > 0 && (
+            {filters?.length > 0 && filteredList?.length > 0 && (
               <div className="mt-4 border border-slate-200 rounded-xl overflow-hidden bg-white/50">
                 <div className="px-3 py-2 bg-slate-100/50 border-b border-slate-200 flex items-center justify-between">
                   <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
-                    Resultados ({filteredList.length})
+                    Resultados ({filteredList?.length})
                   </span>
                   <button 
                     onClick={() => setIsResultsExpanded(!isResultsExpanded)}

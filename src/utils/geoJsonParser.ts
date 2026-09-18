@@ -31,7 +31,7 @@ export function matchSmartSearch(target: any, query: string): boolean {
 
   // Multi-term support: all words in search query must appear in target
   const terms = normQuery.split(' ').filter(t => t.length > 0);
-  if (terms.length > 1) {
+  if (terms?.length > 1) {
     return terms.every(t => normTarget.includes(t));
   }
 
@@ -251,6 +251,7 @@ export function extractAreaM2FromProperties(props: any, feature?: GeoJSON.Featur
  * Computes aggregate summary metrics from a set of features
  */
 export function extractFeaturesMetrics(features: GeoJSON.Feature[]) {
+  if (!features) return { totalProjects: 0, totalUh: 0, totalAreaM2: 0, totalAreaHa: 0, distinctMunicipalities: 0, analysisCount: 0 };
   let totalUh = 0;
   let totalAreaM2 = 0;
   let approvedCount = 0;
@@ -259,7 +260,10 @@ export function extractFeaturesMetrics(features: GeoJSON.Feature[]) {
   features.forEach(f => {
     const p = f.properties || {};
     totalUh += extractUhFromProperties(p);
-    totalAreaM2 += extractAreaM2FromProperties(p, f);
+    const area = extractAreaM2FromProperties(p, f);
+    if (typeof area === 'number' && !isNaN(area) && area > 0) {
+      totalAreaM2 += area;
+    }
 
     const statusNorm = normalizeSearchText(p.status_graprohab || p.status || p.STATUS || '');
     if (statusNorm.includes('aprovad') || statusNorm.includes('certificad')) {
@@ -270,7 +274,7 @@ export function extractFeaturesMetrics(features: GeoJSON.Feature[]) {
   });
 
   return {
-    totalProjects: features.length,
+    totalProjects: features?.length,
     totalUh,
     totalAreaM2,
     totalHectares: (totalAreaM2 / 10000).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 }),
@@ -323,7 +327,7 @@ export function parseGeoJson(rawContent: string | object): GeoJSON.FeatureCollec
 }
 
 export function detectGeometryType(features: GeoJSON.Feature[]): GeometryType {
-  if (!features || features.length === 0) return 'Polygon';
+  if (!features || features?.length === 0) return 'Polygon';
   
   const types = new Set<string>();
   features.forEach(f => {
@@ -337,7 +341,7 @@ export function detectGeometryType(features: GeoJSON.Feature[]): GeometryType {
   const typeArr = Array.from(types);
 
   // Single type
-  if (typeArr.length === 1) {
+  if (typeArr?.length === 1) {
     const single = typeArr[0];
     if (single === 'MultiPolygon' || single === 'Polygon') return 'Polygon';
     if (single === 'MultiLineString' || single === 'LineString') return 'LineString';
@@ -361,6 +365,7 @@ export function detectGeometryType(features: GeoJSON.Feature[]): GeometryType {
 }
 
 export function calculateBoundingBox(features: GeoJSON.Feature[]): [number, number, number, number] {
+  if (!features || !features.length) return [0, 0, 0, 0];
   let minLng = Infinity;
   let minLat = Infinity;
   let maxLng = -Infinity;
@@ -377,7 +382,7 @@ export function calculateBoundingBox(features: GeoJSON.Feature[]): [number, numb
       if (lat > maxLat) maxLat = lat;
       return;
     }
-    for (let i = 0; i < coords.length; i++) {
+    for (let i = 0; i < coords?.length; i++) {
       traverse(coords[i]);
     }
   }
@@ -406,6 +411,7 @@ export function calculateBoundingBox(features: GeoJSON.Feature[]): [number, numb
 }
 
 export function extractPropertySchemas(features: GeoJSON.Feature[]): PropertySchema[] {
+  if (!features || !features.length) return [];
   const map = new Map<string, {
     values: any[];
     types: Set<string>;
@@ -469,7 +475,7 @@ export function filterFeatures(
   features: GeoJSON.Feature[],
   filters: AttributeFilter[]
 ): GeoJSON.Feature[] {
-  if (!filters || filters.length === 0) {
+  if (!filters || filters?.length === 0) {
     return features;
   }
 
@@ -601,11 +607,15 @@ export function calculateFeatureArea(input: GeoJSON.Geometry | GeoJSON.Feature |
 
   const R = 6378137; // WGS84 major radius
   function ringArea(coords: number[][]): number {
-    if (coords.length < 3) return 0;
+    if (coords?.length < 3) return 0;
     let total = 0;
-    for (let i = 0; i < coords.length; i++) {
+    for (let i = 0; i < coords?.length; i++) {
       const p1 = coords[i];
-      const p2 = coords[(i + 1) % coords.length];
+      const p2 = coords[(i + 1) % coords?.length];
+      
+      // Safety check: if coordinates are not WGS84, the spherical formula produces garbage
+      if (typeof p1[0] !== 'number' || typeof p1[1] !== 'number' || Math.abs(p1[0]) > 180 || Math.abs(p1[1]) > 90 || isNaN(p1[0]) || isNaN(p1[1])) return 0;
+      
       const lon1 = (p1[0] * Math.PI) / 180;
       const lat1 = (p1[1] * Math.PI) / 180;
       const lon2 = (p2[0] * Math.PI) / 180;
@@ -617,14 +627,14 @@ export function calculateFeatureArea(input: GeoJSON.Geometry | GeoJSON.Feature |
 
   if (geom.type === 'Polygon') {
     let area = ringArea(geom.coordinates[0]);
-    for (let i = 1; i < geom.coordinates.length; i++) {
+    for (let i = 1; i < geom.coordinates?.length; i++) {
       area -= ringArea(geom.coordinates[i]);
     }
     return Math.max(0, area);
   } else if (geom.type === 'MultiPolygon') {
     return geom.coordinates.reduce((sum, poly) => {
       let area = ringArea(poly[0]);
-      for (let i = 1; i < poly.length; i++) {
+      for (let i = 1; i < poly?.length; i++) {
         area -= ringArea(poly[i]);
       }
       return sum + Math.max(0, area);

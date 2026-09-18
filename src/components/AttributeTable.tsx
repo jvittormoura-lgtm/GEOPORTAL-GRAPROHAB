@@ -80,7 +80,7 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
       if (currentIndex === -1) return;
 
       const targetIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
-      if (targetIndex < 0 || targetIndex >= keys.length) return;
+      if (targetIndex < 0 || targetIndex >= keys?.length) return;
 
       const temp = keys[currentIndex];
       keys[currentIndex] = keys[targetIndex];
@@ -198,7 +198,7 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
             <span>Tabela de Atributos: {layer.name}</span>
           </div>
           <span className="text-[11px] px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full font-mono">
-            {displayFeatures.length} / {layer.featureCount} feições ({columns.length} campos)
+            {displayFeatures?.length} / {layer.featureCount} feições ({columns?.length} campos)
           </span>
         </div>
 
@@ -280,7 +280,7 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
 
               {columns.map((col, idx) => {
                 const isFirst = idx === 0;
-                const isLast = idx === columns.length - 1;
+                const isLast = idx === columns?.length - 1;
 
                 return (
                 <th
@@ -421,9 +421,9 @@ export const AttributeTable: React.FC<AttributeTableProps> = ({
           </thead>
 
           <tbody className="divide-y divide-slate-200/60 font-mono text-[11px]">
-            {displayFeatures.length === 0 ? (
+            {displayFeatures?.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 3} className="text-center py-12 text-slate-500">
+                <td colSpan={columns?.length + 3} className="text-center py-12 text-slate-500">
                   Nenhum registro encontrado correspondente aos filtros ou busca.
                 </td>
               </tr>

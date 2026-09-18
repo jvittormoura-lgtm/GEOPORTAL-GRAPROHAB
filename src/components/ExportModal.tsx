@@ -83,7 +83,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
         const nameCounts: Record<string, number> = {};
 
-        for (let i = 0; i < layers.length; i++) {
+        for (let i = 0; i < layers?.length; i++) {
           const lyr = layers[i];
           let safeName = lyr.name
             .toLowerCase()
@@ -140,7 +140,7 @@ COMO ATUALIZAR MENSALMENTE:
           );
         }
 
-        if (exportFeatures.length === 0) {
+        if (exportFeatures?.length === 0) {
           throw new Error('Nenhuma feição encontrada para exportar com os filtros atuais.');
         }
 
@@ -190,7 +190,7 @@ COMO ATUALIZAR MENSALMENTE:
       setStatusMessage({
         type: 'success',
         text: selectedFormat === 'github_bundle'
-          ? `Pacote para GitHub com ${layers.length} camada(s) gerado e baixado com sucesso!`
+          ? `Pacote para GitHub com ${layers?.length} camada(s) gerado e baixado com sucesso!`
           : `Arquivo "${effectiveFileName}${downloadExt}" gerado e baixado com sucesso!`
       });
     } catch (err: any) {
@@ -292,7 +292,7 @@ COMO ATUALIZAR MENSALMENTE:
             <div className="p-4 bg-emerald-950/30 border border-emerald-200 rounded-xl space-y-2">
               <div className="flex items-center gap-2 text-emerald-700 font-semibold text-xs uppercase tracking-wider">
                 <Package className="w-4 h-4 text-emerald-400" />
-                <span>Exportação de Todas as {layers.length} Camadas para GitHub Pages</span>
+                <span>Exportação de Todas as {layers?.length} Camadas para GitHub Pages</span>
               </div>
               <p className="text-xs text-slate-700 leading-relaxed">
                 Este pacote gera os arquivos <strong>.geojson</strong> de cada camada ativa e o arquivo de configuração <strong>mapas-config.json</strong> com estilos e visibilidade preservados.
@@ -457,7 +457,7 @@ COMO ATUALIZAR MENSALMENTE:
             <button
               id="btn-confirm-export"
               onClick={handleExport}
-              disabled={isExporting || (selectedFormat === 'github_bundle' ? layers.length === 0 : !currentLayer)}
+              disabled={isExporting || (selectedFormat === 'github_bundle' ? layers?.length === 0 : !currentLayer)}
               className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-emerald-900/40"
             >
               {isExporting ? (

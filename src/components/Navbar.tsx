@@ -46,8 +46,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
+    if (files && files?.length > 0) {
+      for (let i = 0; i < files?.length; i++) {
         onLoadGeoJsonFile(files[i]);
       }
       e.target.value = '';
@@ -93,19 +93,15 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Brand & Logo - GRAPROHAB SP */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600 to-red-400 flex items-center justify-center text-slate-900 shadow-md shadow-red-100/40">
-            <Building2 className="w-4 h-4" />
-          </div>
+
           <div className="flex flex-col justify-center min-w-0">
             <div className="flex items-center gap-1.5">
-              <h1 className="font-bold text-[13px] sm:text-sm text-slate-900 tracking-tight leading-none whitespace-nowrap">
-                GeoPortal <span className="text-red-600 font-extrabold">GRAPROHAB</span>
+              <h1 className="text-xl sm:text-2xl tracking-tighter leading-none whitespace-nowrap">
+                <span className="text-slate-900 font-black">Grapro</span><span className="text-red-600 font-black">h@b</span>
               </h1>
-              <span className="text-[9px] px-1 py-[1px] bg-red-50 border border-red-600/30 text-red-500 font-bold rounded shrink-0">
-                SP
-              </span>
+              
             </div>
-            <span className="text-[9px] sm:text-[10px] text-slate-500 whitespace-nowrap truncate">Portal de Empreendimentos Georreferenciados</span>
+            <span className="text-xs sm:text-sm text-slate-500 whitespace-nowrap truncate mt-0.5">GeoPortal</span>
           </div>
         </div>
 
@@ -155,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           id="btn-open-export-modal"
           onClick={onOpenExportModal}
-          disabled={layers.length === 0}
+          disabled={layers?.length === 0}
           className="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 disabled:opacity-40 disabled:cursor-not-allowed text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
         >
           <Download className="w-3.5 h-3.5" />
