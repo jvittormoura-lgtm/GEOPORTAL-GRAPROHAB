@@ -216,8 +216,9 @@ export default function App() {
 
       // 2. Only if no persistent state exists (first-time initialization), check public/mapas-config.json
       try {
-        const baseUrl = (import.meta as any).env?.BASE_URL || './';
-        const configUrl = baseUrl.endsWith('/') ? `${baseUrl}mapas-config.json` : `${baseUrl}/mapas-config.json`;
+        const baseUrl = import.meta.env.BASE_URL || './';
+        const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+        const configUrl = `${normalizedBase}mapas-config.json`;
         const res = await fetch(configUrl);
         if (res.ok) {
           const config = await res.json();
@@ -230,7 +231,7 @@ export default function App() {
                 let fileUrl = item.arquivo;
                 if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
                   const cleanPath = item.arquivo.replace(/^\.?\//, '');
-                  fileUrl = `${baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'}${cleanPath}`;
+                  fileUrl = `${normalizedBase}${cleanPath}`;
                 }
                 
                 try {

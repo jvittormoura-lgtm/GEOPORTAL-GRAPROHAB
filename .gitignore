@@ -1,14 +1,31 @@
+# Dependências e Builds Locais
 node_modules/
-build/
 dist/
+build/
 coverage/
-.DS_Store
+
+# Variáveis de Ambiente e Segredos (Segurança e Push Protection)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Configurações do Firebase (Aplicação 100% Estática e Offline-First)
+firebase-applet-config.json
+firebase_applet_config.xml
+firebase*.json
+firestore.rules
+
+# Logs e Arquivos Temporários
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# Cache de Ferramentas e Dev
 .vite/
 assets/.aistudio/
-
-.env*
-!.env.example

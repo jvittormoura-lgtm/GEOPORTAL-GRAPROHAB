@@ -1,55 +1,70 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages (CI/CD Push & Play)
 
+# Dispara a cada push nas branches principais e permite disparo manual
 on:
   push:
-    branches: ['main', 'master']
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
+# Permissões necessárias para publicar no GitHub Pages com OIDC Token
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Permite apenas um deploy ativo simultaneamente, cancelando execuções redundantes
 concurrency:
   group: 'pages'
   cancel-in-progress: true
 
 jobs:
   build:
+    name: Build & Prepare Assets
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: 📥 Clonar repositório
         uses: actions/checkout@v4
 
-      - name: Set up Node
+      - name: ⚙️ Configurar ambiente Node.js 20 com cache
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Build static site
+      - name: 📦 Instalar dependências
         run: |
+          npm install --legacy-peer-deps
+
+      - name: 🔨 Compilar aplicação (Vite Estático)
+        run: |
+          # Compilação limpa do frontend estático
           npx vite build
-          # Ensure root or public data and config are in dist
-          if [ -f "mapas-config.json" ]; then cp mapas-config.json dist/; fi
-          if [ -d "data" ]; then cp -rn data dist/; fi
+          
+          # 1. Bypass do Jekyll: impede o GitHub Pages de ignorar pastas e arquivos com '_'
+          touch dist/.nojekyll
+          
+          # 2. Suporte a SPA / Redirecionamento de Rotas (Fallback 404 para recarregamento F5)
+          cp dist/index.html dist/404.html
+          
+          # 3. Garantir persistência dos dados geoespaciais e mapas-config.json no pacote final
           if [ -d "public/data" ]; then cp -rn public/data dist/; fi
           if [ -f "public/mapas-config.json" ]; then cp public/mapas-config.json dist/; fi
 
-      - name: Upload artifact
+      - name: 📤 Fazer upload dos artefatos estáticos
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
 
   deploy:
+    name: Publicar no GitHub Pages
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Deploy to GitHub Pages
+      - name: 🚀 Deploy automático
         id: deployment
         uses: actions/deploy-pages@v4
