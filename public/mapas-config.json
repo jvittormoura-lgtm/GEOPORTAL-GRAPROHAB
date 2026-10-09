@@ -6,29 +6,16 @@
       "visivel": true,
       "opacity": 1,
       "popupVisibleFields": [],
-      "popupFieldOrder": [
-        "PROTOCOLO",
-        "ANO ENTRADA",
-        "MUNICIPIO",
-        "PROPRIETARIO",
-        "LOCALIZAÇÃO/ENDEREÇO",
-        "NOME DO EMPREENDIMENTO",
-        "Nº DE UNIDADES HABITACIONAIS",
-        "ÁREA TOTAL DA GLEBA/M²",
-        "DATA DE ENTRADA",
-        "DATA DO CERTIFICADO",
-        "Nº DO CERTIFICADO",
-        "SITUAÇÃO"
-      ],
+      "popupFieldOrder": [],
       "estilo": {
         "fillColor": "#8b5cf6",
-        "strokeColor": "#8b5cf6",
+        "strokeColor": "#7c3aed",
         "strokeWidth": 2,
         "fillOpacity": 0.45,
         "strokeOpacity": 0.9,
         "pointRadius": 7,
         "pointShape": "circle",
-        "smoothFactor": 2.5
+        "smoothFactor": 1
       }
     },
     {
