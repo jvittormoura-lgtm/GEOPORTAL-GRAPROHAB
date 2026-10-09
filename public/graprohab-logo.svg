@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" width="100%" height="100%" aria-label="Graproh@b GeoPortal">
+  <defs>
+    <!-- Vibrant Modern Gradients based on Graprohab Identity -->
+    <linearGradient id="graproGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F2445" />
+      <stop offset="100%" stop-color="#1E3A8A" />
+    </linearGradient>
+    <linearGradient id="habGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5722" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+    <linearGradient id="geoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#0D9488" />
+    </linearGradient>
+    <filter id="subtleGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.12" flood-color="#000000" />
+    </filter>
+  </defs>
+
+  <!-- Typography: Grapro -->
+  <text 
+    x="2" 
+    y="44" 
+    font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" 
+    font-size="46" 
+    font-weight="900" 
+    letter-spacing="-0.04em" 
+    fill="url(#graproGrad)"
+    filter="url(#subtleGlow)"
+  >grapro</text>
+
+  <!-- Typography: h@b -->
+  <text 
+    x="152" 
+    y="44" 
+    font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" 
+    font-size="46" 
+    font-weight="900" 
+    letter-spacing="-0.03em" 
+    fill="url(#habGrad)"
+    filter="url(#subtleGlow)"
+  >h@b</text>
+
+  <!-- Subtitle: GeoPortal with GIS Accent -->
+  <g transform="translate(4, 64)">
+    <text 
+      x="0" 
+      y="0" 
+      font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" 
+      font-size="14.5" 
+      font-weight="700" 
+      letter-spacing="0.18em" 
+      fill="url(#geoGrad)"
+    >GEOPORTAL</text>
+    <!-- Dot / Geospatial pin indicator -->
+    <circle cx="128" cy="-4" r="2.5" fill="#FF5722" />
+  </g>
+</svg>

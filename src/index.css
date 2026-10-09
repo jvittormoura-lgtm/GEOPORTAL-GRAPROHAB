@@ -1,0 +1,187 @@
+@import "tailwindcss";
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+  
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Custom scrollbars */
+.results-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.results-scrollbar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 8px;
+}
+.results-scrollbar::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  border-radius: 8px;
+}
+.results-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #e2e8f0;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.8);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 1);
+}
+
+/* Leaflet map customizations */
+.leaflet-container {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  background-color: #090d16 !important;
+  outline: none;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup-tip {
+  background: #0f172a !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+}
+
+.leaflet-popup-close-button {
+  color: #94a3b8 !important;
+  padding: 8px !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #ffffff !important;
+}
+
+/* Light Theme Popup Overrides */
+.custom-gis-popup .leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: none !important;
+  border-radius: 4px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.custom-gis-popup .leaflet-popup-tip {
+  background: #ffffff !important;
+  border: none !important;
+}
+
+.custom-gis-popup .leaflet-popup-close-button {
+  color: #94a3b8 !important;
+  padding: 6px !important;
+}
+
+.custom-gis-popup .leaflet-popup-close-button:hover {
+  color: #0f172a !important;
+}
+
+/* Custom scrollbar for light popup */
+.custom-gis-popup-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-gis-popup-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.custom-gis-popup-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.custom-gis-popup-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.leaflet-control-zoom {
+  border: 1px solid rgba(51, 65, 85, 0.6) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6) !important;
+  transition: all 0.15s ease;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(15, 23, 42, 0.75) !important;
+  color: #64748b !important;
+  backdrop-filter: blur(4px);
+  border-radius: 6px;
+  margin: 4px;
+  font-size: 11px;
+}
+
+.leaflet-control-attribution a {
+  color: #38bdf8 !important;
+}
+
+/* Push Leaflet scale control up to avoid overlapping with custom datum HUD */
+.leaflet-bottom.leaflet-left .leaflet-control-scale {
+  margin-bottom: 45px !important;
+  margin-left: 12px !important;
+}
+
+/* Guard: hide any duplicate scale controls if created by re-mounts or HMR */
+.leaflet-bottom.leaflet-left .leaflet-control-scale ~ .leaflet-control-scale {
+  display: none !important;
+}
+
+.leaflet-control-scale-line {
+  border: 2px solid #0f172a !important;
+  border-top: none !important;
+  line-height: 1.1 !important;
+  padding: 2px 6px 1px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(4px) !important;
+  color: #0f172a !important;
+  border-radius: 0 0 3px 3px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Guard: only allow the primary single scale line to be visible */
+.leaflet-control-scale .leaflet-control-scale-line:not(:first-child) {
+  display: none !important;
+}
+
+/* Measurement Tool cursor override */
+.cursor-crosshair, .cursor-crosshair .leaflet-interactive {
+  cursor: crosshair !important;
+}

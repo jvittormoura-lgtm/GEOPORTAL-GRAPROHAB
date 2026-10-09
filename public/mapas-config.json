@@ -1,0 +1,157 @@
+{
+  "camadas_fixas": [
+    {
+      "nome": "Condominios Protocolados",
+      "arquivo": "data/condominios_protocolados.geojson",
+      "visivel": true,
+      "opacity": 1,
+      "popupVisibleFields": [],
+      "popupFieldOrder": [
+        "PROTOCOLO",
+        "ANO ENTRADA",
+        "MUNICIPIO",
+        "PROPRIETARIO",
+        "LOCALIZAÇÃO/ENDEREÇO",
+        "NOME DO EMPREENDIMENTO",
+        "Nº DE UNIDADES HABITACIONAIS",
+        "ÁREA TOTAL DA GLEBA/M²",
+        "DATA DE ENTRADA",
+        "DATA DO CERTIFICADO",
+        "Nº DO CERTIFICADO",
+        "SITUAÇÃO"
+      ],
+      "estilo": {
+        "fillColor": "#8b5cf6",
+        "strokeColor": "#8b5cf6",
+        "strokeWidth": 2,
+        "fillOpacity": 0.45,
+        "strokeOpacity": 0.9,
+        "pointRadius": 7,
+        "pointShape": "circle",
+        "smoothFactor": 2.5
+      }
+    },
+    {
+      "nome": "Loteamentos e Conj. Habitacionais",
+      "arquivo": "data/loteamentos_e_conj_habitacionais.geojson",
+      "visivel": true,
+      "opacity": 1,
+      "popupVisibleFields": [],
+      "popupFieldOrder": [
+        "PROTOCOLO",
+        "ANO ENTRADA",
+        "MUNICIPIO",
+        "NOME DO EMPREENDIMENTO",
+        "PROPRIETARIO",
+        "LOCALIZAÇÃO/ENDEREÇO",
+        "ÁREA TOTAL DA GLEBA/M²",
+        "Nº DE UNIDADES HABITACIONAIS",
+        "DATA DE ENTRADA",
+        "DATA DO CERTIFICADO",
+        "Nº DO CERTIFICADO",
+        "SITUAÇÃO"
+      ],
+      "estilo": {
+        "fillColor": "#ef4444",
+        "strokeColor": "#ef4444",
+        "strokeWidth": 2,
+        "fillOpacity": 0.45,
+        "strokeOpacity": 0.9,
+        "pointRadius": 7,
+        "pointShape": "circle",
+        "smoothFactor": 6
+      }
+    },
+    {
+      "nome": "Condominios Dispensados",
+      "arquivo": "data/condominios_dispensados.geojson",
+      "visivel": true,
+      "opacity": 1,
+      "popupVisibleFields": [],
+      "popupFieldOrder": [
+        "EXPEDIENTE DISPENSA",
+        "ANO ENTRADA",
+        "MUNICIPIO",
+        "PROPRIETARIO",
+        "NOME DO EMPREENDIMENTO",
+        "LOCALIZAÇÃO/ENDEREÇO",
+        "Nº DE UNIDADES HABITACIONAIS",
+        "ÁREA TOTAL DA GLEBA/M²",
+        "TIPOLOGIA DA CONSTRUÇÃO",
+        "DATA DO CERTIFICADO",
+        "SITUAÇÃO"
+      ],
+      "estilo": {
+        "fillColor": "#eab308",
+        "strokeColor": "#eab308",
+        "strokeWidth": 2,
+        "fillOpacity": 0.45,
+        "strokeOpacity": 0.9,
+        "pointRadius": 7,
+        "pointShape": "circle",
+        "smoothFactor": 2.5
+      }
+    },
+    {
+      "nome": "Desmembramentos Dispensados",
+      "arquivo": "data/desmembramentos_dispensados.geojson",
+      "visivel": true,
+      "opacity": 1,
+      "popupVisibleFields": [],
+      "popupFieldOrder": [
+        "EXPEDIENTE DISPENSA",
+        "ANO ENTRADA",
+        "MUNICIPIO",
+        "PROPRIETARIO",
+        "LOCALIZAÇÃO/ENDEREÇO",
+        "Nº DE UNIDADES HABITACIONAIS",
+        "ÁREA TOTAL DA GLEBA/M²",
+        "TIPOLOGIA DA CONSTRUÇÃO",
+        "DATA DO CERTIFICADO",
+        "SITUAÇÃO"
+      ],
+      "estilo": {
+        "fillColor": "#10b981",
+        "strokeColor": "#10b981",
+        "strokeWidth": 2,
+        "fillOpacity": 0.45,
+        "strokeOpacity": 0.9,
+        "pointRadius": 7,
+        "pointShape": "circle",
+        "smoothFactor": 2.5
+      }
+    },
+    {
+      "nome": "Desmembramentos Protocolados",
+      "arquivo": "data/desmembramentos_protocolados.geojson",
+      "visivel": true,
+      "opacity": 1,
+      "popupVisibleFields": [],
+      "popupFieldOrder": [
+        "PROTOCOLO",
+        "ANO ENTRADA",
+        "MUNICIPIO",
+        "PROPRIETARIO",
+        "LOCALIZAÇÃO/ENDEREÇO",
+        "NOME DO EMPREENDIMENTO",
+        "Nº DE UNIDADES HABITACIONAIS",
+        "ÁREA TOTAL DA GLEBA/M²",
+        "DATA DE ENTRADA",
+        "DATA DO CERTIFICADO",
+        "Nº DO CERTIFICADO",
+        "SITUAÇÃO",
+        "TIPO DE EMPREENDIMENTO"
+      ],
+      "estilo": {
+        "fillColor": "#0f172a",
+        "strokeColor": "#64748b",
+        "strokeWidth": 2,
+        "fillOpacity": 0.15,
+        "strokeOpacity": 0.9,
+        "pointRadius": 7,
+        "pointShape": "circle",
+        "smoothFactor": 2.5
+      }
+    }
+  ]
+}

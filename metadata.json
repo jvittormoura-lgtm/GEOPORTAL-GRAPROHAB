@@ -1,0 +1,8 @@
+{
+  "name": "Graproh@b | GeoPortal",
+  "description": "Plataforma oficial de informações geográficas e análise espacial do GRAPROHAB",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
